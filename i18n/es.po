@@ -19,10 +19,10 @@ msgstr "Nuevo consejo"
 
 #. file 'gtk/glade/tips.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "New Tip Reference\n"
 msgstr ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Nuevo consejo\n"
 
 #. file 'gtk/glade/tips.glade', line ?
@@ -65,10 +65,10 @@ msgstr "Preferencias"
 
 #. file 'gtk/glade/preferences.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Preferences\n"
 msgstr ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Preferencias\n"
 
 #. file 'gtk/glade/preferences.glade', line ?
@@ -184,8 +184,8 @@ msgstr "VNC"
 
 #. file 'gtk/glade/main.glade', line ?
 #. file 'gtk/glade/main.glade', line ?
-msgid "Monocaffe Connections Manager"
-msgstr "Monocaffe Connections Manager"
+msgid "MCM Connections Manager"
+msgstr "MCM Connections Manager"
 
 #. file 'gtk/glade/main.glade', line ?
 msgid "_File"
@@ -381,10 +381,10 @@ msgstr "Seleccionar archivo a importar"
 
 #. file 'gtk/glade/http.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Manage a HTTP Server\n"
 msgstr ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Gestionar un servidor HTTP\n"
 
 #. file 'gtk/glade/http.glade', line ?
@@ -405,10 +405,10 @@ msgstr "Añadir conexión"
 
 #. file 'gtk/glade/new_connection.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Add/Edit Connection\n"
 msgstr ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Añadir/Editar conexión\n"
 
 #. file 'gtk/glade/new_connection.glade', line ?
@@ -429,10 +429,10 @@ msgstr "Editar conexiones"
 
 #. file 'gtk/glade/edit_connections.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Manage your connections\n"
 msgstr ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Administra tus conexiones\n"
 
 #. file 'gtk/glade/edit_connections.glade', line ?
@@ -453,10 +453,10 @@ msgstr "Exportar CSV"
 
 #. file 'gtk/glade/import_progress.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Importing Connections\n"
 msgstr ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Importando conexiones\n"
 
 #. file 'gtk/glade/import_progress.glade', line ?
@@ -580,8 +580,8 @@ msgid "Set For Clustered Commands"
 msgstr "Marcar para órdenes agrupadas"
 
 #. file 'common/constants.py', line 149
-msgid "Quitting Monocaffe Connections Manager"
-msgstr "Abandonando Monocaffe Connections Manager"
+msgid "Quitting MCM Connections Manager"
+msgstr "Abandonando MCM Connections Manager"
 
 #. file 'common/constants.py', line 151
 msgid ""

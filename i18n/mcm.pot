@@ -16,7 +16,7 @@ msgstr ""
 
 #. file 'gtk/glade/tips.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "New Tip Reference\n"
 ""
 msgstr ""
@@ -55,7 +55,7 @@ msgstr ""
 
 #. file 'gtk/glade/preferences.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Preferences\n"
 ""
 msgstr ""
@@ -163,7 +163,7 @@ msgstr ""
 
 #. file 'gtk/glade/main.glade', line ?
 #. file 'gtk/glade/main.glade', line ?
-msgid "Monocaffe Connections Manager"
+msgid "MCM Connections Manager"
 msgstr ""
 
 #. file 'gtk/glade/main.glade', line ?
@@ -355,7 +355,7 @@ msgstr ""
 
 #. file 'gtk/glade/http.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Manage a HTTP Server\n"
 ""
 msgstr ""
@@ -378,7 +378,7 @@ msgstr ""
 
 #. file 'gtk/glade/new_connection.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Add/Edit Connection\n"
 ""
 msgstr ""
@@ -401,7 +401,7 @@ msgstr ""
 
 #. file 'gtk/glade/edit_connections.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Manage your connections\n"
 ""
 msgstr ""
@@ -424,7 +424,7 @@ msgstr ""
 
 #. file 'gtk/glade/import_progress.glade', line ?
 msgid ""
-"<b>Monocaffe Connections Manager</b>\n"
+"<b>MCM Connections Manager</b>\n"
 "Importing Connections\n"
 ""
 msgstr ""
@@ -535,7 +535,7 @@ msgid "Set For Clustered Commands"
 msgstr ""
 
 #. file 'common/constants.py', line 149
-msgid "Quitting Monocaffe Connections Manager"
+msgid "Quitting MCM Connections Manager"
 msgstr ""
 
 #. file 'common/constants.py', line 151

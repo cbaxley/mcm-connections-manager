@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Uninstall Script for Monocaffe Connections Manager
+# Uninstall Script for MCM Connections Manager
 # Please run as root
 #
 # This script is based on the one of pyjama.

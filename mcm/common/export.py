@@ -2,20 +2,20 @@
 #
 # Copyright (C) 2009 Alejandro Ayuso
 #
-# This file is part of the Monocaffe Connection Manager
+# This file is part of the MCM Connection Manager
 #
-# Monocaffe Connection Manager is free software: you can redistribute
+# MCM Connection Manager is free software: you can redistribute
 # it and/or modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# Monocaffe Connection Manager is distributed in the hope that it will
+# MCM Connection Manager is distributed in the hope that it will
 # be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
 # of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with the Monocaffe Connection Manager. If not, see
+# with the MCM Connection Manager. If not, see
 # <http://www.gnu.org/licenses/>.
 #
 
@@ -44,7 +44,7 @@ class Html(object):
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-<head><title>Monocaffe Connections Manager Generated HTML \
+<head><title>MCM Connections Manager Generated HTML \
 Connections File</title>
 <style type="text/css">
 body{background-color:#b0c4de;}
@@ -83,7 +83,7 @@ color: #339;
 </style>
 </head>
 <body>
-<h2>Monocaffe Connections Manager</h2>
+<h2>MCM Connections Manager</h2>
         """
         return header
 

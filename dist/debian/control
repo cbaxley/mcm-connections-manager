@@ -11,15 +11,15 @@ Depends: dialog, lftp, openssh-client, vncviewer, rdesktop,
  python-xdg, python-gtk-vnc
 Maintainer: Alejandro Ayuso <alejandroayuso@gmail.com>
 Description: Manage your connections to different servers
- Monocaffe Connections Manager is a set of tools to ease the 
+ MCM Connections Manager is a set of tools to ease the 
  management of several servers. It's aimed at network or system 
  administrators who need to connect every day to different 
  servers by different means.
- Monocaffe Connectios Manager for your console.
+ MCM Connectios Manager for your console.
  Using the ncurses dialog utility, mcm allows you to manage 
  your connections without an X server running.
  .
- Monocaffe Connections Manager for GNOME.
+ MCM Connections Manager for GNOME.
  Is a complete GUI replacement for the gnome terminal which allows 
  you to manage your connections, cluster mode (for sending commands 
  for several servers at the same time) and support for ssh, ftp, 
