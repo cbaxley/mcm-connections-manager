@@ -1,0 +1,10 @@
+Package: mcm
+Version: 0.9.3
+Section: net
+Priority: optional
+Architecture: all
+Essential: no
+Depends: dialog, lftp, openssh-client, vncviewer, rdesktop, python (>= 2.6.0), python-gtk2, python-vte, python-glade2, python-xdg, python-gtk-vnc
+Installed-Size: 588
+Maintainer: Alejandro Ayuso <alejandroayuso@gmail.com>
+Description: Manage your connections to different servers

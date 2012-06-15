@@ -1,0 +1,10 @@
+eclipse.preferences.version=1
+encoding//mcm/common/configurations.py=utf-8
+encoding//mcm/common/connections.py=utf-8
+encoding//mcm/common/constants.py=utf-8
+encoding//mcm/common/export.py=utf-8
+encoding//mcm/common/utils.py=utf-8
+encoding//mcm/gtk/mcm-gtk.py=utf-8
+encoding//mcm/gtk/widgets.py=utf-8
+encoding//mcm/terminal/mcm-add.py=utf-8
+encoding//mcm/terminal/mcm-terminal.py=utf-8
