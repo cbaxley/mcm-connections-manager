@@ -37,7 +37,7 @@
 # of the commands isn't found, is the file connections.py. There you'll find the global tuples where
 # the paths to the clients are specified. You can change them freely.
 #
-# Also, if you preffer to change any of them to be the first, do so modifying the tuples mentioned
+# Also, if you prefer to change any of them to be the first, do so modifying the tuples mentioned
 # before.
 #
 
@@ -46,6 +46,7 @@ gtk_dir="${inst_dir}/gtk/"
 binary=$( basename ${0} )
 old_pythonpath=${PYTHONPATH}
 
+# http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
 xdg_data="${HOME}/.local/share/"
 xdg_config="${HOME}/.config/"
 
@@ -54,14 +55,12 @@ mcm_config="${xdg_config}mcm"
 
 src_config_file="${inst_dir}/doc/mcm.conf"
 src_tips_file="${inst_dir}/doc/tips.json"
-src_cxs_file="${inst_dir}/doc/mcm.xml"
 
 # Test for first run
 if [ ! -d "${mcm_data}" ] ; then
     echo "Copying default data files to ${mcm_data}"
     mkdir ${mcm_data}
     cp ${src_tips_file}   ${mcm_data} 
-    cp ${src_cxs_file}    ${mcm_data}
 fi
 
 if [ ! -d "${mcm_config}" ] ; then
@@ -76,10 +75,6 @@ if [ ! -f "${mcm_data}/tips.json" ]; then
     cp ${src_tips_file} ${mcm_data}
 fi
 
-if [ ! -f "${mcm_data}/mcm.xml" ]; then
-    cp ${src_cxs_file} ${mcm_data}
-fi
-
 if [ ! -f "${mcm_config}/mcm.conf" ]; then
     cp ${src_config_file} ${mcm_conf}
 fi
@@ -90,7 +85,6 @@ fi
 
 if [ -d "${HOME}/.mcm" ] ; then
     mv "${HOME}/.mcm/mcm.conf" ${mcm_config}
-    mv "${HOME}/.mcm/mcm.xml" ${mcm_data}
     mv "${HOME}/.mcm/tips.json" ${mcm_data}
     rmdir "${HOME}/.mcm"
 fi
