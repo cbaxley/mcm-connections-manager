@@ -36,8 +36,8 @@ from mcm.common.constants import *
 class Mcm(object):
     def __init__(self):
         self.dialog_binary = '/usr/bin/dialog'
-        self.dao = Dao()
-        self.connections = self.dao.read_xml()
+        self.connections = ConnectionStore()
+        self.connections.load()
 
     def do_connect(self, connection):
         connection.print_connection(connection.conn_args())
@@ -111,7 +111,7 @@ class Mcm(object):
                 print("Description:")
                 cx_desc = raw_input()
 
-                cx = connections_factory(get_last_id(self.connections), cx_type, cx_user, cx_host, cx_alias, cx_password, cx_port, cx_group, cx_options, cx_desc)
+                # cx = connections_factory(get_last_id(self.connections), cx_type, cx_user, cx_host, cx_alias, cx_password, cx_port, cx_group, cx_options, cx_desc)
                 self.connections[cx_alias] = cx
                 print("saved")
                 print(cx)
@@ -126,7 +126,7 @@ class Mcm(object):
                 if self.connections.has_key(alias):
                     print "Not saving %s" % alias
                     continue
-                cx = connections_factory(get_last_id(self.connections), d['type'], d['user'], d['host'], alias, d['password'], d['port'], d['group'], d['options'], d['description'])
+                # cx = connections_factory(get_last_id(self.connections), d['type'], d['user'], d['host'], alias, d['password'], d['port'], d['group'], d['options'], d['description'])
                 self.connections[alias] = cx
                 print("saved")
                 print(cx)

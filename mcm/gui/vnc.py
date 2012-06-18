@@ -27,7 +27,7 @@ from time import strftime
 from mcm.common.constants import *
 from widgets import UtilityDialogs
 
-class McmVncClient(object):
+class MCMVncClient(object):
     def __init__(self, host, port):
         self.host = host
         self.port = port

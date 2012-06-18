@@ -24,32 +24,30 @@ Main Script for mcm gtk
 '''
 
 import gtk
-from gtk import glade
-import pygtk
-import logging
-import os
-import sys
+import gtk.glade as glade
 import vte
 import webbrowser
 import gettext
-import locale
-pygtk.require("2.0")
+
 
 from subprocess import Popen
+from vnc import MCMVncClient
+from mcm.common import constants
+from mcm.common.configurations import McmConfig
+from mcm.common.connections import ConnectionStore, types
+from mcm.common.export import ExportCsv, Html
+from mcm.common.utils import Csv
+from mcm.gui.widgets import AddConnectionDialog, UtilityDialogs, McmCheckbox, \
+    FileSelectDialog, ImportProgressDialog, DefaultColorSettings, \
+    ManageConnectionsDialog, PreferencesDialog
 
-from mcm.common.connections import *
-from mcm.common.export import *
-from mcm.common.utils import *
-import mcm.common.constants
 
-from widgets import *
-from mcmvnc import McmVncClient
 
 for module in glade, gettext:
     module.bindtextdomain('mcm', constants.local_path)
     module.textdomain('mcm')
 
-class McmGtk(object):
+class MCMGtk(object):
 
     def __init__(self):
         self.builder = gtk.Builder()
@@ -214,7 +212,7 @@ class McmGtk(object):
         v.connect("child-exited", lambda term: self.die_term_event(scroll, terminals))
         v.connect("button-press-event", self.do_popup_console_menu)
         v.connect("key-press-event", self.terminal_key_event)
-        pid = v.fork_command()
+        v.fork_command()
         if connection != None:
             v.feed_child(connection.gtk_cmd())
         self.assign_key_binding(constants.tabs_switch_keys % (index + 1), self.switch_tab)
@@ -291,11 +289,10 @@ class McmGtk(object):
         terminals.set_tab_label(scroll, label)
         self.set_window_title(text)
 
-    def draw_column(self, tree, title, id):
-        tree.append_column(self.new_column(title, id))
+    def draw_column(self, tree, title, _id):
+        tree.append_column(self.new_column(title, _id))
 
     def draw_consoles(self):
-        cluster_tabs = {}
         terminals = self.widgets['terminals']
         pages = terminals.get_n_pages()
         conf = McmConfig()
@@ -347,8 +344,8 @@ class McmGtk(object):
 
     def draw_entry(self, widget_name, text, tooltip_text=""):
         entry = self.widgets[widget_name]
-        entry_default_color = self.default_color
-        entry_default_state = gtk.STATE_NORMAL
+        # entry_default_color = self.default_color
+        # entry_default_state = gtk.STATE_NORMAL
         entry.set_text(text)
         entry.modify_base(gtk.STATE_NORMAL, self.default_color)
         entry.set_tooltip_text(tooltip_text)
@@ -391,7 +388,6 @@ class McmGtk(object):
             # Menu Items
             'on_mb_about_activate': self.about_event,
             'on_mb_help_activate': self.help_event,
-            'on_mb_feedback_activate': self.feedback_event,
             'on_mb_preferences_activate': self.preferences_event,
             'on_mb_save_activate': self.save_event,
             'on_mb_import_activate': self.import_csv_event,
@@ -468,16 +464,13 @@ class McmGtk(object):
         if tree == None:
             tree = self.widgets['cx_tree']
         cursor = tree.get_selection()
-        model = tree.get_model()
-        (model, iter) = cursor.get_selected()
-        if iter == None:
+        # model = tree.get_model()
+        (model, i) = cursor.get_selected()
+        if i == None:
             return None
-        alias = model.get_value(iter, 0)
+        alias = model.get_value(i, 0)
         return alias
  
-    def feedback_event(self, widget):
-        webbrowser.open_new_tab(constants.google_feedback_form_url)
-
     def help_event(self, widget):
         webbrowser.open_new_tab(constants.mcm_help_url)
 
@@ -607,10 +600,10 @@ class McmGtk(object):
             self.draw_tree()
         dlg.destroy()
 
-    def new_column(self, title, id):
-        column = gtk.TreeViewColumn(title, gtk.CellRendererText(), text=id)
+    def new_column(self, title, _id):
+        column = gtk.TreeViewColumn(title, gtk.CellRendererText(), text=_id)
         column.set_resizable(True)
-        column.set_sort_column_id(id)
+        column.set_sort_column_id(_id)
         return column
 
     def on_status_icon_activate(self, widget):
@@ -662,7 +655,7 @@ class McmGtk(object):
         label = gtk.Label(connection.alias)
         label.set_tooltip_text(connection.description)
 
-        menu_label = gtk.Label(connection.alias)
+        # menu_label = gtk.Label(connection.alias)
 
         socket = gtk.Socket()
         #index = terminals.append_page_menu(socket, label, menu_label)
@@ -742,19 +735,19 @@ class McmGtk(object):
         alias = self.get_tree_selection()
         connection = self.connections.get(alias)
         wid_name = widget.get_name()
-        property = widget.get_text()
+        prop = widget.get_text()
         if wid_name == "user_entry":
-            connection.user = property
+            connection.user = prop
         elif wid_name == "host_entry":
-            connection.host = property
+            connection.host = prop
         elif wid_name == "port_entry":
-            connection.port = property
+            connection.port = prop
         elif wid_name == "options_entry":
-            connection.options = property
+            connection.options = prop
         elif wid_name == "description_entry":
-            connection.description = property
+            connection.description = prop
         elif wid_name == "pwd_entry":
-            connection.password = property
+            connection.password = prop
         self.connections.add(alias, connection)
         self.draw_connection_widgets(self.get_tree_selection())
 
@@ -771,7 +764,7 @@ class McmGtk(object):
         label = gtk.Label(connection.alias)
         label.set_tooltip_text(connection.description)
         menu_label = gtk.Label(connection.alias)
-        vnc_client = McmVncClient(connection.host, connection.port)
+        vnc_client = MCMVncClient(connection.host, connection.port)
         vnc_box = vnc_client.get_instance()
         index = terminals.append_page_menu(vnc_box, label, menu_label)
         terminals.set_tab_reorderable(vnc_box, True)
@@ -796,5 +789,5 @@ if __name__ == '__main__':
     # log_format = "%(asctime)s %(levelname)s: %(message)s"
     # logging.basicConfig(level=logging.INFO, format = log_format)
 
-    mcmgtk = McmGtk()
+    mcmgtk = MCMGtk()
     gtk.main()
