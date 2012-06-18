@@ -42,9 +42,7 @@
 #
 
 inst_dir="/usr/share/apps/mcm"
-gtk_dir="${inst_dir}/gtk/"
 binary=$( basename ${0} )
-old_pythonpath=${PYTHONPATH}
 
 # http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
 xdg_data="${HOME}/.local/share/"
@@ -89,12 +87,9 @@ if [ -d "${HOME}/.mcm" ] ; then
     rmdir "${HOME}/.mcm"
 fi
 
-export PYTHONPATH="/usr/share/apps/"
-
 if [ "${binary}" == "mcm" ] ; then
-    /usr/bin/python ${inst_dir}/terminal/mcm-terminal.py ${@}
+    /usr/bin/python ${inst_dir}/terminal/term.py ${@}
 else
-    /usr/bin/python ${inst_dir}/gtk/mcm-gtk.py &
+    /usr/bin/python ${inst_dir}/gui/ui.py &
 fi
 
-export PYTHONPATH="${old_pythonpath}"
