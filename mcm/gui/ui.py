@@ -50,22 +50,16 @@ for module in glade, gettext:
 class MCMGtk(object):
 
     def __init__(self):
+        self.conf = McmConfig()
         self.builder = gtk.Builder()
         self.builder.add_from_file(constants.glade_main)
         self.widgets = self.init_widgets()
         self.builder.connect_signals(self.events())
 
-        # I don't feel like the status icon is a good idea now that mcm is what it is
-        # self.init_status_icon(constants.glade_home)
-
-        # self.dao = Dao()
-        # self.connections = self.dao.read_xml()
-        
         self.connections = ConnectionStore()
         self.connections.load()
         
         self.draw_tree()
-        #self.init_tips_menu()
         self.init_main_window()
 
     def about_event(self, widget):
@@ -85,6 +79,10 @@ class MCMGtk(object):
         accel_group = self.widgets['accel_group']
         key, mod = gtk.accelerator_parse(key_binding)
         accel_group.connect_group(key, mod, gtk.ACCEL_VISIBLE, callback)
+        
+    def assign_tab_switch_binding(self, index):
+        key = self.conf.get_kb_tab_switch() + '%d'
+        self.assign_key_binding(key % index, self.switch_tab)
 
     def clear_cluster_event(self, widget):
         entry = self.widgets['cluster_entry']
@@ -141,12 +139,6 @@ class MCMGtk(object):
         else:
             alias = widget.props.name
 
-        # OMG Someone broke this on GTK 2.17
-        #if widget.props.name == 'connect_button' or widget.props.name == 'mb_connect' or widget.props.name == 'connections_tree':
-        #    alias = self.get_tree_selection()
-        #else:
-        #    alias = widget.props.name
-
         self.do_connect(self.connections.get(alias))
 
     def delete_event(self, widget):
@@ -176,8 +168,7 @@ class MCMGtk(object):
         # Check for VNC Connections
         if connection:
             if connection.get_type() == "VNC":
-                conf = McmConfig()
-                client, options, embedded = conf.get_vnc_conf()
+                client, options, embedded = self.conf.get_vnc_conf()
                 if embedded:
                     return self.vnc_connect(connection)
 
@@ -215,9 +206,9 @@ class MCMGtk(object):
         v.fork_command()
         if connection != None:
             v.feed_child(connection.gtk_cmd())
-        self.assign_key_binding(constants.tabs_switch_keys % (index + 1), self.switch_tab)
-        self.assign_key_binding(constants.terminal_copy_keys, self.do_copy)
-        self.assign_key_binding(constants.terminal_paste_keys, self.do_paste)
+        self.assign_tab_switch_binding(index + 1)
+        self.assign_key_binding(self.conf.get_kb_copy(), self.do_copy)
+        self.assign_key_binding(self.conf.get_kb_paste(), self.do_paste)
         terminals.show_all()
         terminals.set_current_page(index)
         self.draw_consoles()
@@ -253,7 +244,6 @@ class MCMGtk(object):
             return False
 
     def do_popup_connections_menu(self, widget, event):
-        print "Click!"
         return False
 
     def do_copy(self, widget, var2=None, var3=None, var4=None):
@@ -295,33 +285,42 @@ class MCMGtk(object):
     def draw_consoles(self):
         terminals = self.widgets['terminals']
         pages = terminals.get_n_pages()
-        conf = McmConfig()
         for i in range(pages):
             scroll = terminals.get_nth_page(i)
             term = scroll.get_child()
-            color = gtk.gdk.color_parse(conf.get_bg_color())
-            term.set_color_background(color)
-            color = gtk.gdk.color_parse(conf.get_fg_color())
-            term.set_color_foreground(color)
-            opacity = (conf.get_bg_transparency() * 65535) / 100
-            if conf.get_bg_transparent():
-                term.set_background_image_file("")
-                term.set_background_transparent(True)
-                term.set_opacity(opacity)
-                term.set_background_saturation(opacity * 0.00001)
+                
+            if not self.conf.get_pallete():
+                term.set_default_colors()
             else:
-                if len(conf.get_bg_image()) > 1:
-                    term.set_background_image_file(conf.get_bg_image())
-                    term.set_background_transparent(False)
-                    term.set_opacity(100)
-                    term.set_background_saturation(opacity * 0.00001)
-                else:
-                    term.set_background_transparent(False)
-                    term.set_background_image_file("")
+                colors = []
+                for color in self.conf.get_pallete():
+                    colors.append(self.color_parse(color))
+                term.set_colors(colors[0], colors[1], colors)
+            
+            #color = self.color_parse(self.conf.get_bg_color())
+            #term.set_color_background(color)
+            #color = self.color_parse(self.conf.get_fg_color())
+            #term.set_color_foreground(color)
+            #term.set_default_colors()
+            #if self.conf.get_bg_transparent():
+                #print "Transparent mode"
+                #term.set_background_image_file("")
+                #term.set_background_transparent(True)
+                #term.set_opacity(30000)
+                #term.set_background_saturation(0.5)
+            #else:
+                #if len(self.conf.get_bg_image()) > 1:
+                    #term.set_background_image_file(self.conf.get_bg_image())
+                    #term.set_background_transparent(False)
+                    #term.set_opacity(100)
+                    #term.set_background_saturation(self.conf.get_bg_saturation())
+                #else:
+                    #term.set_background_transparent(False)
+                    #term.set_background_image_file("")
 
-            term.set_font(conf.get_font())
-            term.set_word_chars(conf.get_word_chars())
-            term.set_scrollback_lines(conf.get_buffer_size())
+            term.set_font(self.conf.get_font())
+            term.set_word_chars(self.conf.get_word_chars())
+            term.set_scrollback_lines(self.conf.get_buffer_size())
 
     def draw_connection_widgets(self, alias):
         if alias == None:
@@ -401,22 +400,13 @@ class MCMGtk(object):
             'on_mb_cluster_toggled': self.hide_unhide_cluster_box,
             'on_mb_view_tree_toggled': self.hide_unhide_tree,
             'on_mb_tips_toggled': self.hide_unhide_tips,
-            #'on_mb_update_tips_activate': self.update_tips,
-            #'on_mb_http_server_activate': self.http_server,
             'on_mb_edit_activate': self.edit_event,
-            # Status Icon Items
-            'on_sib_quit_activate': self.quit_event,
-            'on_sib_preferences_activate': self.preferences_event,
-            'on_sib_add_activate': self.add_event,
-            'on_sib_quit_activate': self.quit_event,
-            'on_status_icon_menu_deactivate': self.on_status_icon_deactivate,
-            'on_sib_home_activate': self.do_localhost,
             # Tree signals
             'on_connections_tree_row_activated': self.connect_event,
             'on_home_button_clicked': self.do_localhost,
             'on_connections_tree_cursor_changed': self.on_tree_item_clicked,
             'on_connections_tree_button_press_event': self.tree_submenu_event,
-            # Entries Signales
+            # Entries Signals
             'on_user_entry_activate': self.update_connection,
             'on_user_entry_changed': self.entry_changed_event,
             'on_host_entry_activate': self.update_connection,
@@ -434,8 +424,6 @@ class MCMGtk(object):
             'on_cluster_entry_activate': self.cluster_intro_event,
             'on_cluster_entry_backspace': self.cluster_backspace,
             # Notebook Signals
-            #'on_terminals_change_current_page': self.switch_tab_event,
-            #'on_terminals_select_page': self.switch_tab_event,
             'on_terminals_switch_page': self.switch_tab_event}
         return events
 
@@ -514,6 +502,7 @@ class MCMGtk(object):
             self.draw_tree()
 
     def init_main_window(self):
+        
         main_window = self.widgets['window']
         settings = gtk.settings_get_default()
         settings.props.gtk_menu_bar_accel = None
@@ -521,41 +510,25 @@ class MCMGtk(object):
         accel_group = gtk.AccelGroup()
         main_window.add_accel_group(accel_group)
         self.widgets['accel_group'] = accel_group
-        self.assign_key_binding(constants.hide_connections_keys, self.hide_unhide_tree)
-        self.assign_key_binding(constants.terminal_home_keys, self.do_localhost)
+        self.assign_key_binding(self.conf.get_kb_hide(), self.hide_unhide_tree)
+        self.assign_key_binding(self.conf.get_kb_home(), self.do_localhost)
         self.assign_key_binding('F10', self.f10_event)
-        self.assign_key_binding(constants.tab_close_keys, self.close_tab_event)
+        self.assign_key_binding(self.conf.get_kb_tab_close(), self.close_tab_event)
         main_window.connect("delete-event", self.x_event)
 
         # Grab the default color
         try:
             self.default_color = DefaultColorSettings().base_color
         except AttributeError:
-            self.default_color = gtk.gdk.color_parse('white')
+            self.default_color = self.color_parse('white')
 
-        # Until I figure if I want this I'll disable it
-        # mb_http_server = self.widgets['mb_http_server']
-        # mb_http_server.hide()
-
-        #Remove the first tab from the notebook
+        #Remove the first tab from the notebook and add a localhost
         self.terminals = self.widgets["terminals"]
         self.terminals.remove_page(0)
+        self.do_connect(None)
 
         main_window.show()
         self.hide_unhide_cluster_box(self.widgets['mb_cluster'])
-
-    def init_status_icon(self, glade_home):
-        self.status_icon = gtk.StatusIcon()
-        self.status_icon.set_from_file(constants.icon_file)
-        self.status_icon.set_tooltip(constants.app_name)
-        self.status_icon.set_visible(True)
-        self.status_icon.connect('activate', self.on_status_icon_activate)
-        self.status_icon.connect('popup-menu', self.on_status_icon_popup)
-
-    #def init_tips_menu(self):
-        #tips_hbox = self.widgets["tips_hbox"]
-        # Make this global so I can update the tips
-        #self.tips_widget = McmTipsWidget(tips_hbox)
 
     def init_widgets(self):
         widgets = {
@@ -581,7 +554,6 @@ class MCMGtk(object):
             'mb_cluster': self.builder.get_object("mb_cluster"),
             'mb_view_tree': self.builder.get_object("mb_view_tree"),
             'statusbar': self.builder.get_object("statusbar1"),
-            'mb_http_server': self.builder.get_object("mb_http_server"),
             'menu2': self.builder.get_object("menu2"),
             # Tips Menu
             'tips_menubar': self.builder.get_object("tips_menubar"),
@@ -594,8 +566,6 @@ class MCMGtk(object):
         dlg = ManageConnectionsDialog(self.connections, self.connections.get_groups(), types())
         dlg.run()
         if dlg.response is gtk.RESPONSE_OK:
-            print "Saving"
-            #self.dao.save_to_xml(dlg.connections.values())
             self.connections.save()
             self.draw_tree()
         dlg.destroy()
@@ -606,35 +576,14 @@ class MCMGtk(object):
         column.set_sort_column_id(_id)
         return column
 
-    def on_status_icon_activate(self, widget):
-        main_window = self.widgets['window']
-        if main_window.props.visible:
-            main_window.hide()
-        else:
-            main_window.show()
-
-    def on_status_icon_deactivate(self, widget):
-        cx_menu = self.widgets['connections_menu']
-        for i in cx_menu.get_children():
-            cx_menu.remove(i)
-
     def on_tree_item_clicked(self, widget):
         self.draw_connection_widgets(self.get_tree_selection(widget))
 
-    def on_status_icon_popup(self, status, button, time):
-        cx_menu = self.widgets['connections_menu']
-        for k in self.connections.keys():
-            cx_item = gtk.MenuItem(k)
-            cx_item.props.name = k
-            cx_item.connect('activate', self.connect_event)
-            cx_item.show()
-            cx_menu.append(cx_item)
-
-        s_i_menu = self.widgets['status_icon_menu']
-        s_i_menu.popup(None, None, None, button, time)
+    def color_parse(self, color_name):
+        return gtk.gdk.color_parse(color_name)
 
     def preferences_event(self, widget):
-        dlg = PreferencesDialog()
+        dlg = PreferencesDialog(self.conf)
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
             self.draw_consoles()
@@ -662,15 +611,13 @@ class MCMGtk(object):
         index = terminals.append_page(socket)
         sock_id = socket.get_id()
         cmd = ["rdesktop", "-K", "-X", str(sock_id), str(connection.host)]
-        print cmd
         Popen(cmd)
         terminals.set_tab_reorderable(socket, True)
-        self.assign_key_binding(constants.tabs_switch_keys % (index + 1), self.switch_tab)
+        self.assign_tab_switch_binding(index + 1)
         terminals.show_all()
         terminals.set_current_page(index)
 
     def save_event(self, widget):
-        # self.dao.save_to_xml(self.connections.values())
         self.connections.save()
 
     def switch_tab(self, accel_group, window, keyval, modifier):
@@ -769,7 +716,7 @@ class MCMGtk(object):
         index = terminals.append_page_menu(vnc_box, label, menu_label)
         terminals.set_tab_reorderable(vnc_box, True)
         vnc_client.vnc.connect("vnc-disconnected", lambda term: self.vnc_disconnect(vnc_box, terminals))
-        self.assign_key_binding(constants.tabs_switch_keys % (index + 1), self.switch_tab)
+        self.assign_tab_switch_binding(index + 1)
         terminals.show_all()
         terminals.set_current_page(index)
 
