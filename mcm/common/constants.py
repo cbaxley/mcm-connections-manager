@@ -37,12 +37,11 @@ home = os.getenv("HOME")
 mcm_config_dir = os.path.join(xdg_config_home, 'mcm')
 mcm_data_dir = os.path.join(xdg_data_home, 'mcm')
 glade_home = os.path.realpath(os.path.dirname(sys.argv[0]))
-icon_file = os.path.join(glade_home, "mcm_icon.png")
+icon_file = os.path.join(glade_home, "internet-network-preferences-tools-icone-5174-32.png")
 tips_file = os.path.join(mcm_data_dir, "tips.json")
 conf_file = os.path.join(mcm_config_dir, "mcm.conf")
-cxs_file = os.path.join(mcm_data_dir, "mcm.xml")
 cxs_json = os.path.join(mcm_data_dir, "mcm.json")
-error_dialog = os.path.join(glade_home, "mcm-error-dialog.py")
+error_dialog = os.path.join(glade_home, "error.py")
 
 # New Glade Files for GtkBuilder
 glade_home = os.path.join(glade_home, "glade")
@@ -110,13 +109,6 @@ tip_error = _("Not a Tip Object")
 deleting_connection_warning = _("Deleting Connection %s")
 are_you_sure = _("Are you sure?")
 
-tabs_switch_keys = "<Alt>%d"
-tab_close_keys = "<Shift><Ctrl>w"
-terminal_copy_keys = "<Shift><Ctrl>c"
-terminal_paste_keys = "<Shift><Ctrl>v"
-terminal_home_keys = "<Shift><Ctrl>T"
-hide_connections_keys = "F2"
-
 copy = _("Copy")
 paste = _("Paste")
 google_search = _("Google Search")
@@ -161,3 +153,20 @@ col_title_host = _("Host")
 col_title_port = _("Port")
 col_title_user = _("Username")
 col_title_opts = _("Options")
+
+# color palettes
+color_palletes = {
+                  'Default':None,
+                  'rxvt': '#cdcd00000000:#000000000000:#0000cdcd0000:#cdcdcdcd0000:#00000000cdcd:#cdcd0000cdcd:#0000cdcdcdcd:#fafaebebd7d7:#404040404040:#ffff00000000:#0000ffff0000:#ffffffff0000:#00000000ffff:#ffff0000ffff:#0000ffffffff:#ffffffffffff',
+                  'xterm': '#cdcb00000000:#000000000000:#0000cdcb0000:#cdcbcdcb0000:#1e1a908fffff:#cdcb0000cdcb:#0000cdcbcdcb:#e5e2e5e2e5e2:#4ccc4ccc4ccc:#ffff00000000:#0000ffff0000:#ffffffff0000:#46458281b4ae:#ffff0000ffff:#0000ffffffff:#ffffffffffff',
+                  'Tango' : '#cccc00000000:#000000000000:#4e4e9a9a0606:#c4c4a0a00000:#34346565a4a4:#757550507b7b:#060698209a9a:#d3d3d7d7cfcf:#555557575353:#efef29292929:#8a8ae2e23434:#fcfce9e94f4f:#72729f9fcfcf:#adad7f7fa8a8:#3434e2e2e2e2:#eeeeeeeeecec',
+                  'Xubuntu Light': '#404040404040:#cececececece:#4e4e9a9a0606:#c4c4a0a00000:#34346565a4a4:#757550507b7b:#060698209a9a:#d3d3d7d7cfcf:#555557575353:#efef29292929:#8a8ae2e23434:#fcfce9e94f4f:#72729f9fcfcf:#adad7f7fa8a8:#3434e2e2e2e2:#eeeeeeeeecec', 
+                  'Xubuntu Dark': '#cececececece:#404040404040:#4e4e9a9a0606:#c4c4a0a00000:#34346565a4a4:#757550507b7b:#060698209a9a:#d3d3d7d7cfcf:#555557575353:#efef29292929:#8a8ae2e23434:#fcfce9e94f4f:#72729f9fcfcf:#adad7f7fa8a8:#3434e2e2e2e2:#eeeeeeeeecec', 
+                  'Zenburn': '#CCCC93939393:#3F3F3F3F3F3F:#7F7F9F9F7F7F:#E3E3CECEABAB:#DFDFAFAF8F8F:#CCCC93939393:#8C8CD0D0D3D3:#DCDCDCDCCCCC:#3F3F3F3F3F3F:#CCCC93939393:#7F7F9F9F7F7F:#E3E3CECEABAB:#DFDFAFAF8F8F:#CCCC93939393:#8C8CD0D0D3D3:#DCDCDCDCCCCC'
+                  }
+#palette_xubuntu_light =     ['#404040404040:#cececececece:#4e4e9a9a0606:#c4c4a0a00000:#34346565a4a4:#757550507b7b:#060698209a9a:#d3d3d7d7cfcf:#555557575353:#efef29292929:#8a8ae2e23434:#fcfce9e94f4f:#72729f9fcfcf:#adad7f7fa8a8:#3434e2e2e2e2:#eeeeeeeeecec']
+#palette_xubuntu_dark =      ['#cececececece:#404040404040:#4e4e9a9a0606:#c4c4a0a00000:#34346565a4a4:#757550507b7b:#060698209a9a:#d3d3d7d7cfcf:#555557575353:#efef29292929:#8a8ae2e23434:#fcfce9e94f4f:#72729f9fcfcf:#adad7f7fa8a8:#3434e2e2e2e2:#eeeeeeeeecec']
+#palette_zenburn =           ['#CCCC93939393:#3F3F3F3F3F3F:#7F7F9F9F7F7F:#E3E3CECEABAB:#DFDFAFAF8F8F:#CCCC93939393:#8C8CD0D0D3D3:#DCDCDCDCCCCC:#3F3F3F3F3F3F:#CCCC93939393:#7F7F9F9F7F7F:#E3E3CECEABAB:#DFDFAFAF8F8F:#CCCC93939393:#8C8CD0D0D3D3:#DCDCDCDCCCCC']
+#palette_rxvt =              ['#000000000000:#cdcd00000000:#0000cdcd0000:#cdcdcdcd0000:#00000000cdcd:#cdcd0000cdcd:#0000cdcdcdcd:#fafaebebd7d7:#404040404040:#ffff00000000:#0000ffff0000:#ffffffff0000:#00000000ffff:#ffff0000ffff:#0000ffffffff:#ffffffffffff']
+#palette_xterm =             ['#000000000000:#cdcb00000000:#0000cdcb0000:#cdcbcdcb0000:#1e1a908fffff:#cdcb0000cdcb:#0000cdcbcdcb:#e5e2e5e2e5e2:#4ccc4ccc4ccc:#ffff00000000:#0000ffff0000:#ffffffff0000:#46458281b4ae:#ffff0000ffff:#0000ffffffff:#ffffffffffff']
+#palette_tango =             ['#000000000000:#cccc00000000:#4e4e9a9a0606:#c4c4a0a00000:#34346565a4a4:#757550507b7b:#060698209a9a:#d3d3d7d7cfcf:#555557575353:#efef29292929:#8a8ae2e23434:#fcfce9e94f4f:#72729f9fcfcf:#adad7f7fa8a8:#3434e2e2e2e2:#eeeeeeeeecec',]
