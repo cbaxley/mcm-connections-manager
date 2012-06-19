@@ -183,7 +183,6 @@ class AddConnectionDialog(object):
 
     def validate_alias(self, widget):
         alias = widget.get_text()
-        entry = self.widgets['alias_entry1']
         if alias in self.aliases:
             self.error = constants.alias_error
             widget.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FFADAD"))
@@ -310,21 +309,18 @@ class ImportProgressDialog(object):
 
 class PreferencesDialog(object):
 
-    def __init__(self):
+    def __init__(self, conf):
+        self.conf = conf
         self.response = gtk.RESPONSE_CANCEL
         self.builder = gtk.Builder()
         self.builder.add_from_file(constants.glade_preferences)
         self.dlg = self.builder.get_object('dialog_preferences')
         self.widgets = {
             # Consoles
-            'fg_colorbutton': self.builder.get_object('font-colorbutton'),
             'fontbutton': self.builder.get_object('fontbutton'),
+            'color_scheme_combo': self.builder.get_object('color_scheme_combo'),
             'buffer_hscale': self.builder.get_object('buffer-hscale'),
-            'chk_bg_transparent': self.builder.get_object('chk_bg_transparent'),
-            'transparency_hscale': self.builder.get_object('transparency-hscale'),
-            'bgimage_filechooserbutton': self.builder.get_object('bgimage-filechooserbutton'),
-            'bg_colorbutton': self.builder.get_object('bg-colorbutton'),
-            'clear_bg': self.builder.get_object('clear_image_button'),
+            'console_char_entry': self.builder.get_object('console_char_entry'),
             # Connections
             'ssh_options_entry': self.builder.get_object('ssh_default_options_entry'),
             'vnc_options_entry': self.builder.get_object('vnc_default_options_entry'),
@@ -336,46 +332,53 @@ class PreferencesDialog(object):
             'rdp_entry': self.builder.get_object('rdp_client_entry'),
             'telnet_entry': self.builder.get_object('telnet_client_entry'),
             'ftp_entry': self.builder.get_object('ftp_client_entry'),
-            'console_char_entry': self.builder.get_object('console_char_entry'),
             'vnc_embedded_chkbutton': self.builder.get_object('vnc_embedded_chkbutton')}
 
         events = {
             'on_dialog_preferences_close': self.close_event,
             'on_pref_cancel_button_clicked': self.close_event,
             'on_pref_appy_button_clicked': self.apply_event,
-            'on_clear_image_button_clicked': self.clear_event,
-            'on_vnc_embedded_chkbutton_toggled': self.toggle_vnc_embeded,
-            'on_chk_bg_transparent_toggled': self.toggle_transparency_event}
+            'on_vnc_embedded_chkbutton_toggled': self.toggle_vnc_embeded}
         self.builder.connect_signals(events)
-        self.fill_entries()
-        self.fill_console()
+        self.fill_controls()
 
     def close_event(self, widget):
         self.dlg.destroy()
+        
+    def init_combo(self, items, active_item=None):
+        cb = self.widgets['color_scheme_combo']
+        cb_index = self.set_model_from_list(cb, constants.color_palletes)
+        if active_item:
+            active = cb_index[active_item]
+            cb.set_active(active)
+        return cb
+            
+    def set_model_from_list(self, cb, items):
+        """
+            Setup a ComboBox or ComboBoxEntry based on a list of strings. Return
+            a map with the items as keys and the index in the store as the
+            value: { 'VAL1':0, 'VAL2':1 }
+        """           
+        model = gtk.ListStore(str)
+        index = {}
+        j = 0
+        for i in items:
+            model.append([i])
+            index[i] = j 
+            j += 1
+        cb.set_model(model)
+        if type(cb) == gtk.ComboBoxEntry:
+            cb.set_text_column(0)
+        elif type(cb) == gtk.ComboBox:
+            cell = gtk.CellRendererText()
+            cb.pack_start(cell, True)
+            cb.add_attribute(cell, 'text', 0)
+        return index
 
     def apply_event(self, widget):
-        self.save_connections_config()
-        self.save_console_config()
+        self.save_config()
         self.close_event(None)
         self.response = gtk.RESPONSE_OK
-
-    def clear_event(self, widget):
-        '''Set the bg image to None'''
-        bg_but = self.widgets['bgimage_filechooserbutton']
-        bg_but.set_filename("None")
-
-    def toggle_transparency_event(self, widget):
-        bg_button = self.widgets['bgimage_filechooserbutton']
-        bg_clear = self.widgets['clear_bg']
-        bg_color = self.widgets['bg_colorbutton']
-        if widget.get_active():
-            bg_button.set_sensitive(False)
-            bg_clear.set_sensitive(False)
-            bg_color.set_sensitive(False)
-        else:
-            bg_button.set_sensitive(True)
-            bg_clear.set_sensitive(True)
-            bg_color.set_sensitive(True)
 
     def toggle_vnc_embeded(self, widget):
         vnc_client = self.widgets['vnc_entry']
@@ -387,129 +390,50 @@ class PreferencesDialog(object):
             vnc_client.set_sensitive(True)
             vnc_options.set_sensitive(True)
             
-    def fill_entries(self):
-        conf = McmConfig()
-        #SSH
-        client, options = conf.get_ssh_conf()
-        e1 = self.widgets['ssh_entry']
-        e2 = self.widgets['ssh_options_entry']
-        e1.set_text(client)
-        e2.set_text(options)
-        #VNC
-        client, options, embedded = conf.get_vnc_conf()
-        e1 = self.widgets['vnc_entry']
-        e2 = self.widgets['vnc_options_entry']
-        e3 = self.widgets['vnc_embedded_chkbutton']
-        e1.set_text(client)
-        e2.set_text(options)
-        e3.set_active(embedded)
-        #Telnet
-        client, options = conf.get_telnet_conf()
-        e1 = self.widgets['telnet_entry']
-        e2 = self.widgets['telnet_options_entry']
-        e1.set_text(client)
-        e2.set_text(options)
-        #FTP
-        client, options = conf.get_ftp_conf()
-        e1 = self.widgets['ftp_entry']
-        e2 = self.widgets['ftp_options_entry']
-        e1.set_text(client)
-        e2.set_text(options)
-        #RDP
-        client, options = conf.get_rdp_conf()
-        e1 = self.widgets['rdp_entry']
-        e2 = self.widgets['rdp_options_entry']
-        e1.set_text(client)
-        e2.set_text(options)
+    def fill_controls(self):
+        #General
+        pango_font = self.conf.get_font()
+        self.widgets['fontbutton'].set_font_name(pango_font.to_string())
+        self.widgets['console_char_entry'].set_text(self.conf.get_word_chars())
+        self.widgets['buffer_hscale'].set_value(self.conf.get_buffer_size())
+        self.init_combo(constants.color_palletes, self.conf.get_pallete_name())
+        
+        client, options = self.conf.get_ssh_conf()
+        self.widgets['ssh_entry'].set_text(client)
+        self.widgets['ssh_options_entry'].set_text(options)
+        
+        client, options, embedded = self.conf.get_vnc_conf()
+        self.widgets['vnc_entry'].set_text(client)
+        self.widgets['vnc_options_entry'].set_text(options)
+        self.widgets['vnc_embedded_chkbutton'].set_active(embedded)
+        
+        client, options = self.conf.get_telnet_conf()
+        self.widgets['telnet_entry'].set_text(client)
+        self.widgets['telnet_options_entry'].set_text(options)
+        
+        client, options = self.conf.get_ftp_conf()
+        self.widgets['ftp_entry'].set_text(client)
+        self.widgets['ftp_options_entry'].set_text(options)
+        
+        client, options = self.conf.get_rdp_conf()
+        self.widgets['rdp_entry'].set_text(client)
+        self.widgets['rdp_options_entry'].set_text(options)
 
-    def fill_console(self):
-        conf = McmConfig()
-        widget = self.widgets['fg_colorbutton']
-        widget.set_color(gtk.gdk.color_parse(conf.get_fg_color()))
-        widget = self.widgets['fontbutton']
-        pango_font = conf.get_font()
-        widget.set_font_name(pango_font.to_string())
-        widget = self.widgets['chk_bg_transparent']
-        widget.set_active(conf.get_bg_transparent())
-        widget.toggled()
-        widget = self.widgets['transparency_hscale']
-        widget.set_value(conf.get_bg_transparency())
-        widget = self.widgets['bgimage_filechooserbutton']
-        widget.set_filename(conf.get_bg_image())
-        widget = self.widgets['bg_colorbutton']
-        widget.set_color(gtk.gdk.color_parse(conf.get_bg_color()))
-        widget = self.widgets['console_char_entry']
-        widget.set_text(conf.get_word_chars())
-        widget = self.widgets['buffer_hscale']
-        widget.set_value(conf.get_buffer_size())
-
-    def save_connections_config(self):
-        conf = McmConfig()
-        cfg = conf.get_connections_config()
-        #SSH
-        cfg['ssh.client'] = self.widgets['ssh_entry'].get_text()
-        cfg['ssh.default'] = self.widgets['ssh_options_entry'].get_text()
-        #VNC
-        cfg['vnc.client'] = self.widgets['vnc_entry'].get_text()
-        cfg['vnc.default'] = self.widgets['vnc_options_entry'].get_text()
-        cfg['vnc.embedded'] = str(self.widgets['vnc_embedded_chkbutton'].get_active())
-        #RDP
-        cfg['rdp.client'] = self.widgets['rdp_entry'].get_text()
-        cfg['rdp.default'] = self.widgets['rdp_options_entry'].get_text()
-        #TELNET
-        cfg['telnet.client'] = self.widgets['telnet_entry'].get_text()
-        cfg['telnet.default'] = self.widgets['telnet_options_entry'].get_text()
-        #FTP
-        cfg['ftp.client'] = self.widgets['ftp_entry'].get_text()
-        cfg['ftp.default'] = self.widgets['ftp_options_entry'].get_text()
-        conf.save_connections_config(cfg)
-
-    def save_console_config(self):
-        conf = McmConfig()
-        cfg = conf.get_console_config()
-
-        color = self.widgets['fg_colorbutton'].get_color()
-        cfg['fg.color'] = color.to_string().strip("#")
-        color = self.widgets['bg_colorbutton'].get_color()
-        cfg['bg.color'] = color.to_string().strip("#")
-
-        fname = self.widgets['bgimage_filechooserbutton'].get_filename()
-        if fname == None:
-            fname = "None"
-        cfg['bg.image'] = fname
-
-        active = self.widgets['chk_bg_transparent'].get_active()
-        cfg['bg.transparent'] = str(active)
-
-        value = self.widgets['transparency_hscale'].get_value()
-        value = int(value)
-        cfg['bg.transparency'] = str(value)
-
-        value = self.widgets['buffer_hscale'].get_value()
-        value = int(value)
-        cfg['buffer.size'] = str(value)
-
-        font = self.widgets['fontbutton'].get_font_name()
-        cfg['font.type'] = font
-
-        cfg['word.chars'] = self.widgets['console_char_entry'].get_text()
-        conf.save_console_config(cfg)
-
+    def save_config(self):
+        self.conf.set_ssh_conf(self.widgets['ssh_entry'].get_text(), self.widgets['ssh_options_entry'].get_text())
+        self.conf.set_ftp_conf(self.widgets['ftp_entry'].get_text(), self.widgets['ftp_options_entry'].get_text())
+        self.conf.set_telnet_conf(self.widgets['telnet_entry'].get_text(), self.widgets['telnet_options_entry'].get_text())
+        self.conf.set_rdp_conf(self.widgets['rdp_entry'].get_text(), self.widgets['rdp_options_entry'].get_text())
+        self.conf.set_vnc_conf(self.widgets['vnc_entry'].get_text(), self.widgets['vnc_options_entry'].get_text(), str(self.widgets['vnc_embedded_chkbutton'].get_active()))
+        self.conf.set_font(self.get_font())
+        self.conf.set_pallete_name(self.widgets['color_scheme_combo'].get_active_text())
+        self.conf.set_buffer_size(self.widgets['buffer_hscale'].get_value())
+        self.conf.set_word_chars(self.widgets['console_char_entry'].get_text())
+        self.conf.save_config()
+        
     def get_font(self):
         return self.widgets['fontbutton'].get_font_name()
-
-    def get_fg_color(self):
-        return self.widgets['fg_colorbutton'].get_color()
-
-    def get_bg_color(self):
-        return self.widgets['bg_colorbutton'].get_color()
-
-    def get_transparency(self):
-        return (self.widgets['chk_bg_transparent'].get_active(), self.widgets['transparency_hscale'].get_value())
-
-    def get_bg_image(self):
-        return self.widgets['bgimage_filechooserbutton'].get_filename()
-
+    
     def run(self):
         self.dlg.run()
 
@@ -589,10 +513,6 @@ class McmNewTipDialog(object):
         # Shall I add a "Are you sure" dialog when sending to google docs?
 
         self.new_tip = Tip(0, section, subsection, name, value)
-        if send:
-            gform = GoogleForm()
-            gform.send(self.new_tip)
-
         self.dlg.destroy()
         return True
 
@@ -873,8 +793,7 @@ class ManageConnectionsDialog(object):
         if col_title == constants.col_title_group:
             acx.group = new_value 
         elif col_title == constants.col_title_type:
-            _id = get_last_id(self.connections)
-            acx = connections_factory(_id, new_value,  acx.user, acx.host, acx.alias, acx.password, acx.port, acx.group, acx.options, acx.description)
+            acx = connections_factory(new_value,  acx.user, acx.host, acx.alias, acx.password, acx.port, acx.group, acx.options, acx.description)
         
         self.connections[alias] = acx
         self.redraw_tree()
