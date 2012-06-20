@@ -295,28 +295,7 @@ class MCMGtk(object):
                 colors = []
                 for color in self.conf.get_pallete():
                     colors.append(self.color_parse(color))
-                term.set_colors(colors[0], colors[1], colors)
-            
-            #color = self.color_parse(self.conf.get_bg_color())
-            #term.set_color_background(color)
-            #color = self.color_parse(self.conf.get_fg_color())
-            #term.set_color_foreground(color)
-            #term.set_default_colors()
-            #if self.conf.get_bg_transparent():
-                #print "Transparent mode"
-                #term.set_background_image_file("")
-                #term.set_background_transparent(True)
-                #term.set_opacity(30000)
-                #term.set_background_saturation(0.5)
-            #else:
-                #if len(self.conf.get_bg_image()) > 1:
-                    #term.set_background_image_file(self.conf.get_bg_image())
-                    #term.set_background_transparent(False)
-                    #term.set_opacity(100)
-                    #term.set_background_saturation(self.conf.get_bg_saturation())
-                #else:
-                    #term.set_background_transparent(False)
-                    #term.set_background_image_file("")
+                term.set_colors(colors[1], colors[0], colors[4:20])
 
             term.set_font(self.conf.get_font())
             term.set_word_chars(self.conf.get_word_chars())
@@ -401,6 +380,7 @@ class MCMGtk(object):
             'on_mb_view_tree_toggled': self.hide_unhide_tree,
             'on_mb_tips_toggled': self.hide_unhide_tips,
             'on_mb_edit_activate': self.edit_event,
+            'on_sib_home_activate': self.do_localhost,
             # Tree signals
             'on_connections_tree_row_activated': self.connect_event,
             'on_home_button_clicked': self.do_localhost,
@@ -463,10 +443,20 @@ class MCMGtk(object):
         webbrowser.open_new_tab(constants.mcm_help_url)
 
     def hide_unhide_cluster_box(self, widget):
+        terminals = self.widgets['terminals']
+        pages = terminals.get_n_pages()
         cl_box = self.widgets['cluster_entry']
         if widget.active:
+            for i in range(pages):
+                scroll = terminals.get_nth_page(i)
+                checkbox = terminals.get_tab_label(scroll)
+                checkbox.show_checkbox()
             cl_box.show_all()
         else:
+            for i in range(pages):
+                scroll = terminals.get_nth_page(i)
+                checkbox = terminals.get_tab_label(scroll)
+                checkbox.hide_checkbox()
             cl_box.hide()
 
     def hide_unhide_tips(self, widget):
@@ -497,7 +487,6 @@ class MCMGtk(object):
             cxs = _csv.do_import()
             dlg = ImportProgressDialog(cxs, self.connections.get_aliases())
             dlg.run()
-            print type(dlg.connections)
             self.connections.add_all(dlg.connections)
             self.draw_tree()
 
