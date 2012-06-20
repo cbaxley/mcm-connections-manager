@@ -1,0 +1,24 @@
+GIMP Palette
+Name: xterm.gpl
+Columns: 1
+#
+0	0	0	Black
+192	192	192	Gray ~
+192	192	192	Gray ~
+192	192	192	Gray ~
+0	0	0	Black
+205	0	0	Crimson ~
+0	205	0	Lime green ~
+205	205	0	Atlantis ~
+30	144	255	Dodger blue
+205	0	205	Medium slate blue ~
+0	205	205	Dark turquoise
+229	229	229	Athens grey ~
+76	76	76	Bleached cedar ~
+255	0	0	Red
+0	255	0	Green
+255	255	0	Yellow
+70	130	180	Steel blue
+255	0	255	Fuchsia
+0	255	255	Aqua
+255	255	255	White

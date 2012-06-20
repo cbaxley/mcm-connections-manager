@@ -1,0 +1,24 @@
+GIMP Palette
+Name: rxvt.gpl
+Columns: 1
+#
+0	0	0	Black
+250	235	215	Antique white
+250	235	215	Antique white
+250	235	215	Antique white
+0	0	0	Black
+205	0	0	Crimson ~
+0	205	0	Lime green ~
+205	205	0	Atlantis ~
+0	0	205	Medium blue
+205	0	205	Medium slate blue ~
+0	205	205	Dark turquoise
+250	235	215	Antique white
+64	64	64	Fuscous grey ~
+255	0	0	Red
+0	255	0	Green
+255	255	0	Yellow
+0	0	255	Blue
+255	0	255	Fuchsia
+0	255	255	Aqua
+255	255	255	White
