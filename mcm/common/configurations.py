@@ -183,7 +183,7 @@ class McmConfig(object):
             selected_pallete = self.get_config()['color-palette']
             colors = constants.color_palletes[selected_pallete].split(':')
             return colors
-        except KeyError:
+        except Exception:
             print "Failed to get the color palette"
         return None
         
