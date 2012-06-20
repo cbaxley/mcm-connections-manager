@@ -449,15 +449,22 @@ class McmCheckbox(gtk.HBox):
         self._button.set_name("%s_button" % title)
         self._button.set_tooltip_text(constants.cluster_checkbox_tooltip)
         self.pack_start(self._button, False, False, 0)
-        #self._button1 = gtk.Button()
-        #self._button1.set_relief(gtk.RELIEF_NONE)
-        #self._button1.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_BUTTON))
-        #self._button1.set_tooltip_text(constants.cluster_checkbox_tooltip)
-        #self.pack_start(self._button1, False, False, 0)
+        self._button1 = gtk.Button()
+        self._button1.set_relief(gtk.RELIEF_NONE)
+        self._button1.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
+        self._button1.set_tooltip_text(constants.cluster_checkbox_tooltip)
+        self.pack_start(self._button1, False, False, 0)
         self.show_all()
+        self.hide_checkbox()
 
     def get_active(self):
         return self._button.get_active()
+    
+    def hide_checkbox(self):
+        self._button.hide()
+        
+    def show_checkbox(self):
+        self._button.show()
 
     def set_title(self, title):
         self._label.set_text(title)
