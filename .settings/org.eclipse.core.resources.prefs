@@ -4,6 +4,7 @@ encoding//mcm/common/connections.py=utf-8
 encoding//mcm/common/constants.py=utf-8
 encoding//mcm/common/export.py=utf-8
 encoding//mcm/common/utils.py=utf-8
+encoding//mcm/gui/error.py=utf-8
 encoding//mcm/gui/ui.py=utf-8
 encoding//mcm/gui/widgets.py=utf-8
 encoding//mcm/terminal/add.py=utf-8
