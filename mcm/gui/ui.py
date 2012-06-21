@@ -52,7 +52,6 @@ for module in glade, gettext:
 class MCMGtk(object):
 
     def __init__(self):
-        self.pids = {}
         self.conf = McmConfig()
         self.builder = gtk.Builder()
         self.builder.add_from_file(constants.glade_main)
@@ -117,7 +116,8 @@ class MCMGtk(object):
             'on_cluster_entry_activate': self.event_cluster_intro,
             'on_cluster_entry_backspace':self.event_cluster_backspace,
             # Notebook Signals
-            'on_terminals_switch_page': self.event_switch_tab}
+            'on_terminals_switch_page': self.event_switch_tab,
+            'on_terminals_reorder': self.event_reorder_tab}
         return events
 
     def event_about(self, widget):
@@ -147,14 +147,28 @@ class MCMGtk(object):
         entry.set_text("")
 
     def event_close_tab(self, accel_group, window=None, keyval=None, modifier=None, unk=None):
+        """
+            Event called when the a tab is closed by the key combo or the button.
+            Simply kill the process we fork-ed by using its PID. When the process
+            is killed, it will raise an event and event_die_term is executed.
+        """
         terminals = self.widgets['terminals']
         index = terminals.get_current_page()
-        pid = self.pids.pop(index)
-        os.kill(pid, signal.SIGKILL)
-        
+        scroll = terminals.get_nth_page(index)
+        checkbox = terminals.get_tab_label(scroll)
+        print checkbox.pid
+        os.kill(checkbox.pid, signal.SIGKILL)
+        return True
+    
+    def event_die_term(self, scroll, terminals):
+        """
+            Event called when the process fork-ed is killed or exits. Simply
+            remove the empty tab.
+        """
+        index = terminals.page_num(scroll)
+        terminals.remove_page(index)
         if terminals.get_n_pages() <= 0:
             terminals.hide()
-            
         return True
 
     def event_cluster_backspace(self, widget):
@@ -191,13 +205,6 @@ class MCMGtk(object):
         if response == gtk.RESPONSE_OK:
             self.connections.delete(alias)
             self.draw_tree()
-
-    def event_die_term(self, scroll, terminals):
-        index = terminals.page_num(scroll)
-        terminals.remove_page(index)
-        if terminals.get_n_pages() <= 0:
-            terminals.hide()
-        return True
     
     def event_edit(self, widget):
         alias = self.get_tree_selection()
@@ -211,8 +218,6 @@ class MCMGtk(object):
     def event_entry_changed(self, widget):
         widget.modify_base(gtk.STATE_NORMAL, self.default_color)
         widget.set_tooltip_text(constants.press_enter_to_save)
-
-    
 
     def event_export_csv(self, widget):
         dlg = FileSelectDialog(FileSelectDialog.CSV)
@@ -280,6 +285,9 @@ class MCMGtk(object):
         page = notebook.get_nth_page(page_num)
         label_title = notebook.get_tab_label(page).get_title()
         self.set_window_title(label_title)
+        
+    def event_reorder_tab(self, notebook, page, page_num):
+        pass
 
     def event_terminal_key(self, widget, event):
         if event.state & gtk.gdk.CONTROL_MASK:
@@ -351,6 +359,7 @@ class MCMGtk(object):
 
     def die_term_callback(self, term, col, row, data):
         ''' We don't do anything with any of this since we don't have any use for it'''
+        print "die_term_callback"
         return True
 
     def do_connect(self, connection):
@@ -365,54 +374,60 @@ class MCMGtk(object):
                 if embedded:
                     return self.vnc_connect(connection)
 
-        #if connection:
-            #if connection.get_type() == "RDP":
-                #conf = McmConfig()
-                #client, options, embedded = conf.get_vnc_conf()
-                #if embedded:
-                    #return self.rdp_connection(connection)
-
-        # Not VNC continue 
-        scroll = gtk.ScrolledWindow()
-        # By setting the POLICY_AUTOMATIC, the ScrollWindow resizes itself when hidding the TreeView
-        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        v = vte.Terminal()
-        scroll.add(v)
+        # Not embedded VNC continue 
         terminals = self.widgets['terminals']
-        label = None
-        menu_label = None
-        if connection == None:
-            label = McmCheckbox('localhost')
-            menu_label = gtk.Label('localhost')
-        else:
-            label = McmCheckbox(connection.alias)
-            label.set_tooltip_text(connection.description)
-            menu_label = gtk.Label(connection.alias)
-        label.close_button.connect("clicked", self.event_close_tab)
+        scroll, pid = self.create_term_tab(connection, terminals)
+        label, menu_label = self.create_tab_button(connection, pid)
         self.set_window_title(label.get_title())
         index = terminals.append_page_menu(scroll, label, menu_label)
         terminals.set_tab_reorderable(scroll, True)
 
-        # Send the scroll widget to the event so the notebook knows which child to close
-        v.connect("child-exited", lambda term: self.event_die_term(scroll, terminals))
-        v.connect("button-press-event", self.do_popup_console_menu)
-        v.connect("key-press-event", self.event_terminal_key)
-        self.pids[index] = v.fork_command()
-        if connection != None:
-            v.feed_child(connection.gtk_cmd())
         self.assign_tab_switch_binding(index + 1)
-        self.assign_key_binding(self.conf.get_kb_copy(), self.do_copy)
-        self.assign_key_binding(self.conf.get_kb_paste(), self.do_paste)
+        
         terminals.show_all()
         terminals.set_current_page(index)
         self.draw_consoles()
-        v.grab_focus()
+        #v.grab_focus()
+        
+    def create_tab_button(self, connection, pid):
+        label = None
+        menu_label = None
+        if connection == None:
+            label = McmCheckbox('localhost', pid)
+            menu_label = gtk.Label('localhost')
+        else:
+            label = McmCheckbox(connection.alias, pid)
+            label.set_tooltip_text(connection.description)
+            menu_label = gtk.Label(connection.alias)
+            
+        label.close_button.connect("clicked", self.event_close_tab)
+        return (label, menu_label)
+    
+    def create_term_tab(self, connection, terminals):
+        """
+            A Terminal tab is composed of a tab page, a tab title, a scroll
+            and the vte in the scroll.
+        """
+        scroll = gtk.ScrolledWindow()
+        # By setting the POLICY_AUTOMATIC, the ScrollWindow resizes itself when hiding the TreeView
+        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        v = vte.Terminal()
+        # Send the scroll widget to the event so the notebook knows which child to close
+        v.connect("child-exited", lambda term: self.event_die_term(scroll, terminals))
+        v.connect("button-press-event", self.create_term_popup_menu)
+        v.connect("key-press-event", self.event_terminal_key)
+        
+        pid = v.fork_command()
+        if connection != None:
+            v.feed_child(connection.gtk_cmd())
+        scroll.add(v)
+        return scroll, pid
 
     def do_localhost(self, accel_group, window=None, keyval=None, modifier=None):
         self.do_connect(None)
         return True
 
-    def do_popup_console_menu(self, widget, event):
+    def create_term_popup_menu(self, widget, event):
         '''Draw a Menu ready to be inserted in a vteterminal widget'''
         if event.button == 1:
             return False
@@ -600,6 +615,8 @@ class MCMGtk(object):
         self.assign_key_binding(self.conf.get_kb_home(), self.do_localhost)
         self.assign_key_binding('F10', self.event_f10)
         self.assign_key_binding(self.conf.get_kb_tab_close(), self.event_close_tab)
+        self.assign_key_binding(self.conf.get_kb_copy(), self.do_copy)
+        self.assign_key_binding(self.conf.get_kb_paste(), self.do_paste)
         main_window.connect("delete-event", self.event_x)
 
         # Grab the default color
@@ -609,8 +626,8 @@ class MCMGtk(object):
             self.default_color = self.color_parse('white')
 
         #Remove the first tab from the notebook and add a localhost
-        self.terminals = self.widgets["terminals"]
-        self.terminals.remove_page(0)
+        terminals = self.widgets["terminals"]
+        terminals.remove_page(0)
         self.do_connect(None)
 
         main_window.show()
@@ -687,10 +704,6 @@ class MCMGtk(object):
     def set_window_title(self, title="MCM Connections Manager"):
         main_window = self.widgets['window']
         main_window.set_title(constants.window_title % title)
-
-    def tab_close_button(self, title):
-        button = gtk.Button(title, gtk.STOCK_CLOSE, False)
-        return button
 
     def update_connection(self, widget):
         alias = self.get_tree_selection()
