@@ -774,7 +774,7 @@ class ManageConnectionsDialog(object):
     def cell_edited_event(self, widget, path, new_value, store):
         col_title = self.active_column.get_title()
         alias = self.get_selection()
-        acx = self.connections[alias]
+        acx = self.connections.get(alias)
         if col_title == constants.col_title_user:
             acx.user = new_value 
         elif col_title == constants.col_title_pwd:
@@ -788,7 +788,7 @@ class ManageConnectionsDialog(object):
         elif col_title == constants.col_title_opts:
             acx.options = new_value 
 
-        self.connections[alias] = acx
+        self.connections.update(alias, acx)
         self.redraw_tree()
 
     def cell_combo_event(self, widget, path, new_iter):
@@ -796,14 +796,14 @@ class ManageConnectionsDialog(object):
         new_value = widget.props.model.get_value(new_iter, 0)
         col_title = self.active_column.get_title()
         alias = self.get_selection()
-        acx = self.connections[alias]
+        acx = self.connections.get(alias)
 
         if col_title == constants.col_title_group:
             acx.group = new_value 
         elif col_title == constants.col_title_type:
             acx = connections_factory(new_value,  acx.user, acx.host, acx.alias, acx.password, acx.port, acx.group, acx.options, acx.description)
         
-        self.connections[alias] = acx
+        self.connections.update(alias, acx)
         self.redraw_tree()
 
     def cell_click_event(self, widget, event, store):
@@ -816,7 +816,7 @@ class ManageConnectionsDialog(object):
             dlg = UtilityDialogs()
             response = dlg.show_question_dialog(constants.deleting_connection_warning % alias, constants.are_you_sure)
             if response == gtk.RESPONSE_OK:
-                del self.connections[alias]
+                self.connections.delete(alias)
                 self.redraw_tree()
 
     def connections_view(self):
@@ -877,7 +877,6 @@ class ManageConnectionsDialog(object):
         img = self.dialog.render_icon(gtk.STOCK_CLEAR, gtk.ICON_SIZE_BUTTON)
         for cx in self.connections.get_all():
             cx_list = cx.to_list()
-            print cx_list
             cx_list.append(img)
             store.append(cx_list)
         return store
