@@ -856,28 +856,28 @@ class ManageConnectionsDialog(object):
         columns.append(col)
 
         columns.append(gtk.TreeViewColumn(constants.col_title_type, types_combo_renderer, text=1))
-        columns.append(gtk.TreeViewColumn(constants.col_title_group, groups_combo_renderer, text=8))
-        columns.append(gtk.TreeViewColumn(constants.col_title_user, renderer0, text=5))
-        columns.append(gtk.TreeViewColumn(constants.col_title_host, renderer0, text=3))
-        columns.append(gtk.TreeViewColumn(constants.col_title_port, renderer0, text=4))
-        columns.append(gtk.TreeViewColumn(constants.col_title_opts, renderer0, text=7))
-        columns.append(gtk.TreeViewColumn(constants.col_title_pwd, renderer0, text=6))
+        columns.append(gtk.TreeViewColumn(constants.col_title_group, groups_combo_renderer, text=7))
+        columns.append(gtk.TreeViewColumn(constants.col_title_user, renderer0, text=4))
+        columns.append(gtk.TreeViewColumn(constants.col_title_host, renderer0, text=2))
+        columns.append(gtk.TreeViewColumn(constants.col_title_port, renderer0, text=3))
+        columns.append(gtk.TreeViewColumn(constants.col_title_opts, renderer0, text=6))
+        columns.append(gtk.TreeViewColumn(constants.col_title_pwd, renderer0, text=5))
 
         # The Delete column looks awful when we maximize the dialog. So we expand this one instead
-        desc_col = gtk.TreeViewColumn(constants.col_title_desc, renderer0, text=9)
+        desc_col = gtk.TreeViewColumn(constants.col_title_desc, renderer0, text=8)
         desc_col.set_expand(True)
         columns.append(desc_col)
-        columns.append(gtk.TreeViewColumn(constants.col_title_delete, img_renderer, pixbuf=10))
+        columns.append(gtk.TreeViewColumn(constants.col_title_delete, img_renderer, pixbuf=9))
 
         return columns
 
     def connections_model(self):
         """Creates a ListStore with the Connections data"""
-        store = gtk.ListStore(str, str, str, str, str, str, str, str, str, str, gtk.gdk.Pixbuf)
+        store = gtk.ListStore(str, str, str, str, str, str, str, str, str, gtk.gdk.Pixbuf)
         img = self.dialog.render_icon(gtk.STOCK_CLEAR, gtk.ICON_SIZE_BUTTON)
-
-        for cx in self.connections.values():
+        for cx in self.connections.get_all():
             cx_list = cx.to_list()
+            print cx_list
             cx_list.append(img)
             store.append(cx_list)
         return store
