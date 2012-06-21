@@ -95,11 +95,10 @@ class Connection(object):
             tr += "<td>%s</td>" % cx
         tr += "</tr>"
         return tr
-
+    
     def __str__(self):
         return "%s %s %s@%s:%s" % (self.get_type(), self.alias,
         self.user, self.host, self.port)
-
 
 class Ssh(Connection):
 
@@ -122,8 +121,12 @@ class Ssh(Connection):
 
     def gtk_cmd(self):
         a_list = self.conn_args()
-        return self.list_to_string(a_list)
-
+        return a_list
+    
+    def get_fork_args(self):
+        conf = McmConfig()
+        self.client, not_used = conf.get_ssh_conf()
+        return [self.client, self.hostname(), "-p", self.port, self.options]
 
 class Vnc(Connection):
 
@@ -139,9 +142,19 @@ class Vnc(Connection):
     def gtk_cmd(self):
         a_list = self.conn_args()
         return self.list_to_string(a_list)
+    
+    def get_fork_args(self):
+        conf = McmConfig()
+        self.client, options, embedded = conf.get_vnc_conf()
+        return [self.client, self.options, self.vnchost()]
 
 
 class Rdp(Connection):
+    
+    def rdphost(self):
+        if self.port:
+            return "%s:%s" % (self.host, self.port)
+        return self.host
 
     def conn_args(self):
         conf = McmConfig()
@@ -152,6 +165,11 @@ class Rdp(Connection):
     def gtk_cmd(self):
         a_list = self.conn_args()
         return self.list_to_string(a_list)
+    
+    def get_fork_args(self):
+        conf = McmConfig()
+        self.client, not_used = conf.get_rdp_conf()
+        return [self.client, self.options, self.rdphost()]
 
 
 class Telnet(Connection):
@@ -165,6 +183,11 @@ class Telnet(Connection):
     def gtk_cmd(self):
         a_list = self.conn_args()
         return self.list_to_string(a_list)
+    
+    def get_fork_args(self):
+        conf = McmConfig()
+        self.client, not_used = conf.get_telnet_conf()
+        return [self.client, self.options, self.host, self.port]
 
 
 class Ftp(Connection):
@@ -178,6 +201,11 @@ class Ftp(Connection):
     def gtk_cmd(self):
         a_list = self.conn_args()
         return self.list_to_string(a_list)
+    
+    def get_fork_args(self):
+        conf = McmConfig()
+        self.client, not_used = conf.get_ftp_conf()
+        return [self.client, self.options, '-u', self.user, '-p', self.port, self.host]
 
 
 def connections_factory(cx_type, cx_user, cx_host, cx_alias,
@@ -237,7 +265,6 @@ class ConnectionStore(object):
         return self.store
     
     def save(self):
-        print type(self.store)
         myfile = open(self.jsonfile, 'w')
         json.dump(self.store, myfile, cls=ConnectionEncoder, encoding="utf-8", separators=(',',':'))
         myfile.close

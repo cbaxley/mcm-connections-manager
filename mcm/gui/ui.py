@@ -156,8 +156,8 @@ class MCMGtk(object):
         index = terminals.get_current_page()
         scroll = terminals.get_nth_page(index)
         checkbox = terminals.get_tab_label(scroll)
-        print checkbox.pid
-        os.kill(checkbox.pid, signal.SIGKILL)
+        if checkbox.pid != -1:
+            os.kill(checkbox.pid, signal.SIGKILL)
         return True
     
     def event_die_term(self, scroll, terminals):
@@ -166,11 +166,13 @@ class MCMGtk(object):
             remove the empty tab.
         """
         index = terminals.page_num(scroll)
+        vte = scroll.get_child()
+        print vte.get_child_exit_status()
         terminals.remove_page(index)
         if terminals.get_n_pages() <= 0:
             terminals.hide()
         return True
-
+    
     def event_cluster_backspace(self, widget):
         """Call this event when the backspace key is pressed on the entry widget"""
         return self.cluster_send_key('\b')
@@ -357,10 +359,7 @@ class MCMGtk(object):
             term.feed_child(key)
         return True
 
-    def die_term_callback(self, term, col, row, data):
-        ''' We don't do anything with any of this since we don't have any use for it'''
-        print "die_term_callback"
-        return True
+    
 
     def do_connect(self, connection):
         '''Here I create a ScrolledWindow, attach a VteTerminal widget and all this gets attached
@@ -377,17 +376,20 @@ class MCMGtk(object):
         # Not embedded VNC continue 
         terminals = self.widgets['terminals']
         scroll, pid = self.create_term_tab(connection, terminals)
+        
+        if pid == -1:
+            dlg = UtilityDialogs()
+            dlg.show_error_dialog("Failed to connect to %s" % connection.alias, str(connection))
+            return
+        
         label, menu_label = self.create_tab_button(connection, pid)
         self.set_window_title(label.get_title())
         index = terminals.append_page_menu(scroll, label, menu_label)
         terminals.set_tab_reorderable(scroll, True)
-
         self.assign_tab_switch_binding(index + 1)
-        
         terminals.show_all()
         terminals.set_current_page(index)
         self.draw_consoles()
-        #v.grab_focus()
         
     def create_tab_button(self, connection, pid):
         label = None
@@ -417,9 +419,13 @@ class MCMGtk(object):
         v.connect("button-press-event", self.create_term_popup_menu)
         v.connect("key-press-event", self.event_terminal_key)
         
-        pid = v.fork_command()
+        pid = None
         if connection != None:
-            v.feed_child(connection.gtk_cmd())
+            args = connection.get_fork_args()
+            pid = v.fork_command(args[0], args, None, None, False, False, False)
+            
+        else:
+            pid = v.fork_command()
         scroll.add(v)
         return scroll, pid
 
