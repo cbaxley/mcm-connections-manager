@@ -678,6 +678,7 @@ files on your network</property>
                     <property name="enable_popup">True</property>
                     <property name="group_id">1</property>
                     <property name="homogeneous">True</property>
+                    <signal name="page_reordered" handler="on_terminals_reorder"/>
                     <signal name="switch_page" handler="on_terminals_switch_page"/>
                     <child>
                       <object class="GtkLabel" id="label9">
