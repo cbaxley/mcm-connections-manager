@@ -290,6 +290,9 @@ class ConnectionStore(object):
     def add(self, alias, cx):
         self.store[alias] = cx
         
+    def update(self, alias, cx):
+        self.store[alias] = cx
+        
     def delete(self, alias):
         del self.store[alias]
         
