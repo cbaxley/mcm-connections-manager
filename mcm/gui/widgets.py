@@ -93,7 +93,7 @@ class AddConnectionDialog(object):
         events = {
                         'response': self.cancel_event,
                         'on_button_cancel_clicked': self.cancel_event,
-                        'on_button_save_clicked': self.save_event,
+                        'on_button_save_clicked': self.event_save,
                         'on_alias_entry1_changed': self.validate_alias,
                         'on_types_combobox_changed': self.insert_default_options,
                 }
@@ -167,7 +167,7 @@ class AddConnectionDialog(object):
     def cancel_event(self, widget):
         pass
 
-    def save_event(self, widget):
+    def event_save(self, widget):
         if self.error == None:
             self.response = gtk.RESPONSE_OK
             cx_type = self.widgets['types_combobox'].get_active_text()
@@ -495,8 +495,8 @@ class McmNewTipDialog(object):
         events = {
                         'response': self.cancel_event,
                         'on_cancel_button_clicked': self.cancel_event,
-                        'on_save_button_clicked': self.save_event,
-                        'on_help_button_clicked': self.help_event,
+                        'on_save_button_clicked': self.event_save,
+                        'on_help_button_clicked': self.event_help,
                 }
         self.builder.connect_signals(events)
         self.dlg = self.widgets['dlg']
@@ -509,7 +509,7 @@ class McmNewTipDialog(object):
         self.dlg.destroy()
         return True
 
-    def save_event(self, widget):
+    def event_save(self, widget):
         self.response = gtk.RESPONSE_OK
         section = self.widgets['section_entry'].get_text()
         subsection = self.widgets['subsection_entry'].get_text()
@@ -523,7 +523,7 @@ class McmNewTipDialog(object):
         self.dlg.destroy()
         return True
 
-    def help_event(self, widget):
+    def event_help(self, widget):
         dlg = UtilityDialogs()
         response = dlg.show_info_dialog(constants.send_world, constants.google_docs_disclaimer)
 
@@ -694,9 +694,9 @@ class ManageConnectionsDialog(object):
         events = {
                         'response': self.cancel_event,
                         'on_cancel_button_clicked': self.cancel_event,
-                        'on_save_button_clicked': self.save_event,
-                        'on_exp_csv_button_clicked': self.export_csv_event,
-                        'on_exp_html_button_clicked': self.export_html_event,
+                        'on_save_button_clicked': self.event_save,
+                        'on_exp_csv_button_clicked': self.event_export_csv,
+                        'on_exp_html_button_clicked': self.event_export_html,
                 }
         builder.connect_signals(events)
         self.draw_tree()
@@ -719,10 +719,10 @@ class ManageConnectionsDialog(object):
     def cancel_event(self, widget):
         self.response = gtk.RESPONSE_CANCEL
 
-    def save_event(self, widget):
+    def event_save(self, widget):
         self.response = gtk.RESPONSE_OK
 
-    def export_csv_event(self, widget):
+    def event_export_csv(self, widget):
         dlg = FileSelectDialog(FileSelectDialog.CSV)
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
@@ -730,7 +730,7 @@ class ManageConnectionsDialog(object):
             idlg = UtilityDialogs()
             idlg.show_info_dialog(constants.export_csv, constants.saved_file % dlg.get_filename())
 
-    def export_html_event(self, widget):
+    def event_export_html(self, widget):
         dlg = FileSelectDialog(FileSelectDialog.HTML)
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:

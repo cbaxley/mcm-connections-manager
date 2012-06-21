@@ -64,13 +64,68 @@ class MCMGtk(object):
         
         self.draw_tree()
         self.init_main_window()
+        
+    '''
+        **************************************
+        Begin block of events
+        **************************************
+    '''
+        
+    def events(self):
+        events = {
+            'on_main_mcm_destroy': self.event_quit,
+            'on_connect_button_clicked': self.event_connect,
+            'on_arrow_button_clicked': self.hide_unhide_tree,
+            # Menu Items
+            'on_mb_about_activate': self.event_about,
+            'on_mb_help_activate': self.event_help,
+            'on_mb_preferences_activate': self.event_preferences,
+            'on_mb_save_activate': self.event_save,
+            'on_mb_import_activate': self.event_import_csv,
+            'on_mb_export_html_activate': self.event_export_html,
+            'on_mb_export_csv_activate': self.event_export_csv,
+            'on_mb_quit_activate': self.event_quit,
+            'on_mb_add_activate': self.event_add,
+            'on_mb_delete_activate': self.event_delete,
+            'on_mb_connect_activate': self.event_connect,
+            'on_mb_manage_activate': self.event_manage,
+            'on_mb_cluster_toggled': self.hide_unhide_cluster_box,
+            'on_mb_view_tree_toggled': self.hide_unhide_tree,
+            'on_mb_tips_toggled': self.hide_unhide_tips,
+            'on_mb_edit_activate': self.event_edit,
+            'on_sib_home_activate': self.do_localhost,
+            # Tree signals
+            'on_connections_tree_row_activated': self.event_connect,
+            'on_home_button_clicked': self.do_localhost,
+            'on_connections_tree_cursor_changed': self.on_tree_item_clicked,
+            'on_connections_tree_button_press_event': self.event_tree_submenu,
+            # Entries Signals
+            'on_user_entry_activate': self.update_connection,
+            'on_user_entry_changed': self.event_entry_changed,
+            'on_host_entry_activate': self.update_connection,
+            'on_host_entry_changed': self.event_entry_changed,
+            'on_port_entry_activate': self.update_connection,
+            'on_port_entry_changed': self.event_entry_changed,
+            'on_options_entry_activate': self.update_connection,
+            'on_options_entry_changed': self.event_entry_changed,
+            'on_description_entry_activate': self.update_connection,
+            'on_description_entry_changed': self.event_entry_changed,
+            'on_pwd_entry_activate': self.update_connection,
+            'on_pwd_entry_changed': self.event_entry_changed,
+            #Cluster Signals
+            'on_cluster_entry_changed': self.event_cluster,
+            'on_cluster_entry_activate': self.event_cluster_intro,
+            'on_cluster_entry_backspace':self.event_cluster_backspace,
+            # Notebook Signals
+            'on_terminals_switch_page': self.event_switch_tab}
+        return events
 
     def event_about(self, widget):
         about = self.widgets['about']
         about.connect("response", lambda d, r: d.hide())
         about.run()
 
-    def add_event(self, widget):
+    def event_add(self, widget):
         dlg = AddConnectionDialog(self.connections.get_aliases(), self.connections.get_groups(), types())
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
@@ -87,11 +142,11 @@ class MCMGtk(object):
         key = self.conf.get_kb_tab_switch() + '%d'
         self.assign_key_binding(key % index, self.switch_tab)
 
-    def clear_cluster_event(self, widget):
+    def event_clear_cluster(self, widget):
         entry = self.widgets['cluster_entry']
         entry.set_text("")
 
-    def close_tab_event(self, accel_group, window=None, keyval=None, modifier=None, unk=None):
+    def event_close_tab(self, accel_group, window=None, keyval=None, modifier=None, unk=None):
         terminals = self.widgets['terminals']
         index = terminals.get_current_page()
         pid = self.pids.pop(index)
@@ -102,11 +157,11 @@ class MCMGtk(object):
             
         return True
 
-    def cluster_backspace(self, widget):
+    def event_cluster_backspace(self, widget):
         """Call this event when the backspace key is pressed on the entry widget"""
         return self.cluster_send_key('\b')
 
-    def cluster_event(self, widget):
+    def event_cluster(self, widget):
         """Call this event when any key is pressed on the entry widget"""
         command = widget.get_text()
         widget.set_text("")
@@ -114,9 +169,167 @@ class MCMGtk(object):
             return False
         return self.cluster_send_key(command)
 
-    def cluster_intro_event(self, widget):
+    def event_cluster_intro(self, widget):
         """Call this event when the enter key is pressed on the entry widget"""
         return self.cluster_send_key('\n')
+    
+    def event_connect(self, widget, path=None, vew_column=None):
+        alias = None
+        name = gtk.Buildable.get_name(widget)
+
+        if name == 'connect_button' or name == 'mb_connect' or name == 'connections_tree':
+            alias = self.get_tree_selection()
+        else:
+            alias = widget.props.name
+
+        self.do_connect(self.connections.get(alias))
+
+    def event_delete(self, widget):
+        alias = self.get_tree_selection()
+        dlg = UtilityDialogs()
+        response = dlg.show_question_dialog(constants.deleting_connection_warning % alias, constants.are_you_sure)
+        if response == gtk.RESPONSE_OK:
+            self.connections.delete(alias)
+            self.draw_tree()
+
+    def event_die_term(self, scroll, terminals):
+        index = terminals.page_num(scroll)
+        terminals.remove_page(index)
+        if terminals.get_n_pages() <= 0:
+            terminals.hide()
+        return True
+    
+    def event_edit(self, widget):
+        alias = self.get_tree_selection()
+        dlg = AddConnectionDialog(self.connections.get_aliases(), self.connections.get_groups(), types(), self.connections.get(alias))
+        dlg.run()
+        if dlg.response == gtk.RESPONSE_OK:
+            cx = dlg.new_connection
+            self.connections.add(cx.alias, cx)
+            self.draw_tree()
+
+    def event_entry_changed(self, widget):
+        widget.modify_base(gtk.STATE_NORMAL, self.default_color)
+        widget.set_tooltip_text(constants.press_enter_to_save)
+
+    
+
+    def event_export_csv(self, widget):
+        dlg = FileSelectDialog(FileSelectDialog.CSV)
+        dlg.run()
+        if dlg.response == gtk.RESPONSE_OK:
+            _csv = ExportCsv(dlg.get_filename(), self.connections.get_all())
+            idlg = UtilityDialogs()
+            idlg.show_info_dialog(constants.export_csv, constants.saved_file % dlg.get_filename())
+
+    def event_export_html(self, widget):
+        dlg = FileSelectDialog(FileSelectDialog.HTML)
+        dlg.run()
+        if dlg.response == gtk.RESPONSE_OK:
+            _html = Html(dlg.get_filename(), constants.version, self.connections.get_all())
+            _html.export()
+            idlg = UtilityDialogs()
+            idlg.show_info_dialog(constants.export_html, constants.saved_file % dlg.get_filename())
+
+    def event_f10(self, accel_group, window=None, keyval=None, modifier=None):
+        return False
+    
+    def event_help(self, widget):
+        webbrowser.open_new_tab(constants.mcm_help_url)
+        
+    def event_import_csv(self, widget):
+        dlg = FileSelectDialog(FileSelectDialog.CSV)
+        dlg.run()
+        cxs = None
+        if dlg.response == gtk.RESPONSE_OK:
+            _csv = Csv(dlg.uri)
+            cxs = _csv.do_import()
+            dlg = ImportProgressDialog(cxs, self.connections.get_aliases())
+            dlg.run()
+            self.connections.add_all(dlg.connections)
+            self.draw_tree()
+            
+    def event_manage(self, widget):
+        dlg = ManageConnectionsDialog(self.connections, self.connections.get_groups(), types())
+        dlg.run()
+        if dlg.response is gtk.RESPONSE_OK:
+            self.connections.save()
+            self.draw_tree()
+        dlg.destroy()
+
+    def event_preferences(self, widget):
+        dlg = PreferencesDialog(self.conf)
+        dlg.run()
+        if dlg.response == gtk.RESPONSE_OK:
+            self.draw_consoles()
+
+    def event_quit(self, widget, fck=None):
+        dlg = UtilityDialogs()
+        response = dlg.show_question_dialog(constants.quit_warning, constants.are_you_sure)
+        if response == gtk.RESPONSE_OK:
+            #self.dao.save_to_xml(self.connections.values())
+            self.connections.save()
+            exit(0)
+        else:
+            return False
+        
+    def event_save(self, widget):
+        self.connections.save()
+
+    def event_switch_tab(self, notebook, page, page_num):
+        page = notebook.get_nth_page(page_num)
+        label_title = notebook.get_tab_label(page).get_title()
+        self.set_window_title(label_title)
+
+    def event_terminal_key(self, widget, event):
+        if event.state & gtk.gdk.CONTROL_MASK:
+            pgup = self.keymap.get_entries_for_keyval(gtk.keysyms.Page_Up)[0][0]
+            pgdn = self.keymap.get_entries_for_keyval(gtk.keysyms.Page_Down)[0][0]
+            if event.hardware_keycode is pgup:
+                terminals = self.widgets['terminals']
+                total = terminals.get_n_pages()
+                page = terminals.get_current_page() + 1
+                if page < total:
+                    terminals.set_current_page(page)
+                    self.event_switch_tab(terminals, None, page)
+                return True
+            elif event.hardware_keycode is pgdn:
+                terminals = self.widgets['terminals']
+                total = terminals.get_n_pages()
+                page = terminals.get_current_page() - 1
+                if page >= 0:
+                    terminals.set_current_page(page)
+                    self.event_switch_tab(terminals, None, page)
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def event_tree_submenu(self, widget, event):
+        '''Draw a Menu ready to be inserted in tree'''
+        if event.button == 1:
+            return False
+        elif event.button == 3:
+            menu = self.widgets['menu2']
+            menu.show_all()
+            menu.popup(None, None, None, 3, event.time)
+            return True
+        else:
+            return False
+        
+    def event_x(self, x=None, y=None):
+        self.event_quit(x)
+        return True
+    
+    def on_tree_item_clicked(self, widget):
+        self.draw_connection_widgets(self.get_tree_selection(widget))
+    
+    '''
+        +++++++++++++++++++++++++++++++++++++++
+        End block of events
+        +++++++++++++++++++++++++++++++++++++++
+    '''
 
     def cluster_send_key(self, key):
         """This method is in charge of sending the keys to the selected
@@ -134,32 +347,6 @@ class MCMGtk(object):
 
         for term in cluster_tabs.values():
             term.feed_child(key)
-        return True
-
-    def connect_event(self, widget, path=None, vew_column=None):
-        alias = None
-        name = gtk.Buildable.get_name(widget)
-
-        if name == 'connect_button' or name == 'mb_connect' or name == 'connections_tree':
-            alias = self.get_tree_selection()
-        else:
-            alias = widget.props.name
-
-        self.do_connect(self.connections.get(alias))
-
-    def delete_event(self, widget):
-        alias = self.get_tree_selection()
-        dlg = UtilityDialogs()
-        response = dlg.show_question_dialog(constants.deleting_connection_warning % alias, constants.are_you_sure)
-        if response == gtk.RESPONSE_OK:
-            self.connections.delete(alias)
-            self.draw_tree()
-
-    def die_term_event(self, scroll, terminals):
-        index = terminals.page_num(scroll)
-        terminals.remove_page(index)
-        if terminals.get_n_pages() <= 0:
-            terminals.hide()
         return True
 
     def die_term_callback(self, term, col, row, data):
@@ -201,15 +388,15 @@ class MCMGtk(object):
             label = McmCheckbox(connection.alias)
             label.set_tooltip_text(connection.description)
             menu_label = gtk.Label(connection.alias)
-        label.close_button.connect("clicked", self.close_tab_event)
+        label.close_button.connect("clicked", self.event_close_tab)
         self.set_window_title(label.get_title())
         index = terminals.append_page_menu(scroll, label, menu_label)
         terminals.set_tab_reorderable(scroll, True)
 
         # Send the scroll widget to the event so the notebook knows which child to close
-        v.connect("child-exited", lambda term: self.die_term_event(scroll, terminals))
+        v.connect("child-exited", lambda term: self.event_die_term(scroll, terminals))
         v.connect("button-press-event", self.do_popup_console_menu)
-        v.connect("key-press-event", self.terminal_key_event)
+        v.connect("key-press-event", self.event_terminal_key)
         self.pids[index] = v.fork_command()
         if connection != None:
             v.feed_child(connection.gtk_cmd())
@@ -352,88 +539,6 @@ class MCMGtk(object):
                 if grp == cx.group:
                     tree_store.append(grp_node, [cx.alias, None])
 
-    def edit_event(self, widget):
-        alias = self.get_tree_selection()
-        dlg = AddConnectionDialog(self.connections.get_aliases(), self.connections.get_groups(), types(), self.connections.get(alias))
-        dlg.run()
-        if dlg.response == gtk.RESPONSE_OK:
-            cx = dlg.new_connection
-            self.connections.add(cx.alias, cx)
-            self.draw_tree()
-
-    def entry_changed_event(self, widget):
-        widget.modify_base(gtk.STATE_NORMAL, self.default_color)
-        widget.set_tooltip_text(constants.press_enter_to_save)
-
-    def events(self):
-        events = {
-            'on_main_mcm_destroy': self.quit_event,
-            'on_connect_button_clicked': self.connect_event,
-            'on_arrow_button_clicked': self.hide_unhide_tree,
-            # Menu Items
-            'on_mb_about_activate': self.event_about,
-            'on_mb_help_activate': self.help_event,
-            'on_mb_preferences_activate': self.preferences_event,
-            'on_mb_save_activate': self.save_event,
-            'on_mb_import_activate': self.import_csv_event,
-            'on_mb_export_html_activate': self.export_html_event,
-            'on_mb_export_csv_activate': self.export_csv_event,
-            'on_mb_quit_activate': self.quit_event,
-            'on_mb_add_activate': self.add_event,
-            'on_mb_delete_activate': self.delete_event,
-            'on_mb_connect_activate': self.connect_event,
-            'on_mb_manage_activate': self.manage_event,
-            'on_mb_cluster_toggled': self.hide_unhide_cluster_box,
-            'on_mb_view_tree_toggled': self.hide_unhide_tree,
-            'on_mb_tips_toggled': self.hide_unhide_tips,
-            'on_mb_edit_activate': self.edit_event,
-            'on_sib_home_activate': self.do_localhost,
-            # Tree signals
-            'on_connections_tree_row_activated': self.connect_event,
-            'on_home_button_clicked': self.do_localhost,
-            'on_connections_tree_cursor_changed': self.on_tree_item_clicked,
-            'on_connections_tree_button_press_event': self.tree_submenu_event,
-            # Entries Signals
-            'on_user_entry_activate': self.update_connection,
-            'on_user_entry_changed': self.entry_changed_event,
-            'on_host_entry_activate': self.update_connection,
-            'on_host_entry_changed': self.entry_changed_event,
-            'on_port_entry_activate': self.update_connection,
-            'on_port_entry_changed': self.entry_changed_event,
-            'on_options_entry_activate': self.update_connection,
-            'on_options_entry_changed': self.entry_changed_event,
-            'on_description_entry_activate': self.update_connection,
-            'on_description_entry_changed': self.entry_changed_event,
-            'on_pwd_entry_activate': self.update_connection,
-            'on_pwd_entry_changed': self.entry_changed_event,
-            #Cluster Signals
-            'on_cluster_entry_changed': self.cluster_event,
-            'on_cluster_entry_activate': self.cluster_intro_event,
-            'on_cluster_entry_backspace': self.cluster_backspace,
-            # Notebook Signals
-            'on_terminals_switch_page': self.switch_tab_event}
-        return events
-
-    def export_csv_event(self, widget):
-        dlg = FileSelectDialog(FileSelectDialog.CSV)
-        dlg.run()
-        if dlg.response == gtk.RESPONSE_OK:
-            _csv = ExportCsv(dlg.get_filename(), self.connections.get_all())
-            idlg = UtilityDialogs()
-            idlg.show_info_dialog(constants.export_csv, constants.saved_file % dlg.get_filename())
-
-    def export_html_event(self, widget):
-        dlg = FileSelectDialog(FileSelectDialog.HTML)
-        dlg.run()
-        if dlg.response == gtk.RESPONSE_OK:
-            _html = Html(dlg.get_filename(), constants.version, self.connections.get_all())
-            _html.export()
-            idlg = UtilityDialogs()
-            idlg.show_info_dialog(constants.export_html, constants.saved_file % dlg.get_filename())
-
-    def f10_event(self, accel_group, window=None, keyval=None, modifier=None):
-        return False
-
     def get_tree_selection(self, tree=None):
         '''Gets the alias of the connection currently selected on the tree'''
         if tree == None:
@@ -445,9 +550,6 @@ class MCMGtk(object):
             return None
         alias = model.get_value(i, 0)
         return alias
- 
-    def help_event(self, widget):
-        webbrowser.open_new_tab(constants.mcm_help_url)
 
     def hide_unhide_cluster_box(self, widget):
         terminals = self.widgets['terminals']
@@ -485,18 +587,6 @@ class MCMGtk(object):
             vbox.show_all()
         return True
 
-    def import_csv_event(self, widget):
-        dlg = FileSelectDialog(FileSelectDialog.CSV)
-        dlg.run()
-        cxs = None
-        if dlg.response == gtk.RESPONSE_OK:
-            _csv = Csv(dlg.uri)
-            cxs = _csv.do_import()
-            dlg = ImportProgressDialog(cxs, self.connections.get_aliases())
-            dlg.run()
-            self.connections.add_all(dlg.connections)
-            self.draw_tree()
-
     def init_main_window(self):
         
         main_window = self.widgets['window']
@@ -508,9 +598,9 @@ class MCMGtk(object):
         self.widgets['accel_group'] = accel_group
         self.assign_key_binding(self.conf.get_kb_hide(), self.hide_unhide_tree)
         self.assign_key_binding(self.conf.get_kb_home(), self.do_localhost)
-        self.assign_key_binding('F10', self.f10_event)
-        self.assign_key_binding(self.conf.get_kb_tab_close(), self.close_tab_event)
-        main_window.connect("delete-event", self.x_event)
+        self.assign_key_binding('F10', self.event_f10)
+        self.assign_key_binding(self.conf.get_kb_tab_close(), self.event_close_tab)
+        main_window.connect("delete-event", self.event_x)
 
         # Grab the default color
         try:
@@ -558,42 +648,15 @@ class MCMGtk(object):
         }
         return widgets
 
-    def manage_event(self, widget):
-        dlg = ManageConnectionsDialog(self.connections, self.connections.get_groups(), types())
-        dlg.run()
-        if dlg.response is gtk.RESPONSE_OK:
-            self.connections.save()
-            self.draw_tree()
-        dlg.destroy()
-
     def new_column(self, title, _id):
         column = gtk.TreeViewColumn(title, gtk.CellRendererText(), text=_id)
         column.set_resizable(True)
         column.set_sort_column_id(_id)
         return column
 
-    def on_tree_item_clicked(self, widget):
-        self.draw_connection_widgets(self.get_tree_selection(widget))
-
     def color_parse(self, color_name):
         return gtk.gdk.color_parse(color_name)
-
-    def preferences_event(self, widget):
-        dlg = PreferencesDialog(self.conf)
-        dlg.run()
-        if dlg.response == gtk.RESPONSE_OK:
-            self.draw_consoles()
-
-    def quit_event(self, widget, fck=None):
-        dlg = UtilityDialogs()
-        response = dlg.show_question_dialog(constants.quit_warning, constants.are_you_sure)
-        if response == gtk.RESPONSE_OK:
-            #self.dao.save_to_xml(self.connections.values())
-            self.connections.save()
-            exit(0)
-        else:
-            return False
-
+    
     def rdp_connection(self, connection):
         """Embed a rdesktop window to our app"""
         terminals = self.widgets['terminals']
@@ -613,21 +676,13 @@ class MCMGtk(object):
         terminals.show_all()
         terminals.set_current_page(index)
 
-    def save_event(self, widget):
-        self.connections.save()
-
     def switch_tab(self, accel_group, window, keyval, modifier):
         # Key 0 is 48, Key 1 is 49 ... key 9 is 57
         index = keyval - 49
         terminals = self.widgets['terminals']
         terminals.set_current_page(index)
-        self.switch_tab_event(terminals, None, index)
+        self.event_switch_tab(terminals, None, index)
         return True # This will stop the vte from getting the annoying alt key
-
-    def switch_tab_event(self, notebook, page, page_num):
-        page = notebook.get_nth_page(page_num)
-        label_title = notebook.get_tab_label(page).get_title()
-        self.set_window_title(label_title)
 
     def set_window_title(self, title="MCM Connections Manager"):
         main_window = self.widgets['window']
@@ -636,43 +691,6 @@ class MCMGtk(object):
     def tab_close_button(self, title):
         button = gtk.Button(title, gtk.STOCK_CLOSE, False)
         return button
-
-    def terminal_key_event(self, widget, event):
-        if event.state & gtk.gdk.CONTROL_MASK:
-            pgup = self.keymap.get_entries_for_keyval(gtk.keysyms.Page_Up)[0][0]
-            pgdn = self.keymap.get_entries_for_keyval(gtk.keysyms.Page_Down)[0][0]
-            if event.hardware_keycode is pgup:
-                terminals = self.widgets['terminals']
-                total = terminals.get_n_pages()
-                page = terminals.get_current_page() + 1
-                if page < total:
-                    terminals.set_current_page(page)
-                    self.switch_tab_event(terminals, None, page)
-                return True
-            elif event.hardware_keycode is pgdn:
-                terminals = self.widgets['terminals']
-                total = terminals.get_n_pages()
-                page = terminals.get_current_page() - 1
-                if page >= 0:
-                    terminals.set_current_page(page)
-                    self.switch_tab_event(terminals, None, page)
-                return True
-            else:
-                return False
-        else:
-            return False
-
-    def tree_submenu_event(self, widget, event):
-        '''Draw a Menu ready to be inserted in tree'''
-        if event.button == 1:
-            return False
-        elif event.button == 3:
-            menu = self.widgets['menu2']
-            menu.show_all()
-            menu.popup(None, None, None, 3, event.time)
-            return True
-        else:
-            return False
 
     def update_connection(self, widget):
         alias = self.get_tree_selection()
@@ -722,10 +740,7 @@ class MCMGtk(object):
         if terminals.get_n_pages() <= 0:
             terminals.hide()
         return True
-
-    def x_event(self, x=None, y=None):
-        self.quit_event(x)
-        return True
+    
 
 if __name__ == '__main__':
     # Start the logging stuff
