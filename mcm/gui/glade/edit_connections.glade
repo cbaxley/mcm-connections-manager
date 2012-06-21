@@ -82,7 +82,7 @@ Manage your connections
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="exp_html_button">
-                <property name="label" translatable="yes">HTML</property>
+                <property name="label" translatable="yes">Export</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -93,21 +93,6 @@ Manage your connections
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="exp_csv_button">
-                <property name="label" translatable="yes">CSV</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="tooltip_text" translatable="yes">Export to CSV</property>
-                <signal name="clicked" handler="on_exp_csv_button_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -122,7 +107,7 @@ Manage your connections
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">2</property>
+                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -137,7 +122,7 @@ Manage your connections
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">3</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>
@@ -151,7 +136,7 @@ Manage your connections
     </child>
     <action-widgets>
       <action-widget response="0">exp_html_button</action-widget>
-      <action-widget response="0">exp_csv_button</action-widget>
+      <!--<action-widget response="0">exp_csv_button</action-widget>-->
       <action-widget response="0">cancel_button</action-widget>
       <action-widget response="0">save_button</action-widget>
     </action-widgets>

@@ -235,14 +235,15 @@ class FileSelectDialog(object):
 
     def attach_filter(self, model):
         _filter = gtk.FileFilter()
-        if model is FileSelectDialog.CSV:
-            _filter.set_name("CSV")
-            _filter.add_pattern("*.csv")
-        elif model is FileSelectDialog.HTML:
-            _filter.set_name("HTML")
-            _filter.add_mime_type("text/html")
-            _filter.add_pattern("*.html")
-            _filter.add_pattern("*.htm")
+        _filter.set_name("CSV")
+        _filter.add_pattern("*.csv")
+        self.dlg.add_filter(_filter)
+        
+        _filter = gtk.FileFilter()
+        _filter.set_name("HTML")
+        _filter.add_mime_type("text/html")
+        _filter.add_pattern("*.html")
+        _filter.add_pattern("*.htm")
         self.dlg.add_filter(_filter)
 
         _filter = gtk.FileFilter()
@@ -880,25 +881,6 @@ class ManageConnectionsDialog(object):
             cx_list.append(img)
             store.append(cx_list)
         return store
-
-class HttpServerDialog(object):
-    def __init__(self):
-        builder = gtk.Builder()
-        builder.add_from_file(constants.glade_http)
-        self.dialog = builder.get_object("http_server_dialog")
-        self.dialog.connect('on_http_server_connect_toggled', self.start_server)
-        self.dialog.connect('on_http_server_disconnect_toggled', self.stop_server)
-        #self.http_server = McmHttpServerThread
-
-    def run(self):
-        self.dialog.run()
-        self.dialog.destroy()
-
-    def start_server(self):
-        pass
-
-    def stop_server(self):
-        pass
 
 class DefaultColorSettings(object):
     def __init__(self):

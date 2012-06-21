@@ -58,21 +58,10 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="mb_export_html">
-                        <property name="label" translatable="yes">Export HTML</property>
-                        <property name="visible">True</property>
-                        <property name="tooltip_text" translatable="yes">Export your connections to HTML</property>
-                        <property name="image">image2</property>
-                        <property name="use_stock">False</property>
-                        <property name="always_show_image">True</property>
-                        <signal name="activate" handler="on_mb_export_html_activate"/>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkImageMenuItem" id="mb_export_csv">
-                        <property name="label" translatable="yes">Export CSV</property>
+                        <property name="label" translatable="yes">Export</property>
                         <property name="visible">True</property>
-                        <property name="tooltip_text" translatable="yes">Export your connections to a CSV</property>
+                        <property name="tooltip_text" translatable="yes">Export your connections</property>
                         <property name="image">image3</property>
                         <property name="use_stock">False</property>
                         <property name="always_show_image">True</property>
