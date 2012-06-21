@@ -440,8 +440,9 @@ class PreferencesDialog(object):
 
 class McmCheckbox(gtk.HBox):
 
-    def __init__(self, title):
+    def __init__(self, title, pid):
         gtk.HBox.__init__(self, False)
+        self.pid = pid
         self._label = gtk.Label(title)
         self._current_alias = title
         self.pack_start(self._label, True, True, 0)
