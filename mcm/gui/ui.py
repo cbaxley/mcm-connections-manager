@@ -28,6 +28,8 @@ import gtk.glade as glade
 import vte
 import webbrowser
 import gettext
+import os
+import signal
 
 
 from subprocess import Popen
@@ -50,6 +52,7 @@ for module in glade, gettext:
 class MCMGtk(object):
 
     def __init__(self):
+        self.pids = {}
         self.conf = McmConfig()
         self.builder = gtk.Builder()
         self.builder.add_from_file(constants.glade_main)
@@ -62,7 +65,7 @@ class MCMGtk(object):
         self.draw_tree()
         self.init_main_window()
 
-    def about_event(self, widget):
+    def event_about(self, widget):
         about = self.widgets['about']
         about.connect("response", lambda d, r: d.hide())
         about.run()
@@ -88,12 +91,15 @@ class MCMGtk(object):
         entry = self.widgets['cluster_entry']
         entry.set_text("")
 
-    def close_tab_event(self, accel_group, window, keyval=None, modifier=None, unk=None):
+    def close_tab_event(self, accel_group, window=None, keyval=None, modifier=None, unk=None):
         terminals = self.widgets['terminals']
         index = terminals.get_current_page()
-        terminals.remove_page(index)
+        pid = self.pids.pop(index)
+        os.kill(pid, signal.SIGKILL)
+        
         if terminals.get_n_pages() <= 0:
             terminals.hide()
+            
         return True
 
     def cluster_backspace(self, widget):
@@ -195,15 +201,16 @@ class MCMGtk(object):
             label = McmCheckbox(connection.alias)
             label.set_tooltip_text(connection.description)
             menu_label = gtk.Label(connection.alias)
+        label.close_button.connect("clicked", self.close_tab_event)
         self.set_window_title(label.get_title())
         index = terminals.append_page_menu(scroll, label, menu_label)
         terminals.set_tab_reorderable(scroll, True)
 
-        # Send the scroll widget to the event so the notebook know which child to close
+        # Send the scroll widget to the event so the notebook knows which child to close
         v.connect("child-exited", lambda term: self.die_term_event(scroll, terminals))
         v.connect("button-press-event", self.do_popup_console_menu)
         v.connect("key-press-event", self.terminal_key_event)
-        v.fork_command()
+        self.pids[index] = v.fork_command()
         if connection != None:
             v.feed_child(connection.gtk_cmd())
         self.assign_tab_switch_binding(index + 1)
@@ -364,7 +371,7 @@ class MCMGtk(object):
             'on_connect_button_clicked': self.connect_event,
             'on_arrow_button_clicked': self.hide_unhide_tree,
             # Menu Items
-            'on_mb_about_activate': self.about_event,
+            'on_mb_about_activate': self.event_about,
             'on_mb_help_activate': self.help_event,
             'on_mb_preferences_activate': self.preferences_event,
             'on_mb_save_activate': self.save_event,
