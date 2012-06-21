@@ -169,10 +169,10 @@ class MCMGtk(object):
         vte = scroll.get_child()
         exit_code = vte.get_child_exit_status()
         
-        if exit_code > 2 or exit_code < 0:
+        if exit_code not in [0,1,2,9]: # sigkilled rets 9
+            terminals.set_current_page(index)
             dlg = UtilityDialogs()
             dlg.show_error_dialog("Unexpected Exit Code", "The connection was terminated with status code %s" % exit_code)
-        
         
         terminals.remove_page(index)
         if terminals.get_n_pages() <= 0:
