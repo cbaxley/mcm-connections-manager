@@ -214,59 +214,54 @@ class AddConnectionDialog(object):
         options.set_text(cx.options)
 
 class FileSelectDialog(object):
-    CSV = 1
-    HTML = 2
-    DIR = 3
 
-    def __init__(self, model=0):
+    def __init__(self, is_export=False):
         self.response = gtk.RESPONSE_CANCEL
         self.error = None
         self.uri = None
-        self.builder = gtk.Builder()
-        self.builder.add_from_file(constants.glade_file_utils)
-        self.dlg = self.builder.get_object('select_file_dialog')
+        self.mime = None
+        
+        title = constants.select_file_to_import
+        action = gtk.FILE_CHOOSER_ACTION_OPEN
+        buttons = (gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK)
+        if is_export:
+            title = constants.select_file_to_export
+            action = gtk.FILE_CHOOSER_ACTION_SAVE
+            buttons = (gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK)
+        
+        self.dlg = gtk.FileChooserDialog(title, None, action, buttons)
+        self.attach_filter(is_export)
 
-        events = {
-                  'on_open_button7_clicked': self.open_event,
-                  'on_cancel_button6_clicked': self.cancel_event,
-                }
-        self.builder.connect_signals(events)
-        self.attach_filter(model)
-
-    def attach_filter(self, model):
+    def attach_filter(self, is_export):
         _filter = gtk.FileFilter()
         _filter.set_name("CSV")
+        _filter.add_mime_type("text/csv")
         _filter.add_pattern("*.csv")
         self.dlg.add_filter(_filter)
         
-        _filter = gtk.FileFilter()
-        _filter.set_name("HTML")
-        _filter.add_mime_type("text/html")
-        _filter.add_pattern("*.html")
-        _filter.add_pattern("*.htm")
-        self.dlg.add_filter(_filter)
-
-        _filter = gtk.FileFilter()
-        _filter.set_name(constants.all_connections_filter_name)
-        _filter.add_pattern("*")
-        self.dlg.add_filter(_filter)
-                
+        if is_export:
+            _filter = gtk.FileFilter()
+            _filter.set_name("HTML")
+            _filter.add_mime_type("text/html")
+            _filter.add_pattern("*.html")
+            _filter.add_pattern("*.htm")
+            self.dlg.add_filter(_filter)
 
     def get_response(self):
         return self.response
 
-    def open_event(self, widget):
-        self.uri = self.dlg.get_filename()
-        self.response = gtk.RESPONSE_OK
-
-    def cancel_event(self, widget):
-        self.response = gtk.RESPONSE_CANCEL
-
     def get_filename(self):
+        if self.uri.find(self.mime) == -1:
+            self.uri += "." + self.mime
         return self.uri
+    
+    def get_mime(self):
+        self.dlg.get_filter()
 
     def run(self):
-        self.dlg.run()
+        self.response = self.dlg.run()
+        self.uri = self.dlg.get_filename()
+        self.mime = self.dlg.get_filter().get_name().lower()
         self.dlg.destroy()
 
 class ImportProgressDialog(object):
