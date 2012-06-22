@@ -211,7 +211,6 @@ class Tips(object):
             sections.append(tip.section)
         return set(sections)
 
-
 # Use this script to create a json file from a CSV file
 #if __name__ == '__main__':
 #    _csv = Csv('/tmp/tips.csv')

@@ -253,8 +253,6 @@ class MCMGtk(object):
     def event_help(self, widget):
         webbrowser.open_new_tab(constants.mcm_help_url)
         
-    
-            
     def event_manage(self, widget):
         dlg = ManageConnectionsDialog(self.connections, self.connections.get_groups(), types())
         dlg.run()
