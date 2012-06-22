@@ -48,7 +48,7 @@ class Mcm(object):
 
     def connect(self, alias):
         try:
-            conn = self.connections[alias]
+            conn = self.connections.get(alias)
             self.do_connect(conn)
         except KeyError:
             print "Error loading connections." 
@@ -57,7 +57,7 @@ class Mcm(object):
 
     def delete(self, alias):
         try:
-            del self.connections[alias]
+            self.connections.delete(alias)
             self.save_and_exit()
         except KeyError:
             print("Unknown alias " + alias)
@@ -84,9 +84,8 @@ class Mcm(object):
                 print "Alias for this connection:"
                 cx_alias = raw_input()
                 if self.connections != None:
-                    if self.connections.has_key(cx_alias):
+                    if self.connections.get(cx_alias) != None:
                         raise TypeError("This alias is already used. Try with another one")
-                    
 
                 print "Hostname or IP Address:"
                 cx_host = raw_input()
@@ -111,8 +110,8 @@ class Mcm(object):
                 print("Description:")
                 cx_desc = raw_input()
 
-                # cx = connections_factory(get_last_id(self.connections), cx_type, cx_user, cx_host, cx_alias, cx_password, cx_port, cx_group, cx_options, cx_desc)
-                self.connections[cx_alias] = cx
+                cx = connections_factory(cx_type, cx_user, cx_host, cx_alias, cx_password, cx_port, cx_group, cx_options, cx_desc)
+                self.connections.add(cx_alias, cx)
                 print("saved")
                 print(cx)
 
@@ -123,30 +122,38 @@ class Mcm(object):
                 alias = d['alias'].strip()
                 if len(d) != 10:
                     raise TypeError("Not a parseable Connection List")
-                if self.connections.has_key(alias):
+                if self.connections.get(alias):
                     print "Not saving %s" % alias
                     continue
-                # cx = connections_factory(get_last_id(self.connections), d['type'], d['user'], d['host'], alias, d['password'], d['port'], d['group'], d['options'], d['description'])
-                self.connections[alias] = cx
+                cx = connections_factory(d['type'], d['user'], d['host'], alias, d['password'], d['port'], d['group'], d['options'], d['description'])
+                self.connections.add(alias, cx)
                 print("saved")
                 print(cx)
                 
         self.save_and_exit()
 
-
-    def list(self, alias=None):
-        print "Usage: mcm [OPTIONS] [ALIAS]\n"
+    def show_connection(self, alias):
         t_headers = ['Alias', 'user', 'host', 'port']
         t_rows = []
-        _ids = []
-        for conn in self.connections.values():
-            _ids.append(int(conn.id))
-        
-        _ids.sort()
-        for _id in _ids:
-            for conn in self.connections.values():
-                if conn.id == str(_id):
-                    t_rows.append((conn.alias, conn.user, conn.host, conn.port))
+        if alias:
+            conn = self.connections.get(alias)
+            if conn:
+                t_rows.append((conn.alias, conn.user, conn.host, conn.port))
+                
+        table = Table(t_headers, t_rows)
+        table.output()
+        exit(0)
+
+
+    def list_connections(self):
+        print "Usage: mcm [OPTIONS] [ALIAS]\n"
+        t_headers = ['Aliases', 'user', 'host', 'port']
+        t_rows = []
+        keys = self.connections.get_aliases()
+        keys.sort()
+        for key in keys:
+            conn = self.connections.get(key)
+            t_rows.append((conn.alias, conn.user, conn.host, conn.port))
 
         table = Table(t_headers, t_rows)
         table.output()
@@ -156,7 +163,7 @@ class Mcm(object):
         print '-'*80
         print "Full list of connections"
         (sshs, vncs, rdps, tels, ftps) = ([], [], [], [], [])
-        for conn in self.connections.values():
+        for conn in self.connections.get_all():
             cx_type = conn.__class__.__name__.upper()
             if cx_type == 'SSH':
                 sshs.append(conn)
@@ -204,17 +211,17 @@ class Mcm(object):
     def show_menu_dialog(self):
         '''Show a dialog, catch its output and return it for do_connect'''
         menu_size = 20
-        if len(self.connections) < menu_size:
-            menu_size = str(len(self.connections))
+        if len(self.connections.store) < menu_size:
+            menu_size = str(len(self.connections.store))
         else:
             menu_size = str(menu_size)
         dialog = [
                 self.dialog_binary, '--backtitle', 'mcm ' + constants.version, '--clear', '--menu', '"Choose an Alias to connect to"', '0', '150', menu_size
                 ]
-        keys = self.connections.keys()
+        keys = self.connections.get_aliases()
         keys.sort()
         for key in keys:
-            conn = self.connections[key]
+            conn = self.connections.get(key)
             dialog.append(key)
             dialog.append(conn.dialog_string())
         fhandlr = open('/tmp/mcm_ans', 'w+')
@@ -232,7 +239,7 @@ class Mcm(object):
         return aliases[0]
 
     def save_and_exit(self):
-        self.dao.save_to_xml(self.connections.values())
+        self.connections.save()
         exit(0)
 
     def import_csv(self, path):
@@ -245,7 +252,8 @@ if __name__ == '__main__':
     parser = OptionParser(usage="%prog [OPTIONS] [ALIAS]\nWith no options, prints the list of connections\nexample:\n  %prog foo\t\tConnects to server foo", version="%prog 0.9")
     parser.add_option("-a", "--add", action="store_true", dest="add", help="add a new connection")
     parser.add_option("-l", "--list", action="store_true", dest="list", help="complete list of connections with all data")
-    parser.add_option("-d", "--delete", action="store", dest="alias", help="delete the given connection alias")
+    parser.add_option("-s", "--show", action="store", dest="alias", help="delete the given connection alias")
+    parser.add_option("-d", "--delete", action="store", dest="alias", help="show the given connection alias")
     parser.add_option("--html", action="store", dest="html", help="Export the connections to the given HTML file")
     parser.add_option("--csv", action="store", dest="csv", help="Import the connections from the given CSV file")
 
@@ -275,7 +283,10 @@ if __name__ == '__main__':
         mcmt.add()
 
     if options.list:
-        mcmt.long_list()
+        mcmt.list_connections()
+        
+    if options.alias:
+        mcmt.show_connection(options.alias)
 
     if options.alias:
         mcmt.delete(options.alias)
