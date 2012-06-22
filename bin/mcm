@@ -41,6 +41,9 @@
 # before.
 #
 
+mcm_path="/usr/share/apps/mcm"
+PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}$mcm_path"
+PYTHON="/usr/bin/python"
 inst_dir="/usr/share/apps/mcm"
 binary=$( basename ${0} )
 
@@ -51,19 +54,19 @@ xdg_config="${HOME}/.config/"
 mcm_data="${xdg_data}mcm"
 mcm_config="${xdg_config}mcm"
 
-src_config_file="${inst_dir}/doc/mcm.conf"
-src_tips_file="${inst_dir}/doc/tips.json"
+src_config_file="${mcm_path}/doc/mcm.conf"
+src_tips_file="${mcm_path}/doc/tips.json"
 
 # Test for first run
 if [ ! -d "${mcm_data}" ] ; then
     echo "Copying default data files to ${mcm_data}"
-    mkdir ${mcm_data}
+    mkdir -p ${mcm_data}
     cp ${src_tips_file}   ${mcm_data} 
 fi
 
 if [ ! -d "${mcm_config}" ] ; then
     echo "Copying default configuration to ${mcm_config}"
-    mkdir ${mcm_config}
+    mkdir -p ${mcm_config}
     cp ${src_config_file} ${mcm_config}
 fi
 
@@ -77,19 +80,11 @@ if [ ! -f "${mcm_config}/mcm.conf" ]; then
     cp ${src_config_file} ${mcm_conf}
 fi
 
-# In case this is the first time the app is being run after an update
-# of a release which doesn't use XDG, I'll move the old files to their
-# new locations
-
-if [ -d "${HOME}/.mcm" ] ; then
-    mv "${HOME}/.mcm/mcm.conf" ${mcm_config}
-    mv "${HOME}/.mcm/tips.json" ${mcm_data}
-    rmdir "${HOME}/.mcm"
-fi
-
 if [ "${binary}" == "mcm" ] ; then
-    /usr/bin/python ${inst_dir}/terminal/term.py ${@}
+    # /usr/bin/python ${mcm_path}/terminal/term.py ${@}
+    exec -a mcm $PYTHON -OO ${mcm_path}/terminal/term.py "${@}"
 else
-    /usr/bin/python ${inst_dir}/gui/ui.py &
+    # /usr/bin/python ${mcm_path}/gui/ui.py &
+    exec -a mcm $PYTHON -OO ${mcm_path}/gui/ui.py "${@}"
 fi
 
