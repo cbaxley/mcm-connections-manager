@@ -81,8 +81,8 @@ class MCMGtk(object):
             'on_mb_preferences_activate': self.event_preferences,
             'on_mb_save_activate': self.event_save,
             'on_mb_import_activate': self.event_import_csv,
-            'on_mb_export_html_activate': self.event_export_html,
-            'on_mb_export_csv_activate': self.event_export_csv,
+            'on_mb_export_html_activate': self.event_export,
+            'on_mb_export_csv_activate': self.event_export,
             'on_mb_quit_activate': self.event_quit,
             'on_mb_add_activate': self.event_add,
             'on_mb_delete_activate': self.event_delete,
@@ -227,31 +227,16 @@ class MCMGtk(object):
         widget.modify_base(gtk.STATE_NORMAL, self.default_color)
         widget.set_tooltip_text(constants.press_enter_to_save)
 
-    def event_export_csv(self, widget):
-        dlg = FileSelectDialog(FileSelectDialog.CSV)
+    def event_export(self, widget):
+        dlg = FileSelectDialog(True)
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
             _csv = ExportCsv(dlg.get_filename(), self.connections.get_all())
             idlg = UtilityDialogs()
-            idlg.show_info_dialog(constants.export_csv, constants.saved_file % dlg.get_filename())
-
-    def event_export_html(self, widget):
-        dlg = FileSelectDialog(FileSelectDialog.HTML)
-        dlg.run()
-        if dlg.response == gtk.RESPONSE_OK:
-            _html = Html(dlg.get_filename(), constants.version, self.connections.get_all())
-            _html.export()
-            idlg = UtilityDialogs()
-            idlg.show_info_dialog(constants.export_html, constants.saved_file % dlg.get_filename())
-
-    def event_f10(self, accel_group, window=None, keyval=None, modifier=None):
-        return False
-    
-    def event_help(self, widget):
-        webbrowser.open_new_tab(constants.mcm_help_url)
-        
+            idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
+            
     def event_import_csv(self, widget):
-        dlg = FileSelectDialog(FileSelectDialog.CSV)
+        dlg = FileSelectDialog()
         dlg.run()
         cxs = None
         if dlg.response == gtk.RESPONSE_OK:
@@ -261,6 +246,14 @@ class MCMGtk(object):
             dlg.run()
             self.connections.add_all(dlg.connections)
             self.draw_tree()
+
+    def event_f10(self, accel_group, window=None, keyval=None, modifier=None):
+        return False
+    
+    def event_help(self, widget):
+        webbrowser.open_new_tab(constants.mcm_help_url)
+        
+    
             
     def event_manage(self, widget):
         dlg = ManageConnectionsDialog(self.connections, self.connections.get_groups(), types())
