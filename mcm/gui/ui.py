@@ -37,7 +37,7 @@ from vnc import MCMVncClient
 from mcm.common import constants
 from mcm.common.configurations import McmConfig
 from mcm.common.connections import ConnectionStore, types
-from mcm.common.export import ExportCsv, Html
+from mcm.common.export import print_csv, Html
 from mcm.common.utils import Csv
 from mcm.gui.widgets import AddConnectionDialog, UtilityDialogs, McmCheckbox, \
     FileSelectDialog, ImportProgressDialog, DefaultColorSettings, \
@@ -93,11 +93,15 @@ class MCMGtk(object):
             'on_mb_tips_toggled': self.hide_unhide_tips,
             'on_mb_edit_activate': self.event_edit,
             'on_sib_home_activate': self.do_localhost,
+            # Menu Filter Signals
+            'on_filter_toggled': self.event_filter_toggled,
             # Tree signals
             'on_connections_tree_row_activated': self.event_connect,
             'on_home_button_clicked': self.do_localhost,
             'on_connections_tree_cursor_changed': self.on_tree_item_clicked,
             'on_connections_tree_button_press_event': self.event_tree_submenu,
+            'on_mb_expand_activate': self.event_tree_expand,
+            'on_mb_collapse_activate': self.event_tree_collapse,
             # Entries Signals
             'on_user_entry_activate': self.update_connection,
             'on_user_entry_changed': self.event_entry_changed,
@@ -231,7 +235,7 @@ class MCMGtk(object):
         dlg = FileSelectDialog(True)
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
-            _csv = ExportCsv(dlg.get_filename(), self.connections.get_all())
+            _csv = print_csv(dlg.get_filename(), self.connections.get_all())
             idlg = UtilityDialogs()
             idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
             
@@ -271,7 +275,6 @@ class MCMGtk(object):
         dlg = UtilityDialogs()
         response = dlg.show_question_dialog(constants.quit_warning, constants.are_you_sure)
         if response == gtk.RESPONSE_OK:
-            #self.dao.save_to_xml(self.connections.values())
             self.connections.save()
             exit(0)
         else:
@@ -287,6 +290,12 @@ class MCMGtk(object):
         
     def event_reorder_tab(self, notebook, page, page_num):
         pass
+    
+    def event_tree_expand(self, widget):
+        self.widgets['cx_tree'].expand_all()
+    
+    def event_tree_collapse(self, widget):
+        self.widgets['cx_tree'].collapse_all()
 
     def event_terminal_key(self, widget, event):
         if event.state & gtk.gdk.CONTROL_MASK:
@@ -312,7 +321,19 @@ class MCMGtk(object):
                 return False
         else:
             return False
-
+        
+    def event_select_all_filter(self, widget):
+        filter_menu = widget.get_parent()
+        items = [x for x in filter_menu.get_children() if type(x) is gtk.CheckMenuItem]
+        for i in items[1:len(items)]:
+                i.set_active(False)
+    
+    def event_filter_toggled(self, widget):
+        filter_menu = widget.get_parent()
+        items = [x for x in filter_menu.get_children() if x.active]
+        filters = [x.get_label().upper() for x in items]
+        self.draw_tree(filters)
+    
     def event_tree_submenu(self, widget, event):
         '''Draw a Menu ready to be inserted in tree'''
         if event.button == 1:
@@ -523,8 +544,8 @@ class MCMGtk(object):
             return
         label = self.widgets['cx_type']
         label.set_label("<b>%s</b>" % connection.get_type())
-        label = self.widgets['alias_label']
-        label.set_label("<b>%s</b>" % alias)
+        #label = self.widgets['alias_label']
+        #label.set_label("<b>%s</b>" % alias)
         self.draw_entry('user_entry', connection.user)
         self.draw_entry('host_entry', connection.host)
         self.draw_entry('port_entry', connection.port)
@@ -540,7 +561,7 @@ class MCMGtk(object):
         entry.modify_base(gtk.STATE_NORMAL, self.default_color)
         entry.set_tooltip_text(tooltip_text)
 
-    def draw_tree(self):
+    def draw_tree(self, connections_filter=None):
         tree = self.widgets['cx_tree']
         if len(tree.get_columns()) == 0:
             self.draw_column(tree, "Alias", 0)
@@ -549,13 +570,21 @@ class MCMGtk(object):
 
         groups = set()
         for cx in self.connections.get_all():
-            groups.add(cx.group)
+            if connections_filter:
+                if cx.get_type() in connections_filter:
+                    groups.add(cx.group)
+            else:
+                groups.add(cx.group)
 
         for grp in groups:
             grp_node = tree_store.append(None, [grp, None])
             for cx in self.connections.get_all():
-                if grp == cx.group:
-                    tree_store.append(grp_node, [cx.alias, None])
+                if connections_filter:
+                    if cx.get_type() in connections_filter and grp == cx.group:
+                        tree_store.append(grp_node, [cx.alias, None])
+                else:    
+                    if grp == cx.group:
+                        tree_store.append(grp_node, [cx.alias, None])
 
     def get_tree_selection(self, tree=None):
         '''Gets the alias of the connection currently selected on the tree'''
@@ -568,7 +597,7 @@ class MCMGtk(object):
             return None
         alias = model.get_value(i, 0)
         return alias
-
+    
     def hide_unhide_cluster_box(self, widget):
         terminals = self.widgets['terminals']
         pages = terminals.get_n_pages()
