@@ -21,10 +21,8 @@
 '''
 This is the main script for mcm
 '''
-import os
-import sys
 import subprocess
-import logging
+import readline
 from optparse import OptionParser
 
 from tables import Table
@@ -40,9 +38,9 @@ class Mcm(object):
         self.connections.load()
 
     def do_connect(self, connection):
-        connection.print_connection(connection.conn_args())
+        connection.print_connection(connection.get_fork_args())
         try:
-            subprocess.call(connection.conn_args())
+            subprocess.call(connection.get_fork_args())
         except (KeyboardInterrupt, SystemExit):
             exit(0)
 
@@ -58,65 +56,66 @@ class Mcm(object):
     def delete(self, alias):
         try:
             self.connections.delete(alias)
+            print "Alias %s has been removed" % alias
             self.save_and_exit()
         except KeyError:
             print("Unknown alias " + alias)
 
-    def export_html(self, path):
+    def export_html(self):
         from mcm.common.export import Html
-        html = Html(path, constants.version, self.dao.read_xml()) 
-        html.export()
+        _html = Html(constants.version, self.connections) 
+        _html.export()
+        
+    def export_csv(self):
+        from mcm.common.export import print_csv
+        print_csv(self.connections)
 
     def add(self, cxs=None):
         cx = None
         if cxs == None:
-            try:
-                print "Adding a new alias. Follow instructions"
-                print "Type of server (ssh, vnc, rdp, telnet, ftp) [default: SSH]:"
-                cx_type = raw_input()
-                cx_type = cx_type.upper()
-                if len(cx_type) <= 0:
-                    cx_type = 'SSH'
+            print "Adding a new alias. Follow instructions"
+            print "Type of server (ssh, vnc, rdp, telnet, ftp) [default: SSH]:"
+            cx_type = raw_input()
+            cx_type = cx_type.upper()
+            if len(cx_type) <= 0:
+                cx_type = 'SSH'
 
-                if cx_type != 'SSH' and cx_type != 'VNC' and cx_type != 'RDP' and cx_type != 'TELNET' and cx_type != 'FTP':
-                    raise TypeError("Unknown server type: " + cx_type)
+            if cx_type != 'SSH' and cx_type != 'VNC' and cx_type != 'RDP' and cx_type != 'TELNET' and cx_type != 'FTP':
+                raise TypeError("Unknown server type: " + cx_type)
 
-                print "Alias for this connection:"
-                cx_alias = raw_input()
-                if self.connections != None:
-                    if self.connections.get(cx_alias) != None:
-                        raise TypeError("This alias is already used. Try with another one")
+            print "Alias for this connection:"
+            cx_alias = raw_input()
+            if self.connections != None:
+                if self.connections.get(cx_alias) != None:
+                    raise TypeError("This alias is already used. Try with another one")
 
-                print "Hostname or IP Address:"
-                cx_host = raw_input()
+            print "Hostname or IP Address:"
+            cx_host = raw_input()
 
-                print "Username:"
-                cx_user = raw_input()
+            print "Username:"
+            cx_user = raw_input()
 
-                print "Password:"
-                cx_password = raw_input()
+            print "Password:"
+            cx_password = raw_input()
 
-                print "Port:"
-                cx_port = raw_input()
+            print "Port:"
+            cx_port = raw_input()
 
-                print "Group:"
-                cx_group = raw_input()
-                if len(cx_group) <= 0:
-                    cx_group = None
+            print "Group:"
+            cx_group = raw_input()
+            if len(cx_group) <= 0:
+                cx_group = None
 
-                print "Options:"
-                cx_options = raw_input()
+            print "Options:"
+            cx_options = raw_input()
 
-                print("Description:")
-                cx_desc = raw_input()
+            print "Description:"
+            cx_desc = raw_input()
 
-                cx = connections_factory(cx_type, cx_user, cx_host, cx_alias, cx_password, cx_port, cx_group, cx_options, cx_desc)
-                self.connections.add(cx_alias, cx)
-                print("saved")
-                print(cx)
+            cx = connections_factory(cx_type, cx_user, cx_host, cx_alias, cx_password, cx_port, cx_group, cx_options, cx_desc)
+            self.connections.add(cx_alias, cx)
+            print "saved %s" % cx
 
-            except (KeyboardInterrupt, SystemExit):
-                exit(1)
         else:
             for d in cxs: # d is a dict
                 alias = d['alias'].strip()
@@ -127,8 +126,7 @@ class Mcm(object):
                     continue
                 cx = connections_factory(d['type'], d['user'], d['host'], alias, d['password'], d['port'], d['group'], d['options'], d['description'])
                 self.connections.add(alias, cx)
-                print("saved")
-                print(cx)
+                print "saved %s" % cx
                 
         self.save_and_exit()
 
@@ -147,67 +145,45 @@ class Mcm(object):
 
     def list_connections(self):
         print "Usage: mcm [OPTIONS] [ALIAS]\n"
-        t_headers = ['Aliases', 'user', 'host', 'port']
+        t_headers = ['Aliases', 'Type', 'user', 'host', 'port']
         t_rows = []
         keys = self.connections.get_aliases()
         keys.sort()
         for key in keys:
             conn = self.connections.get(key)
-            t_rows.append((conn.alias, conn.user, conn.host, conn.port))
+            if type(conn) is not Vnc and type(conn) is not Rdp:
+                t_rows.append((conn.alias, conn.get_type(), conn.user, conn.host, conn.port))
 
         table = Table(t_headers, t_rows)
         table.output()
-        exit(0)
-
-    def long_list(self):
-        print '-'*80
-        print "Full list of connections"
-        (sshs, vncs, rdps, tels, ftps) = ([], [], [], [], [])
-        for conn in self.connections.get_all():
-            cx_type = conn.__class__.__name__.upper()
-            if cx_type == 'SSH':
-                sshs.append(conn)
-            elif cx_type == 'VNC':
-                vncs.append(conn)
-            elif cx_type == 'RDP':
-                rdps.append(conn)
-            elif cx_type == 'TELNET':
-                tels.append(conn)
-            elif cx_type == 'FTP':
-                ftps.append(conn)
-            else:
-                raise TypeError("Unknown Server Type: " + cx_type)
-
-        self.long_print_conn("SSH", sshs)
-        self.long_print_conn("VNC", vncs)
-        self.long_print_conn("RDP", rdps)
-        self.long_print_conn("TELNET", tels)
-        self.long_print_conn("FTP", ftps)
-
-        sys.exit(0)
+        print "=" * 80
 
     def show_menu(self):
         if os.path.exists(self.dialog_binary):
             alias = self.show_menu_dialog()
             self.connect(alias)
         else:
-            self.list()
+            self.list_connections()
+            readline.set_completer(self.completer)
+            readline.parse_and_bind("tab: complete")
+            
+            try:
+                alias = raw_input("mcm: ")
+                if alias and self.connections.get(alias):
+                    self.connect(alias)
+                else:
+                    print "Unknown alias %s" % alias
+            except (KeyboardInterrupt, EOFError):
+                exit(0)
+            
+    def completer(self, text, state):
+        options = [x for x in self.connections.get_aliases() if x.startswith(text)]
+        try:
+            return options[state]
+        except IndexError:
+            return None
 
-    def long_print_conn(self, type, connections):
-        print '-'*80
-        print type
-        print '-'*80
-        if len(connections) == 0:
-            return
-        t_headers = ['Alias', 'user', 'host', 'port', 'Password','Options', 'Description']
-        t_rows = []
-        for conn in connections:
-            row = (conn.alias, conn.user, conn.host, conn.port, conn.password, conn.options, conn.description.strip())
-            t_rows.append(row)
-
-        table = Table(t_headers, t_rows)
-        table.output()
-    
+        
     def show_menu_dialog(self):
         '''Show a dialog, catch its output and return it for do_connect'''
         menu_size = 20
@@ -216,7 +192,11 @@ class Mcm(object):
         else:
             menu_size = str(menu_size)
         dialog = [
-                self.dialog_binary, '--backtitle', 'mcm ' + constants.version, '--clear', '--menu', '"Choose an Alias to connect to"', '0', '150', menu_size
+                self.dialog_binary, 
+                '--backtitle', 'mcm ' + constants.version, 
+                '--clear', '--menu', 
+                '"Choose an Alias to connect to"', 
+                '0', '150', menu_size
                 ]
         keys = self.connections.get_aliases()
         keys.sort()
@@ -243,59 +223,85 @@ class Mcm(object):
         exit(0)
 
     def import_csv(self, path):
-        from mcm.common.utils import Csv
         _csv = Csv(path)
         cxs = _csv.do_import()
+        print cxs
         self.add(cxs)
 
 if __name__ == '__main__':
-    parser = OptionParser(usage="%prog [OPTIONS] [ALIAS]\nWith no options, prints the list of connections\nexample:\n  %prog foo\t\tConnects to server foo", version="%prog 0.9")
+    
+    usage = """%prog [OPTIONS] [ALIAS]
+With no options, prints the list of connections
+example:
+%prog foo\t\tConnects to server foo
+    """
+    
+    parser = OptionParser(usage="", version=version)
     parser.add_option("-a", "--add", action="store_true", dest="add", help="add a new connection")
     parser.add_option("-l", "--list", action="store_true", dest="list", help="complete list of connections with all data")
-    parser.add_option("-s", "--show", action="store", dest="alias", help="delete the given connection alias")
-    parser.add_option("-d", "--delete", action="store", dest="alias", help="show the given connection alias")
-    parser.add_option("--html", action="store", dest="html", help="Export the connections to the given HTML file")
-    parser.add_option("--csv", action="store", dest="csv", help="Import the connections from the given CSV file")
+    parser.add_option("-s", "--show", action="store", dest="show", help="delete the given connection alias")
+    parser.add_option("-d", "--delete", action="store", dest="delete_alias", help="show the given connection alias")
+    parser.add_option("--export-html", action="store_true", dest="export_html", 
+                      help="Print the connections in HTML format")
+    parser.add_option("--export-csv", action="store_true", dest="export_csv", 
+                      help="Print the connections in CSV format")
+    parser.add_option("--import-csv", action="store", dest="import_csv",
+                      help="Import the connections from the given CSV file")
 
     (options, args) = parser.parse_args()
 
-    # Start the logging stuff
-    log_format = "%(asctime)s %(levelname)s: %(message)s"
-    logging.basicConfig(level=logging.INFO, format = log_format)
-
-    #(export, drop) = os.path.split(os.getcwd())
-    #(export, drop) = os.path.split(export)
-    #sys.path.insert(0, export)
-
     mcmt = Mcm()
 
-    if not options.list and not options.add and not options.alias and not options.html and not options.csv and len(args) < 1:
-        mcmt.show_menu()
+    if not options.list \
+        and not options.add \
+        and not options.show \
+        and not options.delete_alias \
+        and not options.export_html \
+        and not options.export_csv \
+        and not options.import_csv \
+        and len(args) < 1:
+            mcmt.show_menu()
 
     # I want only one option at a time
-    if options.add and (options.list or options.alias or options.html or options.csv):
+    if options.add \
+        and (options.list 
+             or options.show 
+             or options.export_html 
+             or options.export_csv 
+             or options.import_csv):
         parser.error("Only one option at a time")
 
-    if options.list and options.alias and options.html and options.csv:
+    if options.list and options.show and options.export_html and options.export_csv and options.import_csv:
         parser.error("Only one option at a time")
 
     if options.add:
-        mcmt.add()
+        try:
+            mcmt.add()
+        except KeyboardInterrupt as e:
+            if type(e) is not KeyboardInterrupt:
+                print e
+                exit(1)
 
     if options.list:
         mcmt.list_connections()
         
-    if options.alias:
-        mcmt.show_connection(options.alias)
+    if options.show:
+        mcmt.show_connection(options.show)
 
-    if options.alias:
-        mcmt.delete(options.alias)
+    if options.delete_alias:
+        mcmt.delete(options.delete_alias)
 
-    if options.html:
-        mcmt.export_html(options.html)
+    if options.export_html:
+        mcmt.export_html()
 
-    if options.csv:
-        mcmt.import_csv(options.csv)
+    if options.export_csv:
+        mcmt.export_csv()
+        
+    if options.import_csv:
+        mcmt.import_csv(options.import_csv)
 
     if len(args) > 0:
-        mcmt.connect(args[0])
+        mcmt.connect(options.show)
+        
+
+
