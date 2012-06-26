@@ -22,22 +22,20 @@
 '''
 All the Export are handled from here
 '''
+import sys
 from datetime import datetime
 
 
 class Html(object):
 
-    def __init__(self, out_file_path, mcm_version, connections):
-        self.out_file_path = out_file_path
+    def __init__(self, mcm_version, connections):
         self.version = mcm_version
         self.connections = connections
 
     def export(self):
-        self.ofile = open(self.out_file_path, 'w')
-        self.ofile.write(self.get_header())
-        self.ofile.write(self.get_content())
-        self.ofile.write(self.get_footer())
-        self.ofile.close()
+        sys.stdout.write(self.get_header())
+        sys.stdout.write(self.get_content())
+        sys.stdout.write(self.get_footer())
 
     def get_header(self):
         header = """
@@ -97,16 +95,14 @@ color: #339;
         <table id=\"box-table-a\"><thead><tr>
         <th scope=\"col\">Alias</th>
         <th scope=\"col\">Type</th>
-        <th scope=\"col\">Id</th>
         <th scope=\"col\">Host</th>
         <th scope=\"col\">Port</th>
         <th scope=\"col\">User</th>
-        <th scope=\"col\">Password</th>
         <th scope=\"col\">Options</th>
         <th scope=\"col\">Group</th>
         <th scope=\"col\">Description</th></tr></thead><tbody> """
-        for cx in self.connections:
-            content += cx.get_html_tr() + "\n"
+        for cx in self.connections.get_all():
+            content += cx.get_html_tr()
         content += "</tbody></table>"
         return content
 
@@ -122,13 +118,15 @@ class Odf(object):
         pass
 
 
-class ExportCsv(object):
-
-    def __init__(self, out_file, connections):
-        import csv
-        csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
-        writer = csv.writer(open(out_file, 'wb'), dialect='mcm')
-        writer.writerow(['alias', 'type', 'host', 'port', 'user',\
-                        'password', 'options', 'group', 'description'])
-        for cx in connections:
-            writer.writerow(cx.to_list())
+def print_csv(connections, output=None):
+    import csv
+    csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
+    writer = None
+    if output:
+        writer = csv.writer(output, dialect='mcm')
+    else:
+        writer = csv.writer(sys.stdout, dialect='mcm')
+    writer.writerow(['alias', 'type', 'host', 'port', 'user',\
+                    'password', 'options', 'group', 'description'])
+    for cx in connections.get_all():
+        writer.writerow(cx.to_list())
