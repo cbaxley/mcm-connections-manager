@@ -89,7 +89,7 @@ class Connection(object):
 
     def get_html_tr(self):
         cxs = [self.alias, self.get_type(), self.host, self.port,
-        self.user, self.password, self.options, self.group, self.description]
+        self.user, self.options, self.group, self.description]
         tr = "<tr>"
         for cx in cxs:
             tr += "<td>%s</td>" % cx
@@ -297,7 +297,11 @@ class ConnectionStore(object):
         del self.store[alias]
         
     def get(self, alias):
-        return self.store[alias]
+        try:
+            return self.store[alias]
+        except KeyError:
+            return None
+        
     
     def get_all(self):
         return self.store.values()
