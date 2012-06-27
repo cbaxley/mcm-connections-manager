@@ -24,6 +24,8 @@ import json
 from mcm.common.configurations import McmConfig
 from mcm.common.constants import error_dialog, connection_error, cxs_json
 
+types = {'SSH':22, 'VNC':5900, 'RDP':3389, 'TELNET':23, 'FTP':21}
+
 class Connection(object):
 
     def __init__(self, user, host, alias, password, port, group=None, \
@@ -101,6 +103,8 @@ class Connection(object):
         self.user, self.host, self.port)
 
 class Ssh(Connection):
+    
+    default_port = 22
 
     def hostname(self):
         return "%s@%s" % (self.user, self.host)
@@ -129,6 +133,8 @@ class Ssh(Connection):
         return [self.client, self.hostname(), "-p", self.port, self.options]
 
 class Vnc(Connection):
+    
+    default_port = 5900
 
     def vnchost(self):
         return "%s:%s" % (self.host, self.port)
@@ -148,8 +154,9 @@ class Vnc(Connection):
         self.client, options, embedded = conf.get_vnc_conf()
         return [self.client, self.options, self.vnchost()]
 
-
 class Rdp(Connection):
+    
+    default_port = 3389
     
     def rdphost(self):
         if self.port:
@@ -171,8 +178,9 @@ class Rdp(Connection):
         self.client, not_used = conf.get_rdp_conf()
         return [self.client, self.options, self.rdphost()]
 
-
 class Telnet(Connection):
+    
+    default_port = 23
 
     def conn_args(self):
         conf = McmConfig()
@@ -189,8 +197,9 @@ class Telnet(Connection):
         self.client, not_used = conf.get_telnet_conf()
         return [self.client, self.options, self.host, self.port]
 
-
 class Ftp(Connection):
+    
+    default_port = 21
 
     def conn_args(self):
         conf = McmConfig()
@@ -206,7 +215,6 @@ class Ftp(Connection):
         conf = McmConfig()
         self.client, not_used = conf.get_ftp_conf()
         return [self.client, self.options, '-u', self.user, '-p', self.port, self.host]
-
 
 def connections_factory(cx_type, cx_user, cx_host, cx_alias,
 cx_password, cx_port, cx_group, cx_options, cx_desc):
@@ -245,8 +253,6 @@ cx_password, cx_port, cx_group, cx_options, cx_desc):
         exit(1)
 
 
-def types():
-    return ['SSH', 'VNC', 'RDP', 'TELNET', 'FTP']
 
 class ConnectionStore(object):
     def __init__(self):

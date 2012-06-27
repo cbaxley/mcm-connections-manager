@@ -81,8 +81,7 @@ class MCMGtk(object):
             'on_mb_preferences_activate': self.event_preferences,
             'on_mb_save_activate': self.event_save,
             'on_mb_import_activate': self.event_import_csv,
-            'on_mb_export_html_activate': self.event_export,
-            'on_mb_export_csv_activate': self.event_export,
+            'on_mb_export_activate': self.event_export,
             'on_mb_quit_activate': self.event_quit,
             'on_mb_add_activate': self.event_add,
             'on_mb_delete_activate': self.event_delete,
@@ -130,7 +129,7 @@ class MCMGtk(object):
         about.run()
 
     def event_add(self, widget):
-        dlg = AddConnectionDialog(self.connections.get_aliases(), self.connections.get_groups(), types())
+        dlg = AddConnectionDialog(self.connections.get_aliases(), self.connections.get_groups(), types)
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
             cx = dlg.new_connection
@@ -220,7 +219,7 @@ class MCMGtk(object):
     
     def event_edit(self, widget):
         alias = self.get_tree_selection()
-        dlg = AddConnectionDialog(self.connections.get_aliases(), self.connections.get_groups(), types(), self.connections.get(alias))
+        dlg = AddConnectionDialog(self.connections.get_aliases(), self.connections.get_groups(), types, self.connections.get(alias))
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
             cx = dlg.new_connection
@@ -258,7 +257,7 @@ class MCMGtk(object):
         webbrowser.open_new_tab(constants.mcm_help_url)
         
     def event_manage(self, widget):
-        dlg = ManageConnectionsDialog(self.connections, self.connections.get_groups(), types())
+        dlg = ManageConnectionsDialog(self.connections, self.connections.get_groups(), types)
         dlg.run()
         if dlg.response is gtk.RESPONSE_OK:
             self.connections.save()
@@ -537,13 +536,11 @@ class MCMGtk(object):
     def draw_connection_widgets(self, alias):
         if alias == None:
             return
-        connection = None
-        try:
-            connection = self.connections.get(alias)
-        except KeyError:
+        connection = self.connections.get(alias)
+        if not connection:
             return
         label = self.widgets['cx_type']
-        label.set_label("<b>%s</b>" % connection.get_type())
+        label.set_label("    %s" % connection.get_type())
         #label = self.widgets['alias_label']
         #label.set_label("<b>%s</b>" % alias)
         self.draw_entry('user_entry', connection.user)
@@ -670,7 +667,7 @@ class MCMGtk(object):
             'window': self.builder.get_object("main_mcm"),
             'about': self.builder.get_object("about_mcm"),
             'cx_tree': self.builder.get_object("connections_tree"),
-            'cx_type': self.builder.get_object("combo_connection_type"),
+            'cx_type': self.builder.get_object("connect_button"),
             'user_entry': self.builder.get_object("user_entry"),
             'host_entry': self.builder.get_object("host_entry"),
             'port_entry': self.builder.get_object("port_entry"),

@@ -10,6 +10,7 @@
     <property name="window_position">center-always</property>
     <property name="icon">internet-network-preferences-tools-icone-5174.ico</property>
     <property name="type_hint">normal</property>
+    <property name="has_separator">True</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>

@@ -92,6 +92,24 @@ German: Mathias Menzer, cusaro</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-index</property>
   </object>
+  <object class="GtkImage" id="image7">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-convert</property>
+    <property name="icon-size">1</property>
+  </object>
+  <object class="GtkImage" id="image8">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-save</property>
+    <property name="icon-size">1</property>
+  </object>
+  <object class="GtkImage" id="image9">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-index</property>
+    <property name="icon-size">1</property>
+  </object>
   <object class="GtkWindow" id="main_mcm">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">mcm connections manager</property>
@@ -145,30 +163,26 @@ German: Mathias Menzer, cusaro</property>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="mb_import">
-                        <property name="label" translatable="yes">_Import</property>
+                        <property name="label" translatable="yes">Import</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="has_tooltip">True</property>
-                        <property name="tooltip_text" translatable="yes">Import from CSV</property>
+                        <property name="tooltip_text" translatable="yes">Import from a CSV file</property>
                         <property name="use_action_appearance">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="image">image1</property>
+                        <property name="image">image7</property>
                         <property name="use_stock">False</property>
-                        <property name="always_show_image">True</property>
                         <signal name="activate" handler="on_mb_import_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="mb_export_csv">
+                      <object class="GtkImageMenuItem" id="mb_export">
                         <property name="label" translatable="yes">Export</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="tooltip_text" translatable="yes">Export your connections</property>
+                        <property name="tooltip_text" translatable="yes">Export to HTML or CSV</property>
                         <property name="use_action_appearance">False</property>
-                        <property name="image">image3</property>
+                        <property name="image">image8</property>
                         <property name="use_stock">False</property>
-                        <property name="always_show_image">True</property>
-                        <signal name="activate" handler="on_mb_export_csv_activate" swapped="no"/>
+                        <signal name="activate" handler="on_mb_export_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -359,19 +373,6 @@ German: Mathias Menzer, cusaro</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="mb_manage">
-                        <property name="label" translatable="yes">Manage</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip_text" translatable="yes">Manage your connections easily</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="image">image6</property>
-                        <property name="use_stock">False</property>
-                        <property name="always_show_image">True</property>
-                        <signal name="activate" handler="on_mb_manage_activate" swapped="no"/>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkImageMenuItem" id="mb_add">
                         <property name="label">gtk-add</property>
                         <property name="visible">True</property>
@@ -412,6 +413,18 @@ German: Mathias Menzer, cusaro</property>
                         <property name="use_stock">True</property>
                         <property name="always_show_image">True</property>
                         <signal name="activate" handler="on_mb_edit_activate" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="mb_manage">
+                        <property name="label" translatable="yes">Manage</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Administer your connections</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="image">image9</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_mb_manage_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -506,20 +519,30 @@ German: Mathias Menzer, cusaro</property>
                   <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkScrolledWindow" id="scrolledwindow1">
+                  <object class="GtkAlignment" id="alignment2">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">automatic</property>
-                    <property name="vscrollbar_policy">automatic</property>
+                    <property name="can_focus">False</property>
+                    <property name="top_padding">5</property>
+                    <property name="bottom_padding">5</property>
+                    <property name="left_padding">5</property>
+                    <property name="right_padding">5</property>
                     <child>
-                      <object class="GtkTreeView" id="connections_tree">
+                      <object class="GtkScrolledWindow" id="scrolledwindow1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="rules_hint">True</property>
-                        <property name="rubber_banding">True</property>
-                        <signal name="button-press-event" handler="on_connections_tree_button_press_event" swapped="no"/>
-                        <signal name="cursor-changed" handler="on_connections_tree_cursor_changed" swapped="no"/>
-                        <signal name="row-activated" handler="on_connections_tree_row_activated" swapped="no"/>
+                        <property name="hscrollbar_policy">automatic</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <child>
+                          <object class="GtkTreeView" id="connections_tree">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="rules_hint">True</property>
+                            <property name="rubber_banding">True</property>
+                            <signal name="button-press-event" handler="on_connections_tree_button_press_event" swapped="no"/>
+                            <signal name="cursor-changed" handler="on_connections_tree_cursor_changed" swapped="no"/>
+                            <signal name="row-activated" handler="on_connections_tree_row_activated" swapped="no"/>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
@@ -534,46 +557,25 @@ German: Mathias Menzer, cusaro</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="yscale">0</property>
+                    <property name="top_padding">5</property>
+                    <property name="bottom_padding">5</property>
+                    <property name="left_padding">5</property>
+                    <property name="right_padding">5</property>
                     <child>
                       <object class="GtkVBox" id="vbox2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="homogeneous">True</property>
                         <child>
-                          <object class="GtkHBox" id="hbox2">
+                          <object class="GtkButton" id="connect_button">
+                            <property name="label" translatable="yes">button</property>
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <object class="GtkLabel" id="combo_connection_type">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.039999999105930328</property>
-                                <property name="label" translatable="yes">&lt;b&gt;&lt;/b&gt;</property>
-                                <property name="use_markup">True</property>
-                                <property name="single_line_mode">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkButton" id="connect_button">
-                                <property name="label">gtk-connect</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
-                                <property name="use_stock">True</property>
-                                <signal name="clicked" handler="on_connect_button_clicked" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="use_action_appearance">False</property>
+                            <property name="image">image4</property>
+                            <property name="xalign">0.05000000074505806</property>
+                            <signal name="clicked" handler="on_connect_button_clicked" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>

@@ -827,6 +827,7 @@ class ManageConnectionsDialog(object):
         view.set_rules_hint(True)
         view.set_search_column(0)
         view.set_fixed_height_mode(True)
+        view.columns_autosize()
         view.connect('button-press-event', self.cell_click_event, store )
 
         return view
@@ -849,20 +850,22 @@ class ManageConnectionsDialog(object):
         # Make the first row sortable
         col = gtk.TreeViewColumn(constants.col_title_alias, alias_renderer, text=0)
         col.set_sort_column_id(0)
+        col.set_resizable(False)
         columns.append(col)
 
-        columns.append(gtk.TreeViewColumn(constants.col_title_type, types_combo_renderer, text=1))
-        columns.append(gtk.TreeViewColumn(constants.col_title_group, groups_combo_renderer, text=7))
-        columns.append(gtk.TreeViewColumn(constants.col_title_user, renderer0, text=4))
-        columns.append(gtk.TreeViewColumn(constants.col_title_host, renderer0, text=2))
-        columns.append(gtk.TreeViewColumn(constants.col_title_port, renderer0, text=3))
-        columns.append(gtk.TreeViewColumn(constants.col_title_opts, renderer0, text=6))
-        columns.append(gtk.TreeViewColumn(constants.col_title_pwd, renderer0, text=5))
+        columns.append(self.get_new_column(constants.col_title_type, types_combo_renderer, text=1))
+        columns.append(self.get_new_column(constants.col_title_group, groups_combo_renderer, text=7))
+        columns.append(self.get_new_column(constants.col_title_user, renderer0, text=4))
+        columns.append(self.get_new_column(constants.col_title_host, renderer0, text=2))
+        columns.append(self.get_new_column(constants.col_title_port, renderer0, text=3))
+        columns.append(self.get_new_column(constants.col_title_opts, renderer0, text=6))
+        columns.append(self.get_new_column(constants.col_title_pwd, renderer0, text=5))
 
         # The Delete column looks awful when we maximize the dialog. So we expand this one instead
         desc_col = gtk.TreeViewColumn(constants.col_title_desc, renderer0, text=8)
         desc_col.set_expand(True)
         columns.append(desc_col)
+        col.set_resizable(False)
         columns.append(gtk.TreeViewColumn(constants.col_title_delete, img_renderer, pixbuf=9))
 
         return columns
@@ -876,6 +879,11 @@ class ManageConnectionsDialog(object):
             cx_list.append(img)
             store.append(cx_list)
         return store
+    
+    def get_new_column(self, title, renderer, text, resizable=False):
+        col = gtk.TreeViewColumn(title, renderer, text=text)
+        col.set_resizable(resizable)
+        return col
 
 class DefaultColorSettings(object):
     def __init__(self):

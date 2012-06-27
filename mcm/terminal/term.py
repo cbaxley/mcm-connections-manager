@@ -74,14 +74,14 @@ class Mcm(object):
         cx = None
         if cxs == None:
             print "Adding a new alias. Follow instructions"
-            print "Type of server (ssh, vnc, rdp, telnet, ftp) [default: SSH]:"
+            print "Type of server (%s) [default: SSH]:" % ", ".join(types)
             cx_type = raw_input()
             cx_type = cx_type.upper()
             if len(cx_type) <= 0:
                 cx_type = 'SSH'
 
-            if cx_type != 'SSH' and cx_type != 'VNC' and cx_type != 'RDP' and cx_type != 'TELNET' and cx_type != 'FTP':
-                raise TypeError("Unknown server type: " + cx_type)
+            if cx_type not in types:
+                    raise TypeError("Unknown server type: " + cx_type)
 
             print "Alias for this connection:"
             cx_alias = raw_input()
@@ -91,6 +91,8 @@ class Mcm(object):
 
             print "Hostname or IP Address:"
             cx_host = raw_input()
+            if len(cx_host) <= 0:
+                raise TypeError("Provide a hostname or IP address")
 
             print "Username:"
             cx_user = raw_input()
@@ -98,13 +100,14 @@ class Mcm(object):
             print "Password:"
             cx_password = raw_input()
 
-            print "Port:"
-            cx_port = raw_input()
+            print "Port [default: ] : "
+            raw_cx_port = raw_input()
+            cx_port = int(raw_cx_port)
 
-            print "Group:"
+            print "Group (%s):" % ", ".join(self.connections.get_groups())
             cx_group = raw_input()
             if len(cx_group) <= 0:
-                cx_group = None
+                raise TypeError("Provide a the name of an existing group or a new one")
 
             print "Options:"
             cx_options = raw_input()
@@ -237,10 +240,10 @@ example:
     """
     
     parser = OptionParser(usage="", version=version)
-    parser.add_option("-a", "--add", action="store_true", dest="add", help="add a new connection")
-    parser.add_option("-l", "--list", action="store_true", dest="list", help="complete list of connections with all data")
-    parser.add_option("-s", "--show", action="store", dest="show", help="delete the given connection alias")
-    parser.add_option("-d", "--delete", action="store", dest="delete_alias", help="show the given connection alias")
+    parser.add_option("-a", "--add", action="store_true", dest="add", help="Add a new connection")
+    parser.add_option("-l", "--list", action="store_true", dest="list", help="Complete list of connections with all data")
+    parser.add_option("-s", "--show", action="store", dest="show", help="Delete the given connection alias")
+    parser.add_option("-d", "--delete", action="store", dest="delete_alias", help="Show the given connection alias")
     parser.add_option("--export-html", action="store_true", dest="export_html", 
                       help="Print the connections in HTML format")
     parser.add_option("--export-csv", action="store_true", dest="export_csv", 
@@ -277,7 +280,7 @@ example:
     if options.add:
         try:
             mcmt.add()
-        except KeyboardInterrupt as e:
+        except (KeyboardInterrupt, TypeError, ValueError) as e:
             if type(e) is not KeyboardInterrupt:
                 print e
                 exit(1)
