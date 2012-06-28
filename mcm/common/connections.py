@@ -104,16 +104,8 @@ class Connection(object):
 
 class Ssh(Connection):
     
-    default_port = 22
-
     def hostname(self):
         return "%s@%s" % (self.user, self.host)
-
-    def conn_args(self):
-        conf = McmConfig()
-        post_cmd_args = "; python %s $? ssh \"%s\" 2> /dev/null; exit \n" % (error_dialog, connection_error)
-        self.client, not_used = conf.get_ssh_conf()
-        return self.cx_args(self.client, self.hostname(), "-p", self.port, self.options, post_cmd_args)
 
     def scp_args(self, path):
         scp_path = "%s@%s:%s" % (self.user, self.host, path)
@@ -123,10 +115,6 @@ class Ssh(Connection):
         a_list = self.scp_args()
         return self.list_to_string(a_list)
 
-    def gtk_cmd(self):
-        a_list = self.conn_args()
-        return a_list
-    
     def get_fork_args(self):
         conf = McmConfig()
         self.client, not_used = conf.get_ssh_conf()
@@ -134,21 +122,11 @@ class Ssh(Connection):
 
 class Vnc(Connection):
     
-    default_port = 5900
-
     def vnchost(self):
-        return "%s:%s" % (self.host, self.port)
+        if self.port is not None and len(self.port) > 0:
+            return "%s::%s" % (self.host, self.port)
+        return self.host
 
-    def conn_args(self):
-        conf = McmConfig()
-        post_cmd_args = "; python %s $? vnc \"%s\" 2> /dev/null; exit \n" % (error_dialog, connection_error)
-        self.client, options, embedded = conf.get_vnc_conf()
-        return self.cx_args(self.client, self.options, self.vnchost(), post_cmd_args)
-
-    def gtk_cmd(self):
-        a_list = self.conn_args()
-        return self.list_to_string(a_list)
-    
     def get_fork_args(self):
         conf = McmConfig()
         self.client, options, embedded = conf.get_vnc_conf()
@@ -156,23 +134,11 @@ class Vnc(Connection):
 
 class Rdp(Connection):
     
-    default_port = 3389
-    
     def rdphost(self):
         if self.port:
             return "%s:%s" % (self.host, self.port)
         return self.host
 
-    def conn_args(self):
-        conf = McmConfig()
-        post_cmd_args = "; python %s $? rdp \"%s\" 2> /dev/null; exit \n" % (error_dialog, connection_error)
-        self.client, not_used = conf.get_rdp_conf()
-        return self.cx_args(self.client, self.options, self.host, post_cmd_args)
-
-    def gtk_cmd(self):
-        a_list = self.conn_args()
-        return self.list_to_string(a_list)
-    
     def get_fork_args(self):
         conf = McmConfig()
         self.client, not_used = conf.get_rdp_conf()
@@ -180,36 +146,12 @@ class Rdp(Connection):
 
 class Telnet(Connection):
     
-    default_port = 23
-
-    def conn_args(self):
-        conf = McmConfig()
-        post_cmd_args = "; python %s $? telnet \"%s\" 2> /dev/null; exit \n" % (error_dialog, connection_error)
-        self.client, not_used = conf.get_telnet_conf()
-        return self.cx_args(self.client, self.options, self.host, self.port, post_cmd_args)
-
-    def gtk_cmd(self):
-        a_list = self.conn_args()
-        return self.list_to_string(a_list)
-    
     def get_fork_args(self):
         conf = McmConfig()
         self.client, not_used = conf.get_telnet_conf()
         return [self.client, self.options, self.host, self.port]
 
 class Ftp(Connection):
-    
-    default_port = 21
-
-    def conn_args(self):
-        conf = McmConfig()
-        post_cmd_args = "; python %s $? ftp \"%s\" 2> /dev/null; exit \n" % (error_dialog, connection_error)
-        self.client, not_used = conf.get_ftp_conf()
-        return self.cx_args(self.client, self.options, '-u', self.user, '-p', self.port, self.host, post_cmd_args)
-
-    def gtk_cmd(self):
-        a_list = self.conn_args()
-        return self.list_to_string(a_list)
     
     def get_fork_args(self):
         conf = McmConfig()
@@ -252,9 +194,10 @@ cx_password, cx_port, cx_group, cx_options, cx_desc):
         print(err)
         exit(1)
 
-
-
 class ConnectionStore(object):
+    """
+        Object to hold a map of alias:connections
+    """
     def __init__(self):
         self.jsonfile = cxs_json
         self.store = {}
@@ -330,7 +273,9 @@ class ConnectionEncoder(json.JSONEncoder):
                         options=clazz.options, description=clazz.description)
 
 class ConnectionDecoder(json.JSONDecoder):
-    """Returns a List of Connections from a JSON String"""
+    """
+        Returns a List of Connections from a JSON String
+    """
 
     def decode(self, json_str):
         cx_dict = json.loads(json_str)
