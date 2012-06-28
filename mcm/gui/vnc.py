@@ -19,12 +19,11 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-
 import gtk
 import gtkvnc
 from time import strftime
 
-from mcm.common.constants import *
+from mcm.common.constants import tools, screenshot, disconnect, screenshot_info
 from widgets import UtilityDialogs
 
 class MCMVncClient(object):
@@ -44,6 +43,7 @@ class MCMVncClient(object):
         v.set_keyboard_grab(True)
         v.connect("vnc-connected", self.vnc_connected)
         v.connect("vnc-disconnected", self.vnc_connected)
+        v.connect("vnc-auth-credential", self.vnc_auth_cred)
         return v
 
     def new_vnc_menu(self):
@@ -107,3 +107,64 @@ class MCMVncClient(object):
 
     def disconnect_event(self, menuitem):
         self.vnc.close()
+        
+    def vnc_auth_cred(self, src, credList):
+        prompt = 0
+        data = []
+    
+        for i in range(len(credList)):
+            data.append(None)
+            if credList[i] in (gtkvnc.CREDENTIAL_USERNAME, gtkvnc.CREDENTIAL_PASSWORD):
+                prompt = prompt + 1
+            elif credList[i] == gtkvnc.CREDENTIAL_CLIENTNAME:
+                data[i] = "gvncviewer"
+    
+        if prompt:
+            dialog = gtk.Dialog("Authentication required", None, 0, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))
+            dialog.set_default_response(gtk.RESPONSE_OK)
+            label = []
+            entry = []
+    
+            box = gtk.Table(2, prompt)
+    
+            row = 0
+            for i in range(len(credList)):
+                entry.append(gtk.Entry())
+                if credList[i] == gtkvnc.CREDENTIAL_USERNAME:
+                    label.append(gtk.Label("Username:"))
+                elif credList[i] == gtkvnc.CREDENTIAL_PASSWORD:
+                    label.append(gtk.Label("Password:"))
+                    entry[-1].set_visibility(False)
+                    entry[-1].set_activates_default(True)
+                else:
+                    entry[-1].destroy()
+                    continue
+    
+                box.attach(label[row], 0, 1, row, row+1, 0, 0, 3, 3)
+                box.attach(entry[row], 1, 2, row, row+1, 0, 0, 3, 3)
+                row = row + 1
+    
+            vbox = dialog.get_child()
+            vbox.add(box)
+    
+            dialog.show_all()
+            res = dialog.run()
+            dialog.hide()
+    
+            if res == gtk.RESPONSE_OK:
+                row = 0
+                for i in range(len(credList)):
+                    if credList[i] in (gtkvnc.CREDENTIAL_USERNAME, gtkvnc.CREDENTIAL_PASSWORD):
+                        data[i] = entry[row].get_text()
+                        row = row + 1
+    
+            dialog.destroy()
+    
+        for i in range(len(credList)):
+            if i < len(data) and data[i] != None:
+                if src.set_credential(credList[i], data[i]):
+                    print "Cannot set credential type %d" % (credList[i])
+                    src.close()
+            else:
+                print "Unsupported credential type %d" % (credList[i])
+                src.close()
