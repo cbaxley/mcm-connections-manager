@@ -32,10 +32,18 @@ class Html(object):
         self.version = mcm_version
         self.connections = connections
 
-    def export(self):
-        sys.stdout.write(self.get_header())
-        sys.stdout.write(self.get_content())
-        sys.stdout.write(self.get_footer())
+    def export(self, out_file_path=None):
+        
+        if out_file_path:
+            ofile = open(out_file_path, 'w')
+            ofile.write(self.get_header())
+            ofile.write(self.get_content())
+            ofile.write(self.get_footer())
+            ofile.close()
+        else:
+            sys.stdout.write(self.get_header())
+            sys.stdout.write(self.get_content())
+            sys.stdout.write(self.get_footer())
 
     def get_header(self):
         header = """
@@ -118,15 +126,20 @@ class Odf(object):
         pass
 
 
-def print_csv(connections, output=None):
+def print_csv(connections, out_file_path=None):
     import csv
     csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
     writer = None
-    if output:
-        writer = csv.writer(output, dialect='mcm')
+    if out_file_path:
+        with open(out_file_path, 'wb') as ofile:
+            writer = csv.writer(ofile, dialect='mcm')
+            writer.writerow(['alias', 'type', 'host', 'port', 'user',\
+                        'password', 'options', 'group', 'description'])
+            for cx in connections.get_all():
+                writer.writerow(cx.to_list())
     else:
         writer = csv.writer(sys.stdout, dialect='mcm')
-    writer.writerow(['alias', 'type', 'host', 'port', 'user',\
-                    'password', 'options', 'group', 'description'])
-    for cx in connections.get_all():
-        writer.writerow(cx.to_list())
+        writer.writerow(['alias', 'type', 'host', 'port', 'user',\
+                        'password', 'options', 'group', 'description'])
+        for cx in connections.get_all():
+            writer.writerow(cx.to_list())
