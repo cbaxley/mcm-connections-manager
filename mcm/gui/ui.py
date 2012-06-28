@@ -233,11 +233,17 @@ class MCMGtk(object):
     def event_export(self, widget):
         dlg = FileSelectDialog(True)
         dlg.run()
-        if dlg.response == gtk.RESPONSE_OK:
-            _csv = print_csv(dlg.get_filename(), self.connections.get_all())
+        
+        if dlg.response == gtk.RESPONSE_OK and dlg.mime == 'html':
+            _html = Html(constants.version, self.connections)
+            _html.export(dlg.get_filename())
             idlg = UtilityDialogs()
             idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
-            
+        elif dlg.response == gtk.RESPONSE_OK and dlg.mime == 'csv':
+            _csv = print_csv(self.connections, dlg.get_filename())
+            idlg = UtilityDialogs()
+            idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
+        
     def event_import_csv(self, widget):
         dlg = FileSelectDialog()
         dlg.run()
@@ -412,10 +418,13 @@ class MCMGtk(object):
         label = None
         menu_label = None
         if connection == None:
-            label = McmCheckbox('localhost', pid)
+            label = McmCheckbox('localhost', pid, gtk.STOCK_HOME)
             menu_label = gtk.Label('localhost')
         else:
-            label = McmCheckbox(connection.alias, pid)
+            icon = None
+            if connection.user in ['root', 'Administrator']:
+                icon = gtk.STOCK_DIALOG_WARNING
+            label = McmCheckbox(connection.alias, pid, icon)
             label.set_tooltip_text(connection.description)
             menu_label = gtk.Label(connection.alias)
             
@@ -435,17 +444,19 @@ class MCMGtk(object):
         v.connect("child-exited", lambda term: self.event_die_term(scroll, terminals))
         v.connect("button-press-event", self.create_term_popup_menu)
         v.connect("key-press-event", self.event_terminal_key)
+        #v.connect("contents-changed", self.event_terminal_changed)
         
         pid = None
         if connection != None:
             args = connection.get_fork_args()
+            print args
             pid = v.fork_command(args[0], args, None, None, False, False, False)
             
         else:
             pid = v.fork_command()
         scroll.add(v)
         return scroll, pid
-
+    
     def do_localhost(self, accel_group, window=None, keyval=None, modifier=None):
         self.do_connect(None)
         return True
@@ -764,8 +775,12 @@ class MCMGtk(object):
 
     def vnc_connect(self, connection):
         terminals = self.widgets['terminals']
-        label = gtk.Label(connection.alias)
+        
+        label = McmCheckbox(connection.alias)
         label.set_tooltip_text(connection.description)
+        
+        #label = gtk.Label(connection.alias)
+        #label.set_tooltip_text(connection.description)
         menu_label = gtk.Label(connection.alias)
         vnc_client = MCMVncClient(connection.host, connection.port)
         vnc_box = vnc_client.get_instance()
