@@ -13,10 +13,10 @@ if [ -z $userpriv ]
     exit 1
 fi
 
-install_dir="/usr/share/apps/mcm"
+install_dir="/usr/share/apps/mcm-connections-manager"
 
-echo "1/3 Removing from GNOME Menu"
-rm -f /usr/share/pixmaps/mcm.xpm
+echo "1/3 Removing menu-entry"
+rm -f /usr/share/pixmaps/internet-network-preferences-tools-icone-5174.ico
 rm -f /usr/share/applications/mcm.desktop
 
 echo "2/3 Removing Symlinks"

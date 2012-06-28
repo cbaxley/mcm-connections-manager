@@ -13,8 +13,8 @@ if [ -z $userpriv ]
     exit 1
 fi
 
-install_dir="/usr/share/apps/mcm"
-mcm_shell="/usr/share/apps/mcm/bin/mcm"
+install_dir="/usr/share/apps/mcm-connections-manager"
+mcm_shell="${install_dir}/bin/mcm"
 
 echo "1/3 Copying files to ${install_dir}"
 mkdir -p ${install_dir} 2>/dev/null
@@ -25,10 +25,9 @@ ln -s ${mcm_shell}  /usr/bin/mcm
 ln -s ${mcm_shell}  /usr/bin/mcm-gtk
 
 echo "3/3 Creating menu-entry for MCM Connections Manager"
-cp /usr/share/apps/mcm/gtk/mcm_icon.xpm /usr/share/pixmaps/mcm.xpm
-cp /usr/share/apps/mcm/gtk/mcm.desktop /usr/share/applications/
+cp ${install_dir}/mcm/gui/internet-network-preferences-tools-icone-5174.ico /usr/share/pixmaps/
+cp ${install_dir}/docs/mcm.desktop /usr/share/applications/
 
 echo "Done. MCM Connections Manager is ready"
-echo "Type mcm on a console or run mcm-gtk from the GNOME Menu"
 
 exit 0

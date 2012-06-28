@@ -20,31 +20,22 @@
 # Introduction
 #
 # The MCM Connection Manager is created to ease the management of connections to different
-# servers a sysadmin usuarlly connect to. I'm aiming to provide support for:
+# servers a sysadmin usually connects to. I'm aiming to provide support for:
 # -ssh
 # -telnet
 # -vnc
 # -rdesktop
-# -ICA (Citrix) TO DO
+# -ftp
 #
 # This basically depends on which of this programs can be called from the command line without
 # too much trouble. Also, very basic options will be used, so if you want more complex options
 # like mount usb drives for rdesktop, or sound for VNC, use the proper utilities for this or
 # modify mcm.
 #
-# Configuration
-# mcm comes configured for Ubuntu (my platform) but basically, all you need to modify in case one
-# of the commands isn't found, is the file connections.py. There you'll find the global tuples where
-# the paths to the clients are specified. You can change them freely.
-#
-# Also, if you prefer to change any of them to be the first, do so modifying the tuples mentioned
-# before.
-#
 
-mcm_path="/usr/share/apps/mcm"
-PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}$mcm_path"
+mcm_path="/usr/share/apps/mcm-connections-manager"
+export PYTHONPATH="$mcm_path"
 PYTHON="/usr/bin/python"
-inst_dir="/usr/share/apps/mcm"
 binary=$( basename ${0} )
 
 # http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
@@ -80,11 +71,12 @@ if [ ! -f "${mcm_config}/mcm.conf" ]; then
     cp ${src_config_file} ${mcm_conf}
 fi
 
+export PYTHONPATH=${PYTHONPATH}
 if [ "${binary}" == "mcm" ] ; then
     # /usr/bin/python ${mcm_path}/terminal/term.py ${@}
-    exec -a mcm $PYTHON -OO ${mcm_path}/terminal/term.py "${@}"
+    exec -a mcm $PYTHON -OO ${mcm_path}/mcm/terminal/term.py "${@}"
 else
     # /usr/bin/python ${mcm_path}/gui/ui.py &
-    exec -a mcm $PYTHON -OO ${mcm_path}/gui/ui.py "${@}"
+    exec -a mcm $PYTHON -OO ${mcm_path}/mcm/gui/ui.py "${@}"
 fi
 
