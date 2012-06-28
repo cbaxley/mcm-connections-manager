@@ -24,7 +24,7 @@ import gobject
 import pygtk
 pygtk.require("2.0")
 
-from mcm.common.connections import *
+from mcm.common.connections import connections_factory
 from mcm.common.utils import *
 from mcm.common.export import *
 from mcm.common.configurations import McmConfig
@@ -152,7 +152,7 @@ class AddConnectionDialog(object):
         if type == 'SSH':
             not_used, config = conf.get_ssh_conf()
         elif type == 'VNC':
-            not_used, config = conf.get_vnc_conf()
+            not_used, config, embedded = conf.get_vnc_conf()
         elif type == 'RDP':
             not_used, config = conf.get_rdp_conf()
         elif type == 'TELNET':
@@ -457,23 +457,34 @@ class PreferencesDialog(object):
 
 class McmCheckbox(gtk.HBox):
 
-    def __init__(self, title, pid):
+    def __init__(self, title, pid=None, cluster=False, img=None):
         gtk.HBox.__init__(self, False)
         self.pid = pid
+        
+        if img:
+            self._icon = gtk.Image()
+            self._icon.set_from_stock(img, gtk.ICON_SIZE_MENU)
+            self.pack_start(self._icon, True, True, 5)
+        
         self._label = gtk.Label(title)
         self._current_alias = title
         self.pack_start(self._label, True, True, 0)
-        self._button = gtk.CheckButton()
-        self._button.set_name("%s_button" % title)
-        self._button.set_tooltip_text(constants.cluster_checkbox_tooltip)
-        self.pack_start(self._button, False, False, 0)
+        
+        if cluster:
+            self._button = gtk.CheckButton()
+            self._button.set_name("%s_button" % title)
+            self._button.set_tooltip_text(constants.cluster_checkbox_tooltip)
+            self.pack_start(self._button, False, False, 0)
+            
         self.close_button = gtk.Button()
         self.close_button.set_relief(gtk.RELIEF_NONE)
         self.close_button.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
         self.close_button.set_tooltip_text(constants.cluster_checkbox_tooltip)
         self.pack_start(self.close_button, False, False, 0)
         self.show_all()
-        self.hide_checkbox()
+        
+        if cluster:
+            self._button.hide()
 
     def get_active(self):
         return self._button.get_active()
@@ -713,8 +724,7 @@ class ManageConnectionsDialog(object):
                         'response': self.cancel_event,
                         'on_cancel_button_clicked': self.cancel_event,
                         'on_save_button_clicked': self.event_save,
-                        'on_exp_csv_button_clicked': self.event_export_csv,
-                        'on_exp_html_button_clicked': self.event_export_html,
+                        'on_exp_html_button_clicked': self.event_export,
                 }
         builder.connect_signals(events)
         self.draw_tree()
@@ -740,22 +750,18 @@ class ManageConnectionsDialog(object):
     def event_save(self, widget):
         self.response = gtk.RESPONSE_OK
 
-    def event_export_csv(self, widget):
-        dlg = FileSelectDialog(FileSelectDialog.CSV)
+    def event_export(self, widget):
+        dlg = FileSelectDialog(True)
         dlg.run()
-        if dlg.response == gtk.RESPONSE_OK:
-            _csv = ExportCsv(dlg.get_filename(), self.connections)
+        if dlg.response == gtk.RESPONSE_OK and dlg.mime == 'html':
+            _html = Html(constants.version, self.connections)
+            _html.export(dlg.get_filename())
             idlg = UtilityDialogs()
-            idlg.show_info_dialog(constants.export_csv, constants.saved_file % dlg.get_filename())
-
-    def event_export_html(self, widget):
-        dlg = FileSelectDialog(FileSelectDialog.HTML)
-        dlg.run()
-        if dlg.response == gtk.RESPONSE_OK:
-            _html = Html(dlg.get_filename(), constants.version, self.connections)
-            _html.export()
+            idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
+        elif dlg.response == gtk.RESPONSE_OK and dlg.mime == 'csv':
+            _csv = print_csv(self.connections, dlg.get_filename())
             idlg = UtilityDialogs()
-            idlg.show_info_dialog(constants.export_html, constants.saved_file % dlg.get_filename())
+            idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
 
     def init_combo(self, items, active_item=None):
         cb = gtk.CellRendererCombo()
