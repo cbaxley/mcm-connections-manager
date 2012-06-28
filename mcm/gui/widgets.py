@@ -69,7 +69,6 @@ class UtilityDialogs(object):
 class AddConnectionDialog(object):
 
     def __init__(self, aliases, groups, types, cx=None):
-        #I need a list with the aliases so I can validate the name
         self.response = gtk.RESPONSE_CANCEL
         self.default_color = DefaultColorSettings().base_color
         self.new_connection = None
@@ -185,7 +184,7 @@ class AddConnectionDialog(object):
         alias = widget.get_text()
         if alias in self.aliases:
             self.error = constants.alias_error
-            widget.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FFADAD"))
+            widget.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(constants.default_error_color))
             widget.set_tooltip_text(self.error)
         else:
             self.error = None
@@ -308,6 +307,7 @@ class PreferencesDialog(object):
     def __init__(self, conf):
         self.conf = conf
         self.response = gtk.RESPONSE_CANCEL
+        self.default_color = DefaultColorSettings().base_color
         self.builder = gtk.Builder()
         self.builder.add_from_file(constants.glade_preferences)
         self.dlg = self.builder.get_object('dialog_preferences')
@@ -334,9 +334,18 @@ class PreferencesDialog(object):
             'on_dialog_preferences_close': self.close_event,
             'on_pref_cancel_button_clicked': self.close_event,
             'on_pref_appy_button_clicked': self.apply_event,
-            'on_vnc_embedded_chkbutton_toggled': self.toggle_vnc_embeded}
+            'on_vnc_embedded_chkbutton_toggled': self.toggle_vnc_embeded,
+            'on_ssh_client_entry_changed': self.event_binary_client_changed,
+            'on_ftp_client_entry_changed': self.event_binary_client_changed,
+            'on_telnet_client_entry_changed': self.event_binary_client_changed,
+            'on_vnc_client_entry_changed': self.event_binary_client_changed,
+            'on_rdp_client_entry_changed': self.event_binary_client_changed,
+            }
         self.builder.connect_signals(events)
         self.fill_controls()
+        
+    def event_binary_client_changed(self, widget):
+        self.check_binary_is_valid(widget)
 
     def close_event(self, widget):
         self.dlg.destroy()
@@ -396,23 +405,28 @@ class PreferencesDialog(object):
         
         client, options = self.conf.get_ssh_conf()
         self.widgets['ssh_entry'].set_text(client)
+        self.check_binary_is_valid(self.widgets['ssh_entry'])
         self.widgets['ssh_options_entry'].set_text(options)
         
         client, options, embedded = self.conf.get_vnc_conf()
         self.widgets['vnc_entry'].set_text(client)
+        self.check_binary_is_valid(self.widgets['vnc_entry'])
         self.widgets['vnc_options_entry'].set_text(options)
         self.widgets['vnc_embedded_chkbutton'].set_active(embedded)
         
         client, options = self.conf.get_telnet_conf()
         self.widgets['telnet_entry'].set_text(client)
+        self.check_binary_is_valid(self.widgets['telnet_entry'])
         self.widgets['telnet_options_entry'].set_text(options)
         
         client, options = self.conf.get_ftp_conf()
         self.widgets['ftp_entry'].set_text(client)
+        self.check_binary_is_valid(self.widgets['ftp_entry'])
         self.widgets['ftp_options_entry'].set_text(options)
         
         client, options = self.conf.get_rdp_conf()
         self.widgets['rdp_entry'].set_text(client)
+        self.check_binary_is_valid(self.widgets['rdp_entry'])
         self.widgets['rdp_options_entry'].set_text(options)
 
     def save_config(self):
@@ -430,6 +444,13 @@ class PreferencesDialog(object):
     def get_font(self):
         return self.widgets['fontbutton'].get_font_name()
     
+    def check_binary_is_valid(self, widget):
+        bin_path = widget.get_text()
+        if os.path.exists(bin_path):
+            widget.modify_base(gtk.STATE_NORMAL, self.default_color)
+        else:
+            widget.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(constants.default_error_color))
+            
     def run(self):
         self.dlg.run()
 
