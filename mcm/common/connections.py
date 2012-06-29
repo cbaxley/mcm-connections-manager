@@ -22,7 +22,7 @@
 import os
 import json
 from mcm.common.configurations import McmConfig
-from mcm.common.constants import error_dialog, connection_error, cxs_json
+from mcm.common.constants import connection_error, cxs_json
 
 types = {'SSH':22, 'VNC':5900, 'RDP':3389, 'TELNET':23, 'FTP':21}
 
@@ -156,7 +156,13 @@ class Ftp(Connection):
     def get_fork_args(self):
         conf = McmConfig()
         self.client, not_used = conf.get_ftp_conf()
-        return [self.client, self.options, '-u', self.user, '-p', self.port, self.host]
+        
+        cmd = [self.client, '-u', self.user, '-p', self.port, self.host]
+        if self.password:
+            cmd[2] = '%s,%s' % (self.user,self.password)
+        if self.options:
+            cmd.insert(1,self.options)
+        return cmd
 
 def connections_factory(cx_type, cx_user, cx_host, cx_alias,
 cx_password, cx_port, cx_group, cx_options, cx_desc):
