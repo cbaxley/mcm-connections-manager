@@ -114,6 +114,7 @@ class MCMGtk(object):
             'on_description_entry_changed': self.event_entry_changed,
             'on_pwd_entry_activate': self.update_connection,
             'on_pwd_entry_changed': self.event_entry_changed,
+            'on_pwd_entry_icon_press': self.event_pwd_icon,
             #Cluster Signals
             'on_cluster_entry_changed': self.event_cluster,
             'on_cluster_entry_activate': self.event_cluster_intro,
@@ -259,6 +260,13 @@ class MCMGtk(object):
     def event_f10(self, accel_group, window=None, keyval=None, modifier=None):
         return False
     
+    def event_pwd_icon(self, entry, icon, event):
+        if icon == gtk.ENTRY_ICON_PRIMARY:
+            entry.set_visibility(not entry.get_visibility())
+        else:
+            vte = self.get_current_terminal()
+            vte.feed_child(entry.get_text() + "\n")
+    
     def event_help(self, widget):
         webbrowser.open_new_tab(constants.mcm_help_url)
         
@@ -355,7 +363,7 @@ class MCMGtk(object):
         self.event_quit(x)
         return True
     
-    def on_tree_item_clicked(self, widget):
+    def on_tree_item_clicked(self, widget, a=None, b=None):
         self.draw_connection_widgets(self.get_tree_selection(widget))
     
     '''
@@ -417,14 +425,17 @@ class MCMGtk(object):
     def create_tab_button(self, connection, pid):
         label = None
         menu_label = None
+        cluster = True
         if connection == None:
-            label = McmCheckbox('localhost', pid, gtk.STOCK_HOME)
+            label = McmCheckbox('localhost', pid, cluster, gtk.STOCK_HOME)
             menu_label = gtk.Label('localhost')
         else:
             icon = None
             if connection.user in ['root', 'Administrator']:
                 icon = gtk.STOCK_DIALOG_WARNING
-            label = McmCheckbox(connection.alias, pid, icon)
+            if connection.get_type() in ['RDP', 'VNC']:
+                cluster = True
+            label = McmCheckbox(connection.alias, pid, cluster, icon)
             label.set_tooltip_text(connection.description)
             menu_label = gtk.Label(connection.alias)
             
@@ -445,6 +456,8 @@ class MCMGtk(object):
         v.connect("button-press-event", self.create_term_popup_menu)
         v.connect("key-press-event", self.event_terminal_key)
         #v.connect("contents-changed", self.event_terminal_changed)
+        #v.connect("commit", self.event_terminal_changed)
+        #v.connect("cursor-moved", self.event_terminal_changed)
         
         pid = None
         if connection != None:
@@ -546,14 +559,20 @@ class MCMGtk(object):
 
     def draw_connection_widgets(self, alias):
         if alias == None:
+            self.widgets['cx_type'].set_label("    localhost")
+            self.draw_entry('user_entry', "", "", False)
+            self.draw_entry('host_entry', "", "", False)
+            self.draw_entry('port_entry', "", "", False)
+            self.draw_entry('password_entry', "", "", False)
+            self.draw_entry('options_entry', "", "", False)
+            self.draw_entry('description_entry', "", "", False)
             return
+        
         connection = self.connections.get(alias)
         if not connection:
             return
-        label = self.widgets['cx_type']
-        label.set_label("    %s" % connection.get_type())
-        #label = self.widgets['alias_label']
-        #label.set_label("<b>%s</b>" % alias)
+
+        self.widgets['cx_type'].set_label("    %s" % connection.get_type())
         self.draw_entry('user_entry', connection.user)
         self.draw_entry('host_entry', connection.host)
         self.draw_entry('port_entry', connection.port)
@@ -561,13 +580,12 @@ class MCMGtk(object):
         self.draw_entry('options_entry', connection.options)
         self.draw_entry('description_entry', connection.description)
 
-    def draw_entry(self, widget_name, text, tooltip_text=""):
+    def draw_entry(self, widget_name, text, tooltip_text="", sensitive=True):
         entry = self.widgets[widget_name]
-        # entry_default_color = self.default_color
-        # entry_default_state = gtk.STATE_NORMAL
         entry.set_text(text)
         entry.modify_base(gtk.STATE_NORMAL, self.default_color)
         entry.set_tooltip_text(tooltip_text)
+        entry.set_sensitive(sensitive)
 
     def draw_tree(self, connections_filter=None):
         tree = self.widgets['cx_tree']
@@ -600,11 +618,21 @@ class MCMGtk(object):
             tree = self.widgets['cx_tree']
         cursor = tree.get_selection()
         # model = tree.get_model()
-        (model, i) = cursor.get_selected()
-        if i == None:
-            return None
-        alias = model.get_value(i, 0)
+        
+        alias = None
+        (ignore, coords) = cursor.get_selected_rows()
+        if len(coords) > 0:
+            if len(coords[0]) > 1:
+                (model, i) = cursor.get_selected()
+                if i == None:
+                    return None
+                alias = model.get_value(i, 0)
         return alias
+    
+    def get_current_terminal(self):
+        terminals = self.widgets['terminals']
+        scroll = terminals.get_nth_page(terminals.get_current_page())
+        return scroll.get_child()
     
     def hide_unhide_cluster_box(self, widget):
         terminals = self.widgets['terminals']
