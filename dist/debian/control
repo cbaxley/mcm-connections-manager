@@ -4,9 +4,10 @@ Priority: optional
 Section: net
 Installed-Size: 588
 Architecture: all
-Version: 0.9.3
+Version: 1.0
 Essential: no
-Depends: dialog, lftp, openssh-client, vncviewer, rdesktop, 
+Homepage: https://code.google.com/p/mcm-connections-manager/
+Depends: lftp, openssh-client, rdesktop, 
  python (>= 2.6.0), python-gtk2, python-vte, python-glade2, 
  python-xdg, python-gtk-vnc
 Maintainer: Alejandro Ayuso <alejandroayuso@gmail.com>
@@ -16,11 +17,10 @@ Description: Manage your connections to different servers
  administrators who need to connect every day to different 
  servers by different means.
  MCM Connectios Manager for your console.
- Using the ncurses dialog utility, mcm allows you to manage 
- your connections without an X server running.
+ MCM allows you to manage your connections without an X server running.
  .
  MCM Connections Manager for GNOME.
- Is a complete GUI replacement for the gnome terminal which allows 
+ Is a complete GUI replacement for the default terminal which allows 
  you to manage your connections, cluster mode (for sending commands 
- for several servers at the same time) and support for ssh, ftp, 
+ to several servers at the same time) and support for ssh, ftp, 
  telnet, vnc and rdesktop.

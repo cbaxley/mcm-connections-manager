@@ -1,3 +1,8 @@
+mcm (1.0-0ubuntu1) karmic; urgency=low
+
+  * New Features and bug fixes
+ -- Alejandro Ayuso <alejandroayuso@gmail.com>  Fri, 29 June 2012 18:20:12 +0200
+
 mcm (0.9.3-0ubuntu1) karmic; urgency=low
 
   * New Features and bug fixes

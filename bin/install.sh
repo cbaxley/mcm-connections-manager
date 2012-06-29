@@ -21,12 +21,12 @@ mkdir -p ${install_dir} 2>/dev/null
 cp -R * ${install_dir} 2>/dev/null
 
 echo "2/3 Creating symlinks"
-ln -s ${mcm_shell}  /usr/bin/mcm
-ln -s ${mcm_shell}  /usr/bin/mcm-gtk
+ln -fs ${mcm_shell}  /usr/bin/mcm
+ln -fs ${mcm_shell}  /usr/bin/mcm-gtk
 
 echo "3/3 Creating menu-entry for MCM Connections Manager"
-cp ${install_dir}/mcm/gui/internet-network-preferences-tools-icone-5174.ico /usr/share/pixmaps/
-cp ${install_dir}/docs/mcm.desktop /usr/share/applications/
+cp ${install_dir}/mcm/gui/glade/internet-network-preferences-tools-icone-5174.ico /usr/share/pixmaps/
+cp ${install_dir}/doc/mcm.desktop /usr/share/applications/
 
 echo "Done. MCM Connections Manager is ready"
 

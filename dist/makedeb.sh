@@ -3,10 +3,10 @@
 # Creates the Structure for a deb
 
 rm -rf /tmp/pack
-mkdir -p /tmp/pack/usr/share/apps/mcm
+mkdir -p /tmp/pack/usr/share/apps/mcm-connections-manager
 mkdir -p /tmp/pack/DEBIAN
-cp -R ../* /tmp/pack/usr/share/apps/mcm
+cp -R ../* /tmp/pack/usr/share/apps/mcm-connections-manager
 cp debian/* /tmp/pack/DEBIAN/
 
 cd /tmp/
-dpkg -b pack mcm-0.9.3_all.deb
+dpkg -b pack mcm-1.0_all.deb

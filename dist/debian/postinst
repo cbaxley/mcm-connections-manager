@@ -1,10 +1,13 @@
 #!/bin/sh
 set -e
 
+install_dir="/usr/share/apps/mcm-connections-manager"
+mcm_shell="${install_dir}/bin/mcm"
+
 echo "1/2 Creating symlinks"
-ln -fs /usr/share/apps/mcm/bin/mcm /usr/bin/mcm
-ln -fs /usr/share/apps/mcm/bin/mcm /usr/bin/mcm-gtk
+ln -fs ${mcm_shell} /usr/bin/mcm
+ln -fs ${mcm_shell} /usr/bin/mcm-gtk
 
 echo "2/2 Creating menu-entry for MCM Connections Manager"
-cp /usr/share/apps/mcm/gtk/mcm_icon.xpm /usr/share/pixmaps/mcm.xpm
-cp /usr/share/apps/mcm/gtk/mcm.desktop /usr/share/applications/
+cp ${install_dir}/mcm/gui/glade/internet-network-preferences-tools-icone-5174.ico /usr/share/pixmaps/
+cp ${install_dir}/doc/mcm.desktop /usr/share/applications/
