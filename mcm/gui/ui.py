@@ -41,9 +41,7 @@ from mcm.common.export import print_csv, Html
 from mcm.common.utils import Csv
 from mcm.gui.widgets import AddConnectionDialog, UtilityDialogs, McmCheckbox, \
     FileSelectDialog, ImportProgressDialog, DefaultColorSettings, \
-    ManageConnectionsDialog, PreferencesDialog
-
-
+    ManageConnectionsDialog, PreferencesDialog, InstallPublicKeyDialog
 
 for module in glade, gettext:
     module.bindtextdomain('mcm', constants.local_path)
@@ -458,14 +456,15 @@ class MCMGtk(object):
         #v.connect("contents-changed", self.event_terminal_changed)
         #v.connect("commit", self.event_terminal_changed)
         #v.connect("cursor-moved", self.event_terminal_changed)
-        
         pid = None
         if connection != None:
+            v.alias = connection.alias
+            v.is_ssh = connection.get_type() == 'SSH'
             args = connection.get_fork_args()
-            print args
             pid = v.fork_command(args[0], args, None, None, False, False, False)
-            
         else:
+            v.alias = None
+            v.is_ssh = False
             pid = v.fork_command()
         scroll.add(v)
         return scroll, pid
@@ -474,7 +473,7 @@ class MCMGtk(object):
         self.do_connect(None)
         return True
 
-    def create_term_popup_menu(self, widget, event):
+    def create_term_popup_menu(self, vte, event):
         '''Draw a Menu ready to be inserted in a vteterminal widget'''
         if event.button == 1:
             return False
@@ -487,12 +486,20 @@ class MCMGtk(object):
             menu.append(copy)
             menu.append(paste)
             menu.append(search)
+            
+            if vte.is_ssh:
+                ipk = gtk.MenuItem(constants.install_key)
+                ipk.alias = vte.alias
+                ipk.connect('activate', self.install_public_key)
+                menu.append(ipk)
+            
             menu.append(gtk.SeparatorMenuItem())
             menu.append(title)
             copy.connect('activate', self.do_copy)
             paste.connect('activate', self.do_paste)
             search.connect('activate', self.do_search)
             title.connect('activate', self.do_set_title)
+            
             menu.show_all()
             menu.popup(None, None, None, 3, event.time)
             return True
@@ -503,16 +510,12 @@ class MCMGtk(object):
         return False
 
     def do_copy(self, widget, var2=None, var3=None, var4=None):
-        terminals = self.widgets['terminals']
-        scroll = terminals.get_nth_page(terminals.get_current_page())
-        vte = scroll.get_child()
+        vte = self.get_current_terminal()
         vte.copy_clipboard()
         return True
 
     def do_paste(self, widget, var2=None, var3=None, var4=None):
-        terminals = self.widgets['terminals']
-        scroll = terminals.get_nth_page(terminals.get_current_page())
-        vte = scroll.get_child()
+        vte = self.get_current_terminal()
         vte.paste_clipboard()
         return True
 
@@ -732,6 +735,12 @@ class MCMGtk(object):
             'tips_hbox': self.builder.get_object("tips_hbox"),
         }
         return widgets
+    
+    def install_public_key(self, menu_item):
+        cx = self.connections.get(menu_item.alias)
+        if cx:
+            installpk = InstallPublicKeyDialog()
+            installpk.install(cx.user, cx.host)
 
     def new_column(self, title, _id):
         column = gtk.TreeViewColumn(title, gtk.CellRendererText(), text=_id)
@@ -748,10 +757,7 @@ class MCMGtk(object):
         label = gtk.Label(connection.alias)
         label.set_tooltip_text(connection.description)
 
-        # menu_label = gtk.Label(connection.alias)
-
         socket = gtk.Socket()
-        #index = terminals.append_page_menu(socket, label, menu_label)
         index = terminals.append_page(socket)
         sock_id = socket.get_id()
         cmd = ["rdesktop", "-K", "-X", str(sock_id), str(connection.host)]
