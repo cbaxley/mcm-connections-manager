@@ -30,7 +30,6 @@ import json
 import urllib
 from StringIO import StringIO
 from datetime import date
-# from mcm.common.connections import *
 import mcm.common.constants as constants
 
 class Csv(object):
