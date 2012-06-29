@@ -935,3 +935,34 @@ class DefaultColorSettings(object):
             self.text_color = gtk.gdk.color_parse(settings["text_color"])
             self.selected_fg_color = gtk.gdk.color_parse(settings["selected_fg_color"])
             self.bg_color = gtk.gdk.color_parse(settings["bg_color"])
+            
+class InstallPublicKeyDialog(object):
+    
+    def __init__(self):
+        self.dialog = gtk.Dialog("Installing Public Key", None, 0, (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+        self.dialog.set_default_response(gtk.RESPONSE_CLOSE)
+        self.dialog.connect("response", self.hide)
+        
+    def install(self, username, server):
+        vbox = self.dialog.get_child()
+        pk_path = os.path.expanduser("~") + '/.ssh/id_rsa.pub'
+        
+        if os.path.exists(pk_path):
+            import vte
+            scroll = gtk.ScrolledWindow()
+            scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+            v = vte.Terminal()
+            scroll.add(v)
+            vbox.add(scroll)
+            cx = '%s@%s' % (username, server)
+            cmd = ['/usr/bin/ssh-copy-id', cx]
+            v.fork_command(cmd[0], cmd, None, None, False, False, False)
+            self.dialog.resize(600, 400)
+        else:
+            label = gtk.Label()
+            label.set_text("Please generate your\nPublic Key with ssh-keygen -t rsa")
+            vbox.add(label)
+        self.dialog.show_all()
+        
+    def hide(self, dialog, response_id):
+        self.dialog.hide()
