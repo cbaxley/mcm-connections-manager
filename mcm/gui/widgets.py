@@ -19,16 +19,15 @@
 # <http://www.gnu.org/licenses/>.
 #
 
+import os
 import gtk
-import gobject
 import pygtk
 pygtk.require("2.0")
 
 from mcm.common.connections import connections_factory, types
-from mcm.common.utils import *
-from mcm.common.export import *
+from mcm.common.export import print_csv, Html
 from mcm.common.configurations import McmConfig
-import mcm.common.constants
+import mcm.common.constants as constants
 
 '''
 Dialogs for MCM Connections Manager
@@ -505,59 +504,6 @@ class McmCheckbox(gtk.HBox):
     def get_current_alias(self):
         return self._current_alias
 
-
-class McmNewTipDialog(object):
-
-    def __init__(self):
-        self.response = gtk.RESPONSE_CANCEL
-        self.new_tip = None
-        self.error = None
-        self.builder = gtk.Builder()
-        self.builder.add_from_file(constants.glade_tips)
-        self.widgets = {
-                        'dlg': self.builder.get_object('new_tips_dialog'),
-                        'section_entry': self.builder.get_object('section_entry'),
-                        'subsection_entry': self.builder.get_object('subsection_entry'),
-                        'name_entry': self.builder.get_object('name_entry'),
-                        'value_entry': self.builder.get_object('value_entry'),
-                        'send_checkbox': self.builder.get_object('send_checkbox'),
-                        }
-        events = {
-                        'response': self.cancel_event,
-                        'on_cancel_button_clicked': self.cancel_event,
-                        'on_save_button_clicked': self.event_save,
-                        'on_help_button_clicked': self.event_help,
-                }
-        self.builder.connect_signals(events)
-        self.dlg = self.widgets['dlg']
-
-    def run(self):
-        self.dlg.run()
-
-    def cancel_event(self, widget):
-        self.response = gtk.RESPONSE_CANCEL
-        self.dlg.destroy()
-        return True
-
-    def event_save(self, widget):
-        self.response = gtk.RESPONSE_OK
-        section = self.widgets['section_entry'].get_text()
-        subsection = self.widgets['subsection_entry'].get_text()
-        name = self.widgets['name_entry'].get_text()
-        value = self.widgets['value_entry'].get_text()
-        send = self.widgets['send_checkbox'].get_active()
-
-        # Shall I add a "Are you sure" dialog when sending to google docs?
-
-        self.new_tip = Tip(0, section, subsection, name, value)
-        self.dlg.destroy()
-        return True
-
-    def event_help(self, widget):
-        dlg = UtilityDialogs()
-        response = dlg.show_info_dialog(constants.send_world, constants.google_docs_disclaimer)
-
-
 class McmMenu(gtk.Menu):
 
     def __init__(self, label):
@@ -570,144 +516,6 @@ class TipGtkMenuItem(gtk.MenuItem):
     def __init__(self, label, tip):
         gtk.MenuItem.__init__(self, label)
         self.tip = tip
-
-
-class McmTipsWidget(object):
-
-    def __init__(self, hbox):
-        self.tips = Tips()
-        self.tips_list = self.tips.read()
-        self.hbox = hbox
-        self.menu_bar = self.hbox.get_children()[0]
-        self.tips_entry = self.hbox.get_children()[1]
-        self.tips_entry.connect("icon-press", self.entry_icon_event)
-        self.draw_menu_bar()
-
-    def draw_menu_bar(self):
-        root_menu_item = self.menu_bar.get_children()[0]
-        sections_menu = gtk.Menu()
-        root_menu_item.set_submenu(sections_menu)
-        for sect in self.draw_sections():
-            menu = sect.get_submenu()
-            for subsect in self.draw_subsections(menu):
-                menu.append(subsect)
-                sub_menu = subsect.get_submenu()
-                for tips in self.draw_tips_menu(menu, sub_menu):
-                    sub_menu.append(tips)
-            sections_menu.append(sect)
-
-    def entry_icon_event(self, widget, icon, event):
-        # Using 'event.button' I can know which mouse button was used
-        if icon.value_name == "GTK_ENTRY_ICON_PRIMARY":
-            print "To Console"
-        elif icon.value_name == "GTK_ENTRY_ICON_SECONDARY":
-            new_tip_dialog = McmNewTipDialog()
-            new_tip_dialog.run()
-            if new_tip_dialog.response == gtk.RESPONSE_OK:
-                self.tips_list.append(new_tip_dialog.new_tip)
-                self.draw_menu_bar()
-                self.tips.save(self.tips_list)
-        return True
-
-    def draw_sections(self):
-        sections = []
-        menu_items = []
-        for tip in self.tips_list:
-            sections.append(tip.section)
-        sections = set(sections)
-        for section in sections:
-            mi = gtk.MenuItem(section)
-            me = McmMenu(section)
-            mi.set_submenu(me)
-            mi.show()
-            menu_items.append(mi)
-        return menu_items
-
-    def draw_subsections(self, sections_menu):
-        subsections = []
-        menu_items = []
-        label = sections_menu.label
-        for tip in self.tips_list:
-            if label == tip.section:
-                subsections.append(tip.subsection)
-        subsections = set(subsections)
-        for subsection in subsections:
-            mi = gtk.MenuItem(subsection)
-            me = McmMenu(subsection)
-            mi.set_submenu(me)
-            mi.show()
-            menu_items.append(mi)
-        return menu_items
-
-    def draw_tips_menu(self, sections_menu, subsections_menu):
-        tips = []
-        menu_items = []
-        sect_label = sections_menu.label
-        subsect_label = subsections_menu.label
-        for tip in self.tips_list:
-            if subsect_label == tip.subsection and sect_label == tip.section:
-                tips.append(tip)
-        for tip in tips:
-            mi = TipGtkMenuItem(tip.name, tip)
-            mi.connect("activate", self.item_event)
-            mi.show()
-            menu_items.append(mi)
-        return menu_items
-
-    def draw_breadcrumb(self, tip):
-        items = self.menu_bar.get_children()
-        if len(items) > 1:
-            self.menu_bar.remove(items[1])
-            self.menu_bar.remove(items[2])
-            self.menu_bar.remove(items[3])
-
-        mi_section = gtk.MenuItem(tip.section)
-        mi_subsection = gtk.MenuItem(tip.subsection)
-        mi_name = gtk.MenuItem(tip.name)
-
-        mi_section.show()
-        mi_subsection.show()
-        mi_name.show()
-
-        sect_menu = McmMenu(tip.section)
-        subsect_menu = McmMenu(tip.subsection)
-        name_menu = McmMenu(tip.name)
-
-        for sect in self.draw_sections():
-            menu = sect.get_submenu()
-            for subsect in self.draw_subsections(menu):
-                menu.append(subsect)
-                sub_menu = subsect.get_submenu()
-                for tips in self.draw_tips_menu(menu, sub_menu):
-                    sub_menu.append(tips)
-            sect_menu.append(sect)
-
-        for subsect in self.draw_subsections(sect_menu):
-            subsect_menu.append(subsect)
-            sub_menu = subsect.get_submenu()
-            for tips in self.draw_tips_menu(sect_menu, sub_menu):
-                sub_menu.append(tips)
-
-        for tips in self.draw_tips_menu(sect_menu, subsect_menu):
-            name_menu.append(tips)
-
-        mi_section.set_submenu(sect_menu)
-        mi_subsection.set_submenu(subsect_menu)
-        mi_name.set_submenu(name_menu)
-
-        self.menu_bar.append(mi_section)
-        self.menu_bar.append(mi_subsection)
-        self.menu_bar.append(mi_name)
-
-    def item_event(self, widget):
-        self.draw_breadcrumb(widget.tip)
-        self.tips_entry.set_text(widget.tip.value)
-
-    def update(self, filename=None):
-        response = self.tips.update(filename)
-        self.tips_list = self.tips.read()
-        self.draw_menu_bar()
-        return response
 
 class ManageConnectionsDialog(object):
 
@@ -788,7 +596,6 @@ class ManageConnectionsDialog(object):
 
     def get_selection(self):
         cursor = self.view.get_selection()
-        model = self.view.get_model()
         (model, iter) = cursor.get_selected()
         if iter == None:
             return None
