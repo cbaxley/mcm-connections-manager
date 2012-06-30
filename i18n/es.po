@@ -13,52 +13,6 @@ msgstr ""
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: generate_pot.py\n"
 
-#. file 'gtk/glade/tips.glade', line ?
-msgid "New Tip"
-msgstr "Nuevo consejo"
-
-#. file 'gtk/glade/tips.glade', line ?
-msgid ""
-"<b>MCM Connections Manager</b>\n"
-"New Tip Reference\n"
-msgstr ""
-"<b>MCM Connections Manager</b>\n"
-"Nuevo consejo\n"
-
-#. file 'gtk/glade/tips.glade', line ?
-msgid "<b>Section:</b>"
-msgstr "<b>Sección:</b>"
-
-#. file 'gtk/glade/tips.glade', line ?
-msgid "<b>Subsection:</b>"
-msgstr "<b>Subsección</b>"
-
-#. file 'gtk/glade/tips.glade', line ?
-msgid "<b>Title:</b>"
-msgstr "<b>Título:</b>"
-
-#. file 'gtk/glade/tips.glade', line ?
-msgid "<b>Command:</b>"
-msgstr "<b>Orden:</b>"
-
-#. file 'gtk/glade/tips.glade', line ?
-msgid "<b>Send to the World:</b>"
-msgstr "<b>Compartir con el mundo:</b>"
-
-#. file 'gtk/glade/tips.glade', line ?
-msgid "<i>MyTips</i>"
-msgstr "<i>MyTips</i>"
-
-#. file 'gtk/glade/tips.glade', line ?
-msgid ""
-"If you agree, a HTML POST with this tip (no personal data) is sent so we can "
-"gather and release more and more tips. More information on the Help Button "
-"Bellow."
-msgstr ""
-"Si lo desea, se realizará un envío HTTP POST de este nuevo consejo (sin "
-"ninguna información personal) de manera que podamos almacenar y distribuir "
-"más consejos. Pulse el botón de ayuda de debajo para más información."
-
 #. file 'gtk/glade/preferences.glade', line ?
 msgid "Preferences"
 msgstr "Preferencias"
