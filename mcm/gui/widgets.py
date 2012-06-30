@@ -68,7 +68,7 @@ class UtilityDialogs(object):
 
 class AddConnectionDialog(object):
 
-    def __init__(self, aliases, groups, types, cx=None):
+    def __init__(self, aliases, groups, types, cx=None, selected_group=None):
         self.response = gtk.RESPONSE_CANCEL
         self.default_color = DefaultColorSettings().base_color
         self.new_connection = None
@@ -98,8 +98,6 @@ class AddConnectionDialog(object):
                 }
         self.builder.connect_signals(events)
 
-        # Glade3 changes the behaviour of the comboboxentry widget.
-
         g_entry = self.widgets['group_combobox'].get_child()
         self.widgets['group_entry1'] = g_entry
 
@@ -108,7 +106,7 @@ class AddConnectionDialog(object):
             self.init_combos(groups, types, cx.group, cx.get_type())
             self.fill_fields(cx)
         else:
-            self.init_combos(groups, types)
+            self.init_combos(groups, types, selected_group)
 
     def run(self):
         dlg = self.widgets['dlg']
@@ -120,9 +118,10 @@ class AddConnectionDialog(object):
         cb_types = self.widgets['types_combobox']
         grp_index = self.set_model_from_list(cb_groups, groups)
         types_index = self.set_model_from_list(cb_types, types)
-        if active_grp and active_type:
+        if active_grp:
             active = grp_index[active_grp]
             cb_groups.set_active(active)
+        if active_type:
             active = types_index[active_type]
             cb_types.set_active(active)
 
