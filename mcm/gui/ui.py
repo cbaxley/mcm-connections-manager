@@ -129,7 +129,11 @@ class MCMGtk(object):
 
     def event_add(self, menu_item):
         print self.get_selected_group()
-        dlg = AddConnectionDialog(self.connections.get_aliases(), self.connections.get_groups(), types)
+        dlg = AddConnectionDialog(self.connections.get_aliases(), 
+                                  self.connections.get_groups(), 
+                                  types, 
+                                  None, 
+                                  self.get_selected_group())
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
             cx = dlg.new_connection
