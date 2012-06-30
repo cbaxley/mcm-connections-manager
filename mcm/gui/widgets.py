@@ -768,7 +768,7 @@ class InstallPublicKeyDialog(object):
             self.dialog.resize(600, 400)
         else:
             label = gtk.Label()
-            label.set_text("Please generate your\nPublic Key with ssh-keygen -t rsa")
+            label.set_text(constants.public_key_rsa_not_found)
             vbox.add(label)
         self.dialog.show_all()
         

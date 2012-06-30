@@ -144,3 +144,4 @@ color_palletes = {
 }
 
 default_error_color = "#FFADAD"
+public_key_rsa_not_found = _("Please generate your\nPublic Key with ssh-keygen -t rsa")
