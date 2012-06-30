@@ -87,7 +87,6 @@ class MCMGtk(object):
             'on_mb_manage_activate': self.event_manage,
             'on_mb_cluster_toggled': self.hide_unhide_cluster_box,
             'on_mb_view_tree_toggled': self.hide_unhide_tree,
-            'on_mb_tips_toggled': self.hide_unhide_tips,
             'on_mb_edit_activate': self.event_edit,
             'on_sib_home_activate': self.do_localhost,
             # Menu Filter Signals
@@ -670,13 +669,6 @@ class MCMGtk(object):
                 checkbox.hide_checkbox()
             cl_box.hide()
 
-    def hide_unhide_tips(self, widget):
-        tips_bar = self.widgets['tips_hbox']
-        if widget.active:
-            tips_bar.show_all()
-        else:
-            tips_bar.hide()
-
     def hide_unhide_tree(self, widget, window=None, key_val=None, modifier=None):
         # I have to define those parameters so the callbacks from the key bindings work
         vbox = self.widgets['vbox3']
@@ -745,10 +737,6 @@ class MCMGtk(object):
             'mb_view_tree': self.builder.get_object("mb_view_tree"),
             'statusbar': self.builder.get_object("statusbar1"),
             'menu2': self.builder.get_object("menu2"),
-            # Tips Menu
-            'tips_menubar': self.builder.get_object("tips_menubar"),
-            'mi_tips': self.builder.get_object("mi_tips"),
-            'tips_hbox': self.builder.get_object("tips_hbox"),
         }
         return widgets
     
