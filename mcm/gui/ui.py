@@ -127,7 +127,8 @@ class MCMGtk(object):
         about.connect("response", lambda d, r: d.hide())
         about.run()
 
-    def event_add(self, widget):
+    def event_add(self, menu_item):
+        print self.get_selected_group()
         dlg = AddConnectionDialog(self.connections.get_aliases(), self.connections.get_groups(), types)
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
@@ -620,7 +621,6 @@ class MCMGtk(object):
         if tree == None:
             tree = self.widgets['cx_tree']
         cursor = tree.get_selection()
-        # model = tree.get_model()
         
         alias = None
         (ignore, coords) = cursor.get_selected_rows()
@@ -631,6 +631,18 @@ class MCMGtk(object):
                     return None
                 alias = model.get_value(i, 0)
         return alias
+    
+    def get_selected_group(self, tree=None):
+        '''Gets the alias of the connection currently selected on the tree'''
+        if tree == None:
+            tree = self.widgets['cx_tree']
+        cursor = tree.get_selection()
+        (model, coords) = cursor.get_selected_rows()
+        try:
+            i = model.get_iter((coords[0][0],))
+            return model.get_value(i,0)
+        except IndexError:
+            return None
     
     def get_current_terminal(self):
         terminals = self.widgets['terminals']
