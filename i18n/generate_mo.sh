@@ -5,5 +5,6 @@
 
 for i in *.po; do
     echo "Generating file for language ${i%%.*}"
+    mkdir -p locale/${i%%.*}/LC_MESSAGES/
     msgfmt "${i}" -o "locale/${i%%.*}/LC_MESSAGES/mcm.mo"
 done
