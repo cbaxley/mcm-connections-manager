@@ -21,14 +21,14 @@
 '''
 This is the main script for mcm
 '''
-import subprocess
-import readline
+
+import os, sys, subprocess, readline
 from optparse import OptionParser
 
 from tables import Table
-from mcm.common.connections import *
-from mcm.common.utils import *
-from mcm.common.constants import *
+from mcm.common.connections import types, connections_factory, Vnc, Rdp, ConnectionStore
+from mcm.common.utils import Csv
+import mcm.common.constants as constants
 
 
 class Mcm(object):
@@ -239,7 +239,7 @@ example:
 %prog foo\t\tConnects to server foo
     """
     
-    parser = OptionParser(usage="", version=version)
+    parser = OptionParser(usage="", version=constants.version)
     parser.add_option("-a", "--add", action="store_true", dest="add", help="Add a new connection")
     parser.add_option("-l", "--list", action="store_true", dest="list", help="Complete list of connections with all data")
     parser.add_option("-s", "--show", action="store", dest="show", help="Delete the given connection alias")
