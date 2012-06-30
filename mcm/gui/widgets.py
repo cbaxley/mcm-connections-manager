@@ -24,7 +24,7 @@ import gobject
 import pygtk
 pygtk.require("2.0")
 
-from mcm.common.connections import connections_factory
+from mcm.common.connections import connections_factory, types
 from mcm.common.utils import *
 from mcm.common.export import *
 from mcm.common.configurations import McmConfig
@@ -125,7 +125,6 @@ class AddConnectionDialog(object):
             active = types_index[active_type]
             cb_types.set_active(active)
 
-
     def set_model_from_list(self, cb, items):
         """Setup a ComboBox or ComboBoxEntry based on a list of strings."""           
         model = gtk.ListStore(str)
@@ -133,7 +132,7 @@ class AddConnectionDialog(object):
         j = 0
         for i in items:
             model.append([i])
-            index[i] = j 
+            index[i] = j
             j += 1
         cb.set_model(model)
         if type(cb) == gtk.ComboBoxEntry:
@@ -145,22 +144,25 @@ class AddConnectionDialog(object):
         return index
 
     def insert_default_options(self, widget):
-        type = widget.get_active_text()
+        cx_type = widget.get_active_text()
         conf = McmConfig()
         config = ""
-        if type == 'SSH':
+        if cx_type == 'SSH':
             not_used, config = conf.get_ssh_conf()
-        elif type == 'VNC':
+        elif cx_type == 'VNC':
             not_used, config, embedded = conf.get_vnc_conf()
-        elif type == 'RDP':
+        elif cx_type == 'RDP':
             not_used, config = conf.get_rdp_conf()
-        elif type == 'TELNET':
+        elif cx_type == 'TELNET':
             not_used, config = conf.get_telnet_conf()
-        elif type == 'FTP':
+        elif cx_type == 'FTP':
             not_used, config = conf.get_ftp_conf()
 
         opts_entry = self.widgets['options_entry1']
         opts_entry.set_text(config)
+        
+        port_entry = self.widgets['port_entry1']
+        port_entry.set_text(str(types[cx_type]))
 
     def cancel_event(self, widget):
         pass
@@ -192,7 +194,7 @@ class AddConnectionDialog(object):
 
     def validate_port(self, widget):
         pass
-
+    
     def fill_fields(self, cx):
         """Fill the dialog fields so we can use it to edit a connection"""
         user = self.widgets['user_entry1']
