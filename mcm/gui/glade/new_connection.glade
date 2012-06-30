@@ -142,10 +142,9 @@
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">none</property>
                     <child>
-                      <object class="GtkComboBox" id="group_combobox">
+                      <object class="GtkComboBoxEntry" id="group_combobox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="has_entry">True</property>
                       </object>
                     </child>
                     <child type="label">
