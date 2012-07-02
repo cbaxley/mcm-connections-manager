@@ -37,21 +37,18 @@ class Mcm(object):
         self.connections = ConnectionStore()
         self.connections.load()
 
-    def do_connect(self, connection):
-        connection.print_connection(connection.get_fork_args())
-        try:
-            subprocess.call(connection.get_fork_args())
-        except (KeyboardInterrupt, SystemExit):
-            exit(0)
-
     def connect(self, alias):
         try:
             conn = self.connections.get(alias)
+            conn.print_connection(conn.get_fork_args())
+            subprocess.call(conn.get_fork_args())
             self.do_connect(conn)
-        except KeyError:
+        except (KeyError, AttributeError):
             print "Error loading connections." 
             print "Please add one or more connections using \"mcm -a\""
             exit(1)
+        except (KeyboardInterrupt, SystemExit):
+            exit(0)
 
     def delete(self, alias):
         try:
@@ -100,9 +97,12 @@ class Mcm(object):
             print "Password:"
             cx_password = raw_input()
 
-            print "Port [default: ] : "
+            print "Port [default: %s] : " % types[cx_type]
             raw_cx_port = raw_input()
-            cx_port = int(raw_cx_port)
+            if not raw_cx_port:
+                cx_port = types[cx_type]
+            else:
+                cx_port = int(raw_cx_port)
 
             print "Group (%s):" % ", ".join(self.connections.get_groups())
             cx_group = raw_input()
