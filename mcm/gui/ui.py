@@ -31,7 +31,6 @@ import gettext
 import os
 import signal
 
-
 from subprocess import Popen
 from vnc import MCMVncClient
 from mcm.common import constants
@@ -755,22 +754,6 @@ class MCMGtk(object):
     def color_parse(self, color_name):
         return gtk.gdk.color_parse(color_name)
     
-    def rdp_connection(self, connection):
-        """Embed a rdesktop window to our app"""
-        terminals = self.widgets['terminals']
-        label = gtk.Label(connection.alias)
-        label.set_tooltip_text(connection.description)
-
-        socket = gtk.Socket()
-        index = terminals.append_page(socket)
-        sock_id = socket.get_id()
-        cmd = ["rdesktop", "-K", "-X", str(sock_id), str(connection.host)]
-        Popen(cmd)
-        terminals.set_tab_reorderable(socket, True)
-        self.assign_tab_switch_binding(index + 1)
-        terminals.show_all()
-        terminals.set_current_page(index)
-
     def switch_tab(self, accel_group, window, keyval, modifier):
         # Key 0 is 48, Key 1 is 49 ... key 9 is 57
         index = keyval - 49
