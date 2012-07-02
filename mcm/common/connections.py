@@ -209,15 +209,12 @@ class ConnectionStore(object):
         self.store = {}
         
     def load(self):
-        if not self.store:
-            try:
-                myfile = open(self.jsonfile, 'r')
-                self.store = json.load(myfile, cls=ConnectionDecoder)
-                myfile.close
-            except IOError:
-                print "Failed to load connections file"
-            
-        return self.store
+        try:
+            myfile = open(self.jsonfile, 'r')
+            self.store = json.load(myfile, cls=ConnectionDecoder)
+            myfile.close
+        except IOError:
+            print "Failed to load connections file"
     
     def save(self):
         myfile = open(self.jsonfile, 'w')
@@ -256,7 +253,6 @@ class ConnectionStore(object):
             return self.store[alias]
         except KeyError:
             return None
-        
     
     def get_all(self):
         return self.store.values()
@@ -264,6 +260,9 @@ class ConnectionStore(object):
     def add_all(self, connections):
         for alias, cx in connections.items():
             self.store[alias] = cx
+            
+    def __str__(self):
+        return str(self.store)
         
 class ConnectionEncoder(json.JSONEncoder):
 
