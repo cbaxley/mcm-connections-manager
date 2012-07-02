@@ -272,10 +272,10 @@ class MCMGtk(object):
         webbrowser.open_new_tab(constants.mcm_help_url)
         
     def event_manage(self, widget):
-        dlg = ManageConnectionsDialog(self.connections, self.connections.get_groups(), types)
+        dlg = ManageConnectionsDialog()
         dlg.run()
         if dlg.response is gtk.RESPONSE_OK:
-            self.connections.save()
+            self.connections.load()
             self.draw_tree()
         dlg.destroy()
 
