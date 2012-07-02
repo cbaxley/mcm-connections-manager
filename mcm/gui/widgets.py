@@ -24,7 +24,7 @@ import gtk
 import pygtk
 pygtk.require("2.0")
 
-from mcm.common.connections import connections_factory, types
+from mcm.common.connections import connections_factory, types, ConnectionStore
 from mcm.common.export import print_csv, Html
 from mcm.common.configurations import McmConfig
 import mcm.common.constants as constants
@@ -519,12 +519,13 @@ class TipGtkMenuItem(gtk.MenuItem):
 
 class ManageConnectionsDialog(object):
 
-    def __init__(self, connections, groups, types):
+    def __init__(self):
         self.response = gtk.RESPONSE_CANCEL
-        self.connections = connections
-        self.groups = groups
-        self.types = types
-        self.active_column = None
+        self.connections = ConnectionStore()
+        self.connections.load()
+        self.groups = self.connections.get_groups()
+        self.types = types.keys()
+        self.cell_edited_color = DefaultColorSettings().tooltip_fg_color
         builder = gtk.Builder()
         builder.add_from_file(constants.glade_edit_cx)
         self.dialog = builder.get_object("edit_connections_dialog")
@@ -543,10 +544,6 @@ class ManageConnectionsDialog(object):
         self.tree_container.add(self.view)
         self.tree_container.show_all()
 
-    def redraw_tree(self):
-        self.tree_container.remove(self.view)
-        self.draw_tree()
-
     def run(self):
         self.dialog.run()
 
@@ -558,6 +555,7 @@ class ManageConnectionsDialog(object):
 
     def event_save(self, widget):
         self.response = gtk.RESPONSE_OK
+        self.connections.save()
 
     def event_export(self, widget):
         dlg = FileSelectDialog(True)
@@ -587,68 +585,73 @@ class ManageConnectionsDialog(object):
         j = 0
         for i in items:
             model.append([i])
-            index[i] = j 
+            index[i] = j
             j += 1
         cb.set_property('model', model)
         cb.set_property('text-column', 0)
         cb.set_property('editable', True)
+        cb.set_property('has-entry', False)
         return index
 
-    def get_selection(self):
-        cursor = self.view.get_selection()
-        (model, iter) = cursor.get_selected()
-        if iter == None:
-            return None
-        alias = model.get_value(iter, 0)
-        return alias
-
-    def cell_edited_event(self, widget, path, new_value, store):
-        col_title = self.active_column.get_title()
-        alias = self.get_selection()
-        acx = self.connections.get(alias)
-        if col_title == constants.col_title_user:
-            acx.user = new_value 
-        elif col_title == constants.col_title_pwd:
-            acx.password = new_value 
-        elif col_title == constants.col_title_host:
-            acx.host = new_value 
-        elif col_title == constants.col_title_port:
-            acx.port = new_value 
-        elif col_title == constants.col_title_desc:
-            acx.description = new_value 
-        elif col_title == constants.col_title_opts:
-            acx.options = new_value 
-
-        self.connections.update(alias, acx)
-        self.redraw_tree()
-
-    def cell_combo_event(self, widget, path, new_iter):
-        """Method called when a change on a combobox happens"""
-        new_value = widget.props.model.get_value(new_iter, 0)
-        col_title = self.active_column.get_title()
-        alias = self.get_selection()
-        acx = self.connections.get(alias)
-
-        if col_title == constants.col_title_group:
-            acx.group = new_value 
-        elif col_title == constants.col_title_type:
-            acx = connections_factory(new_value,  acx.user, acx.host, acx.alias, acx.password, acx.port, acx.group, acx.options, acx.description)
+    def type_edited_event(self, widget, path, new_iter, model):
+        self.update_combo_cell(widget, path, 1, new_iter, model)
+    
+    def group_edited_event(self, widget, path, new_iter, model):
+        self.update_combo_cell(widget, path, 7, new_iter, model)
+    
+    def update_cell(self, widget, pos_x, new_value, model):
+        pos_y = widget.pos_y
+        model[pos_x][pos_y] = new_value
+        alias = model[pos_x][0]
+        cx = self.connections.get(alias)
+        if pos_y is 4:
+            cx.user = new_value
+        elif pos_y is 2:
+            cx.host = new_value
+        elif pos_y is 3:
+            cx.port = new_value
+        elif pos_y is 6:
+            cx.options = new_value
+        elif pos_y is 5:
+            cx.password = new_value
+        elif pos_y is 8:
+            cx.description = new_value
         
-        self.connections.update(alias, acx)
-        self.redraw_tree()
+        self.connections.update(alias, cx)
+        
+    def update_combo_cell(self, widget, pos_x, pos_y, new_iter, model):
+        new_value = widget.props.model.get_value(new_iter, 0)
+        model[pos_x][pos_y] = new_value
+        alias = model[pos_x][0]
+        cx = self.connections.get(alias)
+        if pos_y is 1:
+            cx = connections_factory(new_value, 
+                                     cx.user, 
+                                     cx.host, 
+                                     cx.alias, 
+                                     cx.password, 
+                                     cx.port, 
+                                     cx.group, 
+                                     cx.options, 
+                                     cx.description)
+        elif pos_y is 7:
+            cx.group = new_value
+            
+        self.connections.update(alias, cx)
 
-    def cell_click_event(self, widget, event, store):
+    def cell_click_event(self, widget, event):
         path = widget.get_path_at_pos(int(event.x), int(event.y))
-        #row = int(path[0][0])
-        self.active_column = path[1]
-        col_title = self.active_column.get_title()
+        active_column = path[1]
+        col_title = active_column.get_title()
         if col_title == constants.col_title_delete and event.type == gtk.gdk._2BUTTON_PRESS:
-            alias = self.get_selection()
+            cursor = widget.get_selection()
+            (model, a_iter) = cursor.get_selected()
+            alias = model.get_value(a_iter, 0)
             dlg = UtilityDialogs()
             response = dlg.show_question_dialog(constants.deleting_connection_warning % alias, constants.are_you_sure)
             if response == gtk.RESPONSE_OK:
+                model.remove(a_iter)
                 self.connections.delete(alias)
-                self.redraw_tree()
 
     def connections_view(self):
         store = self.connections_model()
@@ -661,47 +664,58 @@ class ManageConnectionsDialog(object):
         view.set_headers_clickable(True)
         view.set_rules_hint(True)
         view.set_search_column(0)
-        view.set_fixed_height_mode(True)
+        #view.set_fixed_height_mode(True)
         view.columns_autosize()
-        view.connect('button-press-event', self.cell_click_event, store )
+        view.connect('button-press-event', self.cell_click_event)
 
         return view
 
     def generate_columns(self, store):
         columns = []
+        
+        # For each column we need a renderer so we can easily pick the cell value
         alias_renderer = gtk.CellRendererText()
-
-        renderer0 = gtk.CellRendererText()
-        renderer0.set_property( 'editable', True)
-        renderer0.connect('edited', self.cell_edited_event, store )
-        img_renderer = gtk.CellRendererPixbuf()
 
         # We create the CellRendererCombo with the given models and then feed this models to the event
         types_combo_renderer = self.init_combo(self.types)
-        types_combo_renderer.connect('changed', self.cell_combo_event)
+        types_combo_renderer.connect('changed', self.type_edited_event, store)
+        types_combo_renderer.pos_y = 1
+        
         groups_combo_renderer = self.init_combo(self.groups)
-        groups_combo_renderer.connect('changed', self.cell_combo_event)
-
+        groups_combo_renderer.connect('changed', self.group_edited_event, store)
+        groups_combo_renderer.pos_y = 7
+        
+        user_renderer = self.get_new_cell_renderer(True, 4, store)
+        host_renderer = self.get_new_cell_renderer(True, 2, store)
+        port_renderer = self.get_new_cell_renderer(True, 3, store)
+        opts_renderer = self.get_new_cell_renderer(True, 6, store)
+        pwd_renderer = self.get_new_cell_renderer(True, 5, store)
+        desc_renderer = self.get_new_cell_renderer(True, 8, store)
+        
+        # Renderer for the delete button
+        img_renderer = gtk.CellRendererPixbuf()
+        
         # Make the first row sortable
         col = gtk.TreeViewColumn(constants.col_title_alias, alias_renderer, text=0)
         col.set_sort_column_id(0)
-        col.set_resizable(False)
+        col.set_resizable(True)
+        col.set_expand(True)
+        
         columns.append(col)
-
-        columns.append(self.get_new_column(constants.col_title_type, types_combo_renderer, text=1))
-        columns.append(self.get_new_column(constants.col_title_group, groups_combo_renderer, text=7))
-        columns.append(self.get_new_column(constants.col_title_user, renderer0, text=4))
-        columns.append(self.get_new_column(constants.col_title_host, renderer0, text=2))
-        columns.append(self.get_new_column(constants.col_title_port, renderer0, text=3))
-        columns.append(self.get_new_column(constants.col_title_opts, renderer0, text=6))
-        columns.append(self.get_new_column(constants.col_title_pwd, renderer0, text=5))
-
-        # The Delete column looks awful when we maximize the dialog. So we expand this one instead
-        desc_col = gtk.TreeViewColumn(constants.col_title_desc, renderer0, text=8)
-        desc_col.set_expand(True)
-        columns.append(desc_col)
-        col.set_resizable(False)
-        columns.append(gtk.TreeViewColumn(constants.col_title_delete, img_renderer, pixbuf=9))
+        columns.append(self.get_new_column(constants.col_title_type, types_combo_renderer))
+        columns.append(self.get_new_column(constants.col_title_group, groups_combo_renderer))
+        columns.append(self.get_new_column(constants.col_title_user, user_renderer))
+        columns.append(self.get_new_column(constants.col_title_host, host_renderer))
+        columns.append(self.get_new_column(constants.col_title_port, port_renderer))
+        columns.append(self.get_new_column(constants.col_title_opts, opts_renderer))
+        columns.append(self.get_new_column(constants.col_title_pwd, pwd_renderer))
+        columns.append(self.get_new_column(constants.col_title_desc, desc_renderer))
+        
+        # Finally we append the delete button column
+        del_col = gtk.TreeViewColumn(constants.col_title_delete, img_renderer, pixbuf=9)
+        del_col.set_resizable(False)
+        del_col.set_expand(False)
+        columns.append(del_col)
 
         return columns
 
@@ -715,10 +729,17 @@ class ManageConnectionsDialog(object):
             store.append(cx_list)
         return store
     
-    def get_new_column(self, title, renderer, text, resizable=False):
-        col = gtk.TreeViewColumn(title, renderer, text=text)
-        col.set_resizable(resizable)
+    def get_new_column(self, title, renderer, resizable=False):
+        col = gtk.TreeViewColumn(title, renderer, text=renderer.pos_y)
+        col.set_resizable(True)
         return col
+    
+    def get_new_cell_renderer(self, editable, pos_y, store):
+        renderer = gtk.CellRendererText()
+        renderer.set_property( 'editable', editable)
+        renderer.pos_y = pos_y
+        renderer.connect('edited', self.update_cell, store )
+        return renderer
 
 class DefaultColorSettings(object):
     def __init__(self):
