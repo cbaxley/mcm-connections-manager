@@ -838,7 +838,6 @@ German: Mathias Menzer, cusaro</property>
                     <property name="tab_hborder">5</property>
                     <property name="enable_popup">True</property>
                     <property name="group_id">1</property>
-                    <property name="homogeneous">True</property>
                     <signal name="page-reordered" handler="on_terminals_reorder" swapped="no"/>
                     <signal name="switch-page" handler="on_terminals_switch_page" swapped="no"/>
                     <child>
@@ -878,19 +877,84 @@ German: Mathias Menzer, cusaro</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="cluster_entry">
+                  <object class="GtkHBox" id="hbox2">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="tooltip_markup">Cluster Entry. Mark the tabs you want to interact with.</property>
-                    <property name="tooltip_text" translatable="yes">Cluster Entry. Mark the tabs you want to interact with.</property>
-                    <property name="invisible_char">●</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
-                    <signal name="changed" handler="on_cluster_entry_changed" swapped="no"/>
-                    <signal name="activate" handler="on_cluster_entry_activate" swapped="no"/>
-                    <signal name="backspace" handler="on_cluster_entry_backspace" swapped="no"/>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkEntry" id="cluster_entry">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="invisible_char">●</property>
+                        <property name="truncate_multiline">True</property>
+                        <property name="invisible_char_set">True</property>
+                        <property name="secondary_icon_stock">gtk-clear</property>
+                        <property name="primary_icon_activatable">False</property>
+                        <property name="secondary_icon_activatable">True</property>
+                        <property name="primary_icon_sensitive">True</property>
+                        <property name="secondary_icon_sensitive">True</property>
+                        <signal name="changed" handler="on_cluster_entry_changed" swapped="no"/>
+                        <signal name="activate" handler="on_cluster_entry_activate" swapped="no"/>
+                        <signal name="key-press-event" handler="on_cluster_entry_key_press_event" swapped="no"/>
+                        <signal name="backspace" handler="on_cluster_entry_backspace" swapped="no"/>
+                        <signal name="icon-press" handler="on_cluster_entry_icon_press" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="cluster_select_all">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">Select All Terminals</property>
+                        <property name="use_action_appearance">False</property>
+                        <signal name="clicked" handler="on_cluster_select_all_activate" swapped="no"/>
+                        <child>
+                          <object class="GtkImage" id="image10">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-apply</property>
+                            <property name="icon-size">1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleButton" id="cluster_history_button">
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">Show history &amp; favorites</property>
+                        <property name="use_action_appearance">False</property>
+                        <signal name="toggled" handler="on_cluster_history_button_toggled" swapped="no"/>
+                        <child>
+                          <object class="GtkImage" id="image11">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-index</property>
+                            <property name="icon-size">1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
