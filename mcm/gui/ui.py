@@ -49,6 +49,7 @@ for module in glade, gettext:
 class MCMGtk(object):
 
     def __init__(self):
+        self.cluster_mode_active = False
         self.conf = McmConfig()
         self.builder = gtk.Builder()
         self.builder.add_from_file(constants.glade_main)
@@ -60,6 +61,8 @@ class MCMGtk(object):
         
         self.draw_tree()
         self.init_main_window()
+        
+        
         
     '''
         **************************************
@@ -115,6 +118,9 @@ class MCMGtk(object):
             'on_cluster_entry_changed': self.event_cluster,
             'on_cluster_entry_activate': self.event_cluster_intro,
             'on_cluster_entry_backspace':self.event_cluster_backspace,
+            'on_cluster_entry_key_press_event': self.event_cluster_key_press,
+            'on_cluster_entry_icon_press': self.event_clear_cluster,
+            'on_cluster_select_all_activate': self.event_cluster_select_all,
             # Notebook Signals
             'on_terminals_switch_page': self.event_switch_tab,
             'on_terminals_reorder': self.event_reorder_tab}
@@ -126,7 +132,6 @@ class MCMGtk(object):
         about.run()
 
     def event_add(self, menu_item):
-        print self.get_selected_group()
         dlg = AddConnectionDialog(self.connections.get_aliases(), 
                                   self.connections.get_groups(), 
                                   types, 
@@ -147,10 +152,10 @@ class MCMGtk(object):
         key = self.conf.get_kb_tab_switch() + '%d'
         self.assign_key_binding(key % index, self.switch_tab)
 
-    def event_clear_cluster(self, widget):
+    def event_clear_cluster(self, entry, icon, event):
         entry = self.widgets['cluster_entry']
         entry.set_text("")
-
+        
     def event_close_tab(self, accel_group, window=None, keyval=None, modifier=None, unk=None):
         """
             Event called when the a tab is closed by the key combo or the button.
@@ -177,28 +182,58 @@ class MCMGtk(object):
         if exit_code not in [0,1,2,9]: # sigkilled rets 9
             terminals.set_current_page(index)
             dlg = UtilityDialogs()
-            dlg.show_error_dialog("Unexpected Exit Code", "The connection was terminated with status code %s" % exit_code)
+            dlg.show_error_dialog(constants.unexpected_exit_code,
+                                  constants.connection_terminated % exit_code)
         
         terminals.remove_page(index)
         if terminals.get_n_pages() <= 0:
             terminals.hide()
+            self.hide_unhide_cluster_box(self.widgets['mb_cluster'])
         return True
     
     def event_cluster_backspace(self, widget):
         """Call this event when the backspace key is pressed on the entry widget"""
-        return self.cluster_send_key('\b')
+        #return self.cluster_send_key('\b')
+        pass
 
     def event_cluster(self, widget):
         """Call this event when any key is pressed on the entry widget"""
+        pass
+        
+    def event_cluster_key_press(self, widget, event):
+        """
+            Capture special key events and send the octal value to the vte
+            We use $showkey -a to capture the events
+        """
+        keyname = gtk.gdk.keyval_name(event.keyval)
+        if keyname == 'Escape':
+            return self.cluster_send_key('\033')
+        
+        if event.state & gtk.gdk.CONTROL_MASK:
+            if keyname is 'c':
+                return self.cluster_send_key('\003\015')
+            elif keyname is 'd':
+                return self.cluster_send_key('\004\015')
+            elif keyname is 'z':
+                return self.cluster_send_key('\032\015')
+            
+        return False
+
+    def event_cluster_intro(self, widget):
+        """Call this event when the enter key is pressed on the entry widget"""
         command = widget.get_text()
         widget.set_text("")
         if len(command) < 1:
             return False
-        return self.cluster_send_key(command)
-
-    def event_cluster_intro(self, widget):
-        """Call this event when the enter key is pressed on the entry widget"""
-        return self.cluster_send_key('\n')
+        return self.cluster_send_key(command + '\n')
+    
+    def event_cluster_select_all(self, widget):
+        terminals = self.widgets['terminals']
+        pages = terminals.get_n_pages()
+        for i in range(pages):
+            scroll = terminals.get_nth_page(i)
+            checkbox = terminals.get_tab_label(scroll)
+            checkbox.set_active()
     
     def event_connect(self, widget, path=None, vew_column=None):
         alias = None
@@ -439,7 +474,10 @@ class MCMGtk(object):
             label = McmCheckbox(connection.alias, pid, cluster, icon)
             label.set_tooltip_text(connection.description)
             menu_label = gtk.Label(connection.alias)
-            
+        
+        if self.cluster_mode_active:
+            label.show_checkbox()
+        
         label.close_button.connect("clicked", self.event_close_tab)
         return (label, menu_label)
     
@@ -501,7 +539,7 @@ class MCMGtk(object):
             copy.connect('activate', self.do_copy)
             paste.connect('activate', self.do_paste)
             search.connect('activate', self.do_search)
-            title.connect('activate', self.do_set_title)
+            title.connect('activate', self.set_title_tab_title)
             
             menu.show_all()
             menu.popup(None, None, None, 3, event.time)
@@ -528,17 +566,17 @@ class MCMGtk(object):
         text = clipb.wait_for_text()
         webbrowser.open_new_tab(constants.google_search_url % text)
 
-    def do_set_title(self, widget):
+    def set_title_tab_title(self, widget):
         terminals = self.widgets['terminals']
         scroll = terminals.get_nth_page(terminals.get_current_page())
+        label = terminals.get_tab_label(scroll)
         vte = scroll.get_child()
         vte.copy_clipboard()
         clipb = widget.get_clipboard(gtk.gdk.SELECTION_CLIPBOARD)
         text = clipb.wait_for_text()
-        if len(text) > 30:
-            text = text[0:30]
-        label = McmCheckbox(text)
-        terminals.set_tab_label(scroll, label)
+        if len(text) > 20:
+            text = text[0:17] + '...'
+        label.set_title(text)
         self.set_window_title(text)
 
     def draw_column(self, tree, title, _id):
@@ -655,18 +693,30 @@ class MCMGtk(object):
         terminals = self.widgets['terminals']
         pages = terminals.get_n_pages()
         cl_box = self.widgets['cluster_entry']
-        if widget.active:
-            for i in range(pages):
-                scroll = terminals.get_nth_page(i)
-                checkbox = terminals.get_tab_label(scroll)
-                checkbox.show_checkbox()
-            cl_box.show_all()
-        else:
-            for i in range(pages):
-                scroll = terminals.get_nth_page(i)
-                checkbox = terminals.get_tab_label(scroll)
-                checkbox.hide_checkbox()
+        cl_select_all_button = self.widgets['cluster_select_all']
+        if pages <= 0:
             cl_box.hide()
+            cl_select_all_button.hide()
+            widget.set_active(False)
+            self.cluster_mode_active = False
+        else:
+            if widget.active:
+                for i in range(pages):
+                    scroll = terminals.get_nth_page(i)
+                    checkbox = terminals.get_tab_label(scroll)
+                    checkbox.show_checkbox()
+                cl_box.show_all()
+                cl_select_all_button.show_all()
+                self.cluster_mode_active = True
+                
+            else:
+                for i in range(pages):
+                    scroll = terminals.get_nth_page(i)
+                    checkbox = terminals.get_tab_label(scroll)
+                    checkbox.hide_checkbox()
+                cl_box.hide()
+                cl_select_all_button.hide()
+                self.cluster_mode_active = False
 
     def hide_unhide_tree(self, widget, window=None, key_val=None, modifier=None):
         # I have to define those parameters so the callbacks from the key bindings work
@@ -736,6 +786,8 @@ class MCMGtk(object):
             'mb_view_tree': self.builder.get_object("mb_view_tree"),
             'statusbar': self.builder.get_object("statusbar1"),
             'menu2': self.builder.get_object("menu2"),
+            'cluster_select_all': self.builder.get_object("cluster_select_all"),
+            'cluster_history_button': self.builder.get_object("cluster_history_button"),
         }
         return widgets
     
@@ -800,8 +852,6 @@ class MCMGtk(object):
         label = McmCheckbox(connection.alias)
         label.set_tooltip_text(connection.description)
         
-        #label = gtk.Label(connection.alias)
-        #label.set_tooltip_text(connection.description)
         menu_label = gtk.Label(connection.alias)
         vnc_client = MCMVncClient(connection.host, connection.port)
         vnc_box = vnc_client.get_instance()
