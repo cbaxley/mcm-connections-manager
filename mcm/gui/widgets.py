@@ -487,7 +487,13 @@ class McmCheckbox(gtk.HBox):
             self._button.hide()
 
     def get_active(self):
-        return self._button.get_active()
+        if self._button:
+            return self._button.get_active()
+        return None
+    
+    def set_active(self, active=True):
+        if self._button:
+            self._button.set_active(active)
     
     def hide_checkbox(self):
         self._button.hide()
@@ -698,8 +704,8 @@ class ManageConnectionsDialog(object):
         # Make the first row sortable
         col = gtk.TreeViewColumn(constants.col_title_alias, alias_renderer, text=0)
         col.set_sort_column_id(0)
-        col.set_resizable(True)
-        col.set_expand(True)
+        #col.set_resizable(True)
+        #col.set_expand(True)
         
         columns.append(col)
         columns.append(self.get_new_column(constants.col_title_type, types_combo_renderer))
@@ -731,7 +737,7 @@ class ManageConnectionsDialog(object):
     
     def get_new_column(self, title, renderer, resizable=False):
         col = gtk.TreeViewColumn(title, renderer, text=renderer.pos_y)
-        col.set_resizable(True)
+        col.set_resizable(resizable)
         return col
     
     def get_new_cell_renderer(self, editable, pos_y, store):
