@@ -522,7 +522,7 @@ class TipGtkMenuItem(gtk.MenuItem):
     def __init__(self, label, tip):
         gtk.MenuItem.__init__(self, label)
         self.tip = tip
-
+        
 class ManageConnectionsDialog(object):
 
     def __init__(self):
@@ -531,38 +531,35 @@ class ManageConnectionsDialog(object):
         self.connections.load()
         self.groups = self.connections.get_groups()
         self.types = types.keys()
-        self.cell_edited_color = DefaultColorSettings().tooltip_fg_color
-        builder = gtk.Builder()
-        builder.add_from_file(constants.glade_edit_cx)
-        self.dialog = builder.get_object("edit_connections_dialog")
-        self.tree_container = builder.get_object("tree_scroll")
-        events = {
-                        'response': self.cancel_event,
-                        'on_cancel_button_clicked': self.cancel_event,
-                        'on_save_button_clicked': self.event_save,
-                        'on_exp_html_button_clicked': self.event_export,
-                }
-        builder.connect_signals(events)
+        self.dialog = gtk.Dialog(constants.connections_manager, 
+             None, gtk.DIALOG_MODAL,
+             ( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_SAVE, gtk.RESPONSE_OK ))
+        self.dialog.set_default_response(gtk.RESPONSE_CANCEL)
+        self.dialog.connect('response', self.dialog_response_event)
+        self.dialog.set_size_request(600, 300)
+        v_box = self.dialog.get_content_area()
+        self.tree_container = gtk.ScrolledWindow()
+        self.tree_container.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.draw_tree()
+        v_box.pack_start(self.tree_container, True, True, 0)
 
     def draw_tree(self):
-        self.view = self.connections_view()
-        self.tree_container.add(self.view)
+        view = self.connections_view()
+        self.tree_container.add(view)
         self.tree_container.show_all()
 
     def run(self):
         self.dialog.run()
-
+        
     def destroy(self):
+        pass
+
+    def dialog_response_event(self, this, response_id):
+        if response_id == gtk.RESPONSE_OK:
+            self.response = gtk.RESPONSE_OK
+            self.connections.save()
         self.dialog.destroy()
     
-    def cancel_event(self, widget):
-        self.response = gtk.RESPONSE_CANCEL
-
-    def event_save(self, widget):
-        self.response = gtk.RESPONSE_OK
-        self.connections.save()
-
     def event_export(self, widget):
         dlg = FileSelectDialog(True)
         dlg.run()
@@ -670,7 +667,6 @@ class ManageConnectionsDialog(object):
         view.set_headers_clickable(True)
         view.set_rules_hint(True)
         view.set_search_column(0)
-        #view.set_fixed_height_mode(True)
         view.columns_autosize()
         view.connect('button-press-event', self.cell_click_event)
 
@@ -708,14 +704,14 @@ class ManageConnectionsDialog(object):
         #col.set_expand(True)
         
         columns.append(col)
-        columns.append(self.get_new_column(constants.col_title_type, types_combo_renderer))
-        columns.append(self.get_new_column(constants.col_title_group, groups_combo_renderer))
-        columns.append(self.get_new_column(constants.col_title_user, user_renderer))
-        columns.append(self.get_new_column(constants.col_title_host, host_renderer))
+        columns.append(self.get_new_column(constants.col_title_type, types_combo_renderer, True))
+        columns.append(self.get_new_column(constants.col_title_group, groups_combo_renderer, True))
+        columns.append(self.get_new_column(constants.col_title_user, user_renderer, True))
+        columns.append(self.get_new_column(constants.col_title_host, host_renderer, True))
         columns.append(self.get_new_column(constants.col_title_port, port_renderer))
         columns.append(self.get_new_column(constants.col_title_opts, opts_renderer))
         columns.append(self.get_new_column(constants.col_title_pwd, pwd_renderer))
-        columns.append(self.get_new_column(constants.col_title_desc, desc_renderer))
+        columns.append(self.get_new_column(constants.col_title_desc, desc_renderer, False, True))
         
         # Finally we append the delete button column
         del_col = gtk.TreeViewColumn(constants.col_title_delete, img_renderer, pixbuf=9)
@@ -735,9 +731,12 @@ class ManageConnectionsDialog(object):
             store.append(cx_list)
         return store
     
-    def get_new_column(self, title, renderer, resizable=False):
+    def get_new_column(self, title, renderer, sort=False, expand=False):
         col = gtk.TreeViewColumn(title, renderer, text=renderer.pos_y)
-        col.set_resizable(resizable)
+        col.set_resizable(False)
+        col.set_expand(expand)
+        if sort:
+            col.set_sort_column_id(renderer.pos_y)
         return col
     
     def get_new_cell_renderer(self, editable, pos_y, store):
