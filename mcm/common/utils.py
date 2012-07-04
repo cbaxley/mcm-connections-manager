@@ -24,15 +24,10 @@ Some utility classes
 '''
 
 import os
-import shutil
-import csv
-import json
-import urllib
-from StringIO import StringIO
-from datetime import date
 import mcm.common.constants as constants
 
 class Csv(object):
+    
     def __init__(self, path):
         if os.path.exists(path) and os.access(path, os.W_OK):
             self.path = path
@@ -41,6 +36,8 @@ class Csv(object):
 
     def import_connections(self, pattern="alias"):
         """Returns a list with a dict"""
+        import csv
+        
         cxs = []
         hdr = []
         csvreader = csv.reader(open(self.path, 'rb'))
@@ -60,156 +57,110 @@ class Csv(object):
                     cx[hdr[i]] = _str.strip()
                 cxs.append(cx)
         return cxs
-
-class Tip(object):
-    """
-    A tip belongs to a subsection, which belongs to a section.
-    Each tip has a name or description and a value which is the
-    command or whatever we want to use and an ID to help us
-    find them.
-    """
-
-    def __init__(self, _id, section, subsection, name, value):
-        self.id = _id # Not used for now
-        self.section = section
-        self.subsection = subsection
-        self.name = name
-        self.value = value
-
-        # To make comparing faster
-        self.uid = hash(name + value)
-
-    def __str__(self):
-        return "<Tip: %s @ %s:%s - %s: %s>" % (self.id, self.section, self.subsection, self.name, self.value)
-
-    def __eq__(self, other):
-        return self.uid == other.uid
-
-    def __cmp__(self, other):
-        return self.uid == other.uid
-
-    def get_label(self):
-        return "%s: %s" % (self.name, self.value)
-
-    def get_breadcrumb_list(self):
-        return [self.section, self.subsection, self.name]
-
-
-class TipsEncoder(json.JSONEncoder):
-
-    def default(self, clazz):
-        if not isinstance(clazz, Tip):
-            print constants.tip_error
-            return
-        else:
-            return dict(section=clazz.section, subsection=clazz.subsection, name=clazz.name, value=clazz.value)
-
-
-class TipsDecoder(json.JSONDecoder):
-    """Returns a List of Tips from a JSON String"""
-
-    def decode(self, json_str):
-        tips_list = json.loads(json_str)
-        tips = []
-        i = 0
-        for tip in tips_list:
-            tip = Tip(i, tip['section'], tip['subsection'], tip['name'], tip['value'])
-            tips.append(tip)
-            i += 1
-
-        return tips
-
-
-class Tips(object):
-    """
-    An object to describe the Tips loaded from the JSON file.
-    """
-
-    def __init__(self):
-        self.jsonfile = constants.tips_file
-        self.list = None
-
-    def read(self):
-        """ Reads the tips file (JSON) and returns a List with all the Tip objects """
-        if not self.list:
-            myfile = open(self.jsonfile, 'r')
-            self.list = json.load(myfile, cls=TipsDecoder)
-            myfile.close
-        return self.list
-
-    def save(self, tips=None):
-        """ Given a list of tips. Save them. If no list is provided, we use the one in the object. """
-        if not tips:
-            tips = self.list
-        myfile = open(self.jsonfile, 'w')
-        json.dump(tips, myfile, cls=TipsEncoder, encoding="utf-8", sort_keys=True, indent=4)
-        myfile.close
-
-    def dump(self, tips, filepath):
-        """ Given a list of tips, save them to the specified file. Used to import from CSV """
-        myfile = open(filepath, 'w')
-        json.dump(tips, myfile, cls=TipsEncoder, encoding="utf-8", sort_keys=True, indent=4)
-        myfile.close
-
-    def update(self, filename=None):
-        """Update the tips.json file, with the new tips from the given file or
-        downloads the JSON file from Launchpad. The tips under the section 'MyTips'
-        don't get updated or erased. A backup file is created.
-        Returns a str with the update process we used. Or None if the update failed.
-        """
-
-        raw = None
-        update_from = filename
-
-        try:
-            if not filename:
-                sock = urllib.urlopen(constants.tips_url)
-                raw = StringIO(sock.read())
-                update_from = "web"
+    
+def import_csv(uri):
+    import csv
+    import mcm.common.connections
+    import mcm.common.constants as constants
+    
+    connections = mcm.common.connections.ConnectionStore()
+    connections.load()
+    
+    csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
+        
+    existing_aliases = connections.get_aliases()
+    with open(uri, 'rb') as csv_file:
+        csvreader = csv.DictReader(csv_file, dialect='mcm')
+        for row in csvreader:
+            cx = mcm.common.connections.mapped_connections_factory(row)
+            if cx:
+                if cx.alias not in existing_aliases:
+                    connections.add(cx.alias, cx)
+                    print constants.import_not_saving % cx.alias
             else:
-                raw = open(filename, 'r')
+                print "Failed to import line %s" % csvreader.line_num
+    connections.save()
+    
+def export_csv(connections, out_file_path=None):
+    import csv, tempfile
+    from  mcm.common.connections import fields
+    
+    if not out_file_path:
+        handle, out_file_path = tempfile.mkstemp()
+    
+    csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
+    with open(out_file_path, 'wb') as ofile:
+        writer = csv.DictWriter(ofile, fieldnames=fields, dialect='mcm')
+        for cx in connections.get_all():
+            writer.writerow(cx.to_dict())
+    return out_file_path
 
-            # Backup the old file
-            today = date.today()
-            today = today.strftime("%d%m%y")
-            shutil.copyfile(self.jsonfile, self.jsonfile + "_" + today + ".backup")
+#    This encrypt/decrypt methods are from Eli Bendersky's website at:
+#    http://eli.thegreenplace.net/2010/06/25/aes-encryption-of-files-in-python-with-pycrypto/
+#    Thanks!
 
-            my_tips_list = self.get_my_tips()
-            new_tips_list = json.load(raw, cls=TipsDecoder)
-            new_tips_list += my_tips_list
-            unique_tips_list = list(set(new_tips_list)) # Eliminate Duplicates.
+def encrypt_file(key, in_filename, out_filename, chunksize=64*1024):
+    import random, struct
+    from Crypto.Cipher import AES
+    
+    iv = ''.join(chr(random.randint(0, 0xFF)) for i in range(16))
+    
+    encryptor = AES.new(key, AES.MODE_CBC, iv)
+    filesize = os.path.getsize(in_filename)
 
-            self.list = unique_tips_list
-            self.save()
-            return update_from
+    with open(in_filename, 'rb') as infile:
+        with open(out_filename, 'wb') as outfile:
+            outfile.write(struct.pack('<Q', filesize))
+            outfile.write(iv)
 
-        except IOError, e:
-            print "Failed to Update"
-            print e
-            return None
+            while True:
+                chunk = infile.read(chunksize)
+                if len(chunk) == 0:
+                    break
+                elif len(chunk) % 16 != 0:
+                    chunk += ' ' * (16 - len(chunk) % 16)
 
-    def get_my_tips(self):
-        my_tips = []
-        for tip in self.list:
-            if tip.section == 'MyTips':
-                my_tips.append(tip)
-        return my_tips
+                outfile.write(encryptor.encrypt(chunk))
 
-    def get_max_id(self):
-        return len(self.list)
+def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
+    import struct, tempfile
+    import mcm.common.magic
+    from Crypto.Cipher import AES
+    
+    if not out_filename:
+        handle, out_filename = tempfile.mkstemp()
 
-    def get_subsections(self):
-        subsections = []
-        for tip in self.list:
-            subsections.append(tip.subsection)
-        return set(subsections)
+    with open(in_filename, 'rb') as infile:
+        origsize = struct.unpack('<Q', infile.read(struct.calcsize('Q')))[0]
+        iv = infile.read(16)
+        decryptor = AES.new(key, AES.MODE_CBC, iv)
 
-    def get_sections(self):
-        sections = []
-        for tip in self.list:
-            sections.append(tip.section)
-        return set(sections)
+        with open(out_filename, 'wb') as outfile:
+            while True:
+                chunk = infile.read(chunksize)
+                if len(chunk) == 0:
+                    break
+                outfile.write(decryptor.decrypt(chunk))
+            outfile.truncate(origsize)
+    
+    # check the file type and return none if the file is data (should be csv)
+    m = mcm.common.magic.Magic(mime=True)
+    mime = m.from_file(out_filename)
+    if mime == 'application/octet-stream':
+        os.remove(out_filename)
+        return None
+    
+    return out_filename
 
+# Test encrypt/decrypt
+#if __name__ == '__main__':
+#    import hashlib
+#    key = hashlib.sha256("This is the password!").digest()
+#    encrypt_file(key, "/tmp/mcm.csv", "/tmp/opodo.mcm")
+#    print "File encrypted"
+#    decrypt_file(key, "/tmp/opodo.mcm", "/tmp/mcm.csv.2")
+#    print "decrypted"
+    
 # Use this script to create a json file from a CSV file
 #if __name__ == '__main__':
 #    _csv = Csv('/tmp/tips.csv')
