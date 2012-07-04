@@ -147,3 +147,4 @@ default_error_color = "#FFADAD"
 public_key_rsa_not_found = _("Please generate your\nPublic Key with ssh-keygen -t rsa")
 unexpected_exit_code = _("Unexpected Exit Code")
 connection_terminated = _("The connection was terminated with status code %s")
+connections_manager = _("Connections Manager")
