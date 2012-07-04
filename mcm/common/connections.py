@@ -25,11 +25,11 @@ from mcm.common.configurations import McmConfig
 from mcm.common.constants import connection_error, cxs_json
 
 types = {'SSH':22, 'VNC':5900, 'RDP':3389, 'TELNET':23, 'FTP':21}
+fields = ['alias', 'type', 'host', 'port', 'user', 'password', 'options', 'group', 'description']
 
 class Connection(object):
 
-    def __init__(self, user, host, alias, password, port, group=None, \
-                options=None, description=None):
+    def __init__(self, user, host, alias, password, port, group=None, options=None, description=None):
         self.user = user
         self.host = host
         self.port = port
@@ -81,7 +81,7 @@ class Connection(object):
     def to_dict(self):
         return {'user': self.user, 'host': self.host,
                 'port': self.port, 'alias': self.alias,
-                'password': self.password,
+                'password': self.password, 'type': self.get_type(),
                 'description': self.description, 'options': self.options,
                 'group': self.group}
 
@@ -202,6 +202,7 @@ def mapped_connections_factory(d):
             d['host'], d['alias'], d['password'], d['port'],
             d['group'], d['options'], d['description'])
     except Exception,e:
+        print d
         print e
     return cx
 
