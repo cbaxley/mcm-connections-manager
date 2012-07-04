@@ -22,10 +22,10 @@
 import os
 import gtk
 import pygtk
-import csv
+
 pygtk.require("2.0")
 
-from mcm.common.connections import connections_factory, types, ConnectionStore, mapped_connections_factory
+from mcm.common.connections import connections_factory, types, ConnectionStore, mapped_connections_factory, fields
 from mcm.common.export import print_csv, Html
 from mcm.common.configurations import McmConfig
 import mcm.common.constants as constants
@@ -64,7 +64,6 @@ class UtilityDialogs(object):
         dialog.format_secondary_text(message)
         dialog.run()
         dialog.destroy()
-
 
 class AddConnectionDialog(object):
 
@@ -234,6 +233,11 @@ class FileSelectDialog(object):
 
     def attach_filter(self, is_export):
         _filter = gtk.FileFilter()
+        _filter.set_name("MCM (Encrypted File)")
+        _filter.add_pattern("*.mcm")
+        self.dlg.add_filter(_filter)
+        
+        _filter = gtk.FileFilter()
         _filter.set_name("CSV (Comma-separated values)")
         _filter.add_mime_type("text/csv")
         _filter.add_pattern("*.csv")
@@ -256,12 +260,13 @@ class FileSelectDialog(object):
         return self.uri
     
     def get_mime(self):
-        self.dlg.get_filter()
+        return self.dlg.get_filter()
 
     def run(self):
         self.response = self.dlg.run()
         self.uri = self.dlg.get_filename()
-        self.mime = self.dlg.get_filter().get_name().lower()
+        filter_name = self.dlg.get_filter().get_name().lower()
+        self.mime = filter_name.split(" ")[0]
         self.dlg.destroy()
 
 class ImportProgressDialog(object):
@@ -312,14 +317,14 @@ class ImportProgressDialog(object):
         
     def _import_connections(self, pattern="alias"):
         """Returns a list with a dict"""
-        
-        # From export.print_csv
+        import csv
+
         csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
         
         import_count = 0
         existing_aliases = self.connections.get_aliases()
         with open(self.uri, 'rb') as csv_file:
-            csvreader = csv.DictReader(csv_file, dialect='mcm')
+            csvreader = csv.DictReader(csv_file, fieldnames=fields, dialect='mcm')
             for row in csvreader:
                 cx = mapped_connections_factory(row)
                 if cx:
@@ -826,3 +831,64 @@ class InstallPublicKeyDialog(object):
         
     def hide(self, dialog, response_id):
         self.dialog.hide()
+
+class MCMCryptoDialog(object):
+    
+    def __init__(self, out_file_path=None, in_file_path=None):
+        self.in_file_path = in_file_path
+        self.out_file_path = out_file_path
+        self.response = gtk.RESPONSE_CANCEL
+        self.dialog = gtk.Dialog("Provide a Password", 
+             None, gtk.DIALOG_MODAL,
+             ( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK ))
+        self.dialog.set_default_response(gtk.RESPONSE_CANCEL)
+        self.dialog.connect('response', self.dialog_response_event)
+        self.pwd_entry = gtk.Entry()
+        self.pwd_entry.set_visibility(False)
+        self.pwd_entry.show()
+        self.dialog.get_content_area().pack_start(self.pwd_entry, True, True, 0)
+        
+    def run(self):
+        self.dialog.run()
+        
+    def destroy(self):
+        pass
+
+    def dialog_response_event(self, this, response_id):
+        if response_id == gtk.RESPONSE_OK:
+            self.response = gtk.RESPONSE_OK
+            if self.in_file_path:
+                temp_file = self._decrypt(self.in_file_path)
+                if temp_file:
+                    dlg = ImportProgressDialog(temp_file)
+                    dlg.run()
+                    os.remove(temp_file)
+                else:
+                    idlg = UtilityDialogs()
+                    idlg.show_error_dialog(constants.failed_decrypt_import, constants.failed_decrypt_import)
+            else:
+                temp_file = self._export()
+                self._encrypt(temp_file)
+        self.dialog.destroy()
+        
+    def _export(self):
+        from mcm.common.utils import export_csv
+        connections = ConnectionStore()
+        connections.load()
+        return export_csv(connections)
+        
+    def _encrypt(self, temp_file):
+        import hashlib
+        from mcm.common.utils import encrypt_file
+        key = hashlib.sha256(self.pwd_entry.get_text()).digest()
+        encrypt_file(key, temp_file, self.out_file_path)
+        print "CSV Tmp  %s" % temp_file
+        #os.remove(temp_file)
+        
+    def _decrypt(self, in_filename):
+        import hashlib
+        from mcm.common.utils import decrypt_file
+        key = hashlib.sha256(self.pwd_entry.get_text()).digest()
+        return decrypt_file(key, in_filename)
+        
+    
