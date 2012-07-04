@@ -117,7 +117,7 @@ class MCMVncClient(object):
             if credList[i] in (gtkvnc.CREDENTIAL_USERNAME, gtkvnc.CREDENTIAL_PASSWORD):
                 prompt = prompt + 1
             elif credList[i] == gtkvnc.CREDENTIAL_CLIENTNAME:
-                data[i] = "gvncviewer"
+                data[i] = "mcm"
     
         if prompt:
             dialog = gtk.Dialog("Authentication required", None, 0, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))
