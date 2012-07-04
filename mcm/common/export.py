@@ -23,8 +23,6 @@
 All the Export are handled from here
 '''
 import sys
-from datetime import datetime
-
 
 class Html(object):
 
@@ -94,6 +92,7 @@ color: #339;
         return header
 
     def get_footer(self):
+        from datetime import datetime
         gdate = datetime.today()
         return "<h3>Generated %s</h3></body></html>" % \
                gdate.strftime("%Y/%m/%d %H:%M:%S")
@@ -114,7 +113,6 @@ color: #339;
         content += "</tbody></table>"
         return content
 
-
 class Odf(object):
 
     def __init__(self, out_file_path, mcm_version, connections):
@@ -124,7 +122,6 @@ class Odf(object):
 
     def export(self):
         pass
-
 
 def print_csv(connections, out_file_path=None):
     import csv
