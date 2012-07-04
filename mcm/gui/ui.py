@@ -283,14 +283,12 @@ class MCMGtk(object):
     def event_import_csv(self, widget):
         dlg = FileSelectDialog()
         dlg.run()
-        cxs = None
         if dlg.response == gtk.RESPONSE_OK:
-            _csv = Csv(dlg.uri)
-            cxs = _csv.do_import()
-            dlg = ImportProgressDialog(cxs, self.connections.get_aliases())
+            dlg = ImportProgressDialog(dlg.uri)
             dlg.run()
-            self.connections.add_all(dlg.connections)
-            self.draw_tree()
+            if dlg.response is gtk.RESPONSE_OK:
+                self.connections.load()
+                self.draw_tree()
 
     def event_f10(self, accel_group, window=None, keyval=None, modifier=None):
         return False
