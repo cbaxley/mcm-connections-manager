@@ -39,7 +39,7 @@ class Csv(object):
         else:
             raise IOError(constants.io_error % path)
 
-    def do_import(self, pattern="alias"):
+    def import_connections(self, pattern="alias"):
         """Returns a list with a dict"""
         cxs = []
         hdr = []

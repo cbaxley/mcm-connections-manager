@@ -227,7 +227,7 @@ class Mcm(object):
 
     def import_csv(self, path):
         _csv = Csv(path)
-        cxs = _csv.do_import()
+        cxs = _csv.import_connections()
         print cxs
         self.add(cxs)
 
