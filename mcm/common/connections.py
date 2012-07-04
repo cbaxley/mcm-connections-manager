@@ -165,40 +165,45 @@ class Ftp(Connection):
         return cmd
 
 def connections_factory(cx_type, cx_user, cx_host, cx_alias,
-cx_password, cx_port, cx_group, cx_options, cx_desc):
+                        cx_password, cx_port, cx_group, cx_options, cx_desc):
+    if not cx_alias:
+        raise AttributeError("Bad format. Alias is not optional")
+
+    cx = None
+    if cx_type == 'SSH':
+        cx = Ssh(cx_user, cx_host, cx_alias, cx_password,
+                cx_port, cx_group, cx_options, cx_desc)
+
+    elif cx_type == 'VNC':
+        cx = Vnc(cx_user, cx_host, cx_alias, cx_password,
+                cx_port, cx_group, cx_options, cx_desc)
+
+    elif cx_type == 'RDP':
+        cx = Rdp(cx_user, cx_host, cx_alias, cx_password,
+                cx_port, cx_group, cx_options, cx_desc)
+
+    elif cx_type == 'TELNET':
+        cx = Telnet(cx_user, cx_host, cx_alias, cx_password,
+                    cx_port, cx_group, cx_options, cx_desc)
+
+    elif cx_type == 'FTP':
+        cx = Ftp(cx_user, cx_host, cx_alias, cx_password,
+                cx_port, cx_group, cx_options, cx_desc)
+
+    else:
+        raise AttributeError("Unknown Connection Type: %s" % cx_type)
+
+    return cx
+        
+def mapped_connections_factory(d):
+    cx = None
     try:
-        if not cx_alias:
-            raise AttributeError("Bad format. Alias is not optional")
-
-        cx = None
-        if cx_type == 'SSH':
-            cx = Ssh(cx_user, cx_host, cx_alias, cx_password,
-                    cx_port, cx_group, cx_options, cx_desc)
-
-        elif cx_type == 'VNC':
-            cx = Vnc(cx_user, cx_host, cx_alias, cx_password,
-                    cx_port, cx_group, cx_options, cx_desc)
-
-        elif cx_type == 'RDP':
-            cx = Rdp(cx_user, cx_host, cx_alias, cx_password,
-                    cx_port, cx_group, cx_options, cx_desc)
-
-        elif cx_type == 'TELNET':
-            cx = Telnet(cx_user, cx_host, cx_alias, cx_password,
-                        cx_port, cx_group, cx_options, cx_desc)
-
-        elif cx_type == 'FTP':
-            cx = Ftp(cx_user, cx_host, cx_alias, cx_password,
-                    cx_port, cx_group, cx_options, cx_desc)
-
-        else:
-            raise AttributeError("Unknown Connection Type: %s" % cx_type)
-
-        return cx
-
-    except TypeError, err:
-        print(err)
-        exit(1)
+        cx = connections_factory(d['type'], d['user'],
+            d['host'], d['alias'], d['password'], d['port'],
+            d['group'], d['options'], d['description'])
+    except Exception,e:
+        print e
+    return cx
 
 class ConnectionStore(object):
     """
