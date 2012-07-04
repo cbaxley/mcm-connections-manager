@@ -39,7 +39,8 @@ from mcm.common.export import print_csv, Html
 from mcm.common.utils import Csv
 from mcm.gui.widgets import AddConnectionDialog, UtilityDialogs, McmCheckbox, \
     FileSelectDialog, ImportProgressDialog, DefaultColorSettings, \
-    ManageConnectionsDialog, PreferencesDialog, InstallPublicKeyDialog
+    ManageConnectionsDialog, PreferencesDialog, InstallPublicKeyDialog, \
+    MCMCryptoDialog
 
 for module in glade, gettext:
     module.bindtextdomain('mcm', constants.local_path)
@@ -279,14 +280,26 @@ class MCMGtk(object):
             _csv = print_csv(self.connections, dlg.get_filename())
             idlg = UtilityDialogs()
             idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
+        elif dlg.response == gtk.RESPONSE_OK and dlg.mime == 'mcm':
+            export_dialog = MCMCryptoDialog(dlg.get_filename(), None)
+            export_dialog.run()
+            if export_dialog.response == gtk.RESPONSE_OK:
+                idlg = UtilityDialogs()
+                idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
         
     def event_import_csv(self, widget):
         dlg = FileSelectDialog()
         dlg.run()
-        if dlg.response == gtk.RESPONSE_OK:
+        if dlg.response == gtk.RESPONSE_OK and dlg.mime == 'csv':
             dlg = ImportProgressDialog(dlg.uri)
             dlg.run()
             if dlg.response is gtk.RESPONSE_OK:
+                self.connections.load()
+                self.draw_tree()
+        elif dlg.response == gtk.RESPONSE_OK and dlg.mime == 'mcm':
+            pwd_dialog = MCMCryptoDialog(None, dlg.get_filename())
+            pwd_dialog.run()
+            if pwd_dialog.response is gtk.RESPONSE_OK:
                 self.connections.load()
                 self.draw_tree()
 
