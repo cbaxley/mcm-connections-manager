@@ -22,9 +22,10 @@
 import os
 import gtk
 import pygtk
+import csv
 pygtk.require("2.0")
 
-from mcm.common.connections import connections_factory, types, ConnectionStore
+from mcm.common.connections import connections_factory, types, ConnectionStore, mapped_connections_factory
 from mcm.common.export import print_csv, Html
 from mcm.common.configurations import McmConfig
 import mcm.common.constants as constants
@@ -233,14 +234,14 @@ class FileSelectDialog(object):
 
     def attach_filter(self, is_export):
         _filter = gtk.FileFilter()
-        _filter.set_name("CSV")
+        _filter.set_name("CSV (Comma-separated values)")
         _filter.add_mime_type("text/csv")
         _filter.add_pattern("*.csv")
         self.dlg.add_filter(_filter)
         
         if is_export:
             _filter = gtk.FileFilter()
-            _filter.set_name("HTML")
+            _filter.set_name("HTML (Web Page)")
             _filter.add_mime_type("text/html")
             _filter.add_pattern("*.html")
             _filter.add_pattern("*.htm")
@@ -265,42 +266,81 @@ class FileSelectDialog(object):
 
 class ImportProgressDialog(object):
 
-    def __init__(self, cxs, aliases):
-        self.aliases = aliases
-        self.connections = {}
-        self.builder = gtk.Builder()
-        self.builder.add_from_file(constants.glade_import)
-        self.dlg = self.builder.get_object('import_progress')
-        self.results = self.builder.get_object('import_result')
-        events = {
-                    'on_ok_button6_clicked': self.close_event,
-                    'on_import_progress_destroy': self.close_event,
-                }
-        self.builder.connect_signals(events)
-        for d in cxs:
-            alias = d['alias'].strip()
-            if len(d) != 10 or alias in self.aliases:
-                self.write_result(constants.import_not_saving % alias)
-                continue
-            cx = connections_factory(d['type'], d['user'],
-                                    d['host'], alias, d['password'], d['port'],
-                                    d['group'], d['options'], d['description'])
-            self.connections[alias] = cx
-            self.write_result(constants.import_saving % cx)
+    def __init__(self, uri):
+        self.uri = uri
+        self.connections = ConnectionStore()
+        self.connections.load()
+        
+        self.dialog = gtk.Dialog(constants.connections_manager, 
+             None, gtk.DIALOG_MODAL,
+             ( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, 
+               gtk.STOCK_SAVE, gtk.RESPONSE_OK ))
+        self.dialog.set_default_response(gtk.RESPONSE_CLOSE)
+        self.dialog.connect('response', self.dialog_response_event)
+        self.dialog.set_size_request(500, 300)
+        
+        self.scroll = gtk.ScrolledWindow()
+        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        
+        self.results = gtk.TextView()
+        self.results.set_visible(True)
+        self.results.set_editable(False)
+        self.results.set_wrap_mode(gtk.WRAP_WORD)
+        self.results.set_cursor_visible(False)
+        self.results.set_accepts_tab(False)
+        self.scroll.add(self.results)
+        self.scroll.show_all()
+        
+        self.total_progress = gtk.ProgressBar()
+        self.total_progress.show()
+        
+        self.dialog.get_content_area().pack_start(self.scroll, True, True, 0)
+        self.dialog.get_content_area().pack_start(self.total_progress, False, True, 1)
 
     def run(self):
-        self.dlg.run()
+        self._import_connections()
+        self.dialog.run()
 
     def close_event(self, widget=None):
-        self.dlg.destroy()
-
+        self.dialog.destroy()
+        
+    def dialog_response_event(self, this, response_id):
+        if response_id == gtk.RESPONSE_OK:
+            self.response = gtk.RESPONSE_OK
+            self.connections.save()
+        self.dialog.destroy()
+        
+    def _import_connections(self, pattern="alias"):
+        """Returns a list with a dict"""
+        
+        # From export.print_csv
+        csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
+        
+        import_count = 0
+        existing_aliases = self.connections.get_aliases()
+        with open(self.uri, 'rb') as csv_file:
+            csvreader = csv.DictReader(csv_file, dialect='mcm')
+            for row in csvreader:
+                cx = mapped_connections_factory(row)
+                if cx:
+                    if cx.alias not in existing_aliases:
+                        self.connections.add(cx.alias, cx)
+                        import_count += 1
+                        self.write_result(constants.import_saving % cx)
+                    else:
+                        self.write_result(constants.import_not_saving % cx.alias)
+                else:
+                    self.write_result("Failed to import line %s" % csvreader.line_num)
+                self.total_progress.set_text("Imported %s/%s" % (import_count, csvreader.line_num))
+                self.total_progress.pulse()
+            self.total_progress.set_fraction(1.0)
+        
     def write_result(self, text):
         buf = self.results.get_buffer()
         if buf == None:
             buf = gtk.TextBuffer()
             self.results.set_buffer(buf)
         buf.insert_at_cursor(text)
-
 
 class PreferencesDialog(object):
 
@@ -454,7 +494,6 @@ class PreferencesDialog(object):
     def run(self):
         self.dlg.run()
 
-
 class McmCheckbox(gtk.HBox):
 
     def __init__(self, title, pid=None, cluster=False, img=None):
@@ -510,19 +549,6 @@ class McmCheckbox(gtk.HBox):
     def get_current_alias(self):
         return self._current_alias
 
-class McmMenu(gtk.Menu):
-
-    def __init__(self, label):
-        gtk.Menu.__init__(self)
-        self.label = label
-
-
-class TipGtkMenuItem(gtk.MenuItem):
-
-    def __init__(self, label, tip):
-        gtk.MenuItem.__init__(self, label)
-        self.tip = tip
-        
 class ManageConnectionsDialog(object):
 
     def __init__(self):
