@@ -148,3 +148,4 @@ public_key_rsa_not_found = _("Please generate your\nPublic Key with ssh-keygen -
 unexpected_exit_code = _("Unexpected Exit Code")
 connection_terminated = _("The connection was terminated with status code %s")
 connections_manager = _("Connections Manager")
+failed_decrypt_import = _("Failed to decrypt file probably to a wrong password")
