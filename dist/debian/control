@@ -9,7 +9,7 @@ Essential: no
 Homepage: https://code.google.com/p/mcm-connections-manager/
 Depends: lftp, openssh-client, rdesktop, 
  python (>= 2.6.0), python-gtk2, python-vte, python-glade2, 
- python-xdg, python-gtk-vnc
+ python-xdg, python-gtk-vnc, python-crypto
 Maintainer: Alejandro Ayuso <alejandroayuso@gmail.com>
 Description: Manage your connections to different servers
  MCM Connections Manager is a set of tools to ease the 
