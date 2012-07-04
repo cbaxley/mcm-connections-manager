@@ -31,7 +31,6 @@ import gettext
 import os
 import signal
 
-from subprocess import Popen
 from vnc import MCMVncClient
 from mcm.common import constants
 from mcm.common.configurations import McmConfig
