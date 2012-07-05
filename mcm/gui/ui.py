@@ -36,7 +36,6 @@ from mcm.common import constants
 from mcm.common.configurations import McmConfig
 from mcm.common.connections import ConnectionStore, types
 from mcm.common.export import print_csv, Html
-from mcm.common.utils import Csv
 from mcm.gui.widgets import AddConnectionDialog, UtilityDialogs, McmCheckbox, \
     FileSelectDialog, ImportProgressDialog, DefaultColorSettings, \
     ManageConnectionsDialog, PreferencesDialog, InstallPublicKeyDialog, \
@@ -141,6 +140,7 @@ class MCMGtk(object):
         if dlg.response == gtk.RESPONSE_OK:
             cx = dlg.new_connection
             self.connections.add(cx.alias, cx)
+            self.connections.save()
             self.draw_tree()
 
     def assign_key_binding(self, key_binding, callback):
@@ -252,6 +252,7 @@ class MCMGtk(object):
         response = dlg.show_question_dialog(constants.deleting_connection_warning % alias, constants.are_you_sure)
         if response == gtk.RESPONSE_OK:
             self.connections.delete(alias)
+            self.connections.save()
             self.draw_tree()
     
     def event_edit(self, widget):
@@ -261,6 +262,7 @@ class MCMGtk(object):
         if dlg.response == gtk.RESPONSE_OK:
             cx = dlg.new_connection
             self.connections.add(cx.alias, cx)
+            self.connections.save()
             self.draw_tree()
 
     def event_entry_changed(self, widget):
@@ -620,19 +622,16 @@ class MCMGtk(object):
             self.draw_entry('password_entry', "", "", False)
             self.draw_entry('options_entry', "", "", False)
             self.draw_entry('description_entry', "", "", False)
-            return
-        
-        connection = self.connections.get(alias)
-        if not connection:
-            return
-
-        self.widgets['cx_type'].set_label("    %s" % connection.get_type())
-        self.draw_entry('user_entry', connection.user)
-        self.draw_entry('host_entry', connection.host)
-        self.draw_entry('port_entry', connection.port)
-        self.draw_entry('password_entry', connection.password)
-        self.draw_entry('options_entry', connection.options)
-        self.draw_entry('description_entry', connection.description)
+        else:
+            connection = self.connections.get(alias)
+            if connection:
+                self.widgets['cx_type'].set_label("    %s" % connection.get_type())
+                self.draw_entry('user_entry', connection.user)
+                self.draw_entry('host_entry', connection.host)
+                self.draw_entry('port_entry', connection.port)
+                self.draw_entry('password_entry', connection.password)
+                self.draw_entry('options_entry', connection.options)
+                self.draw_entry('description_entry', connection.description)
 
     def draw_entry(self, widget_name, text, tooltip_text="", sensitive=True):
         entry = self.widgets[widget_name]
