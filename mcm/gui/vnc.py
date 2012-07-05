@@ -25,25 +25,38 @@ import mcm.gui.widgets
 from time import strftime
 from mcm.common.constants import tools, screenshot, disconnect, screenshot_info
 
+full_depth = "Full (All Colors)"
+medium_depth = "Medium (256)"
+low_depth = "Low (64)"
+ultra_low_depth = "Ultra Low (8)"
 
 class MCMVncClient(object):
-    def __init__(self, host, port):
+    def __init__(self, host, port, raw_depth, view_only):
         self.host = host
         self.port = port
+        self.depth = self.parse_depth(raw_depth)
+        self.view_only = view_only
         self.vnc = self.new_vnc_client()
         self.menu = self.new_vnc_menu()
         self.layout = gtk.VBox()
+        self.scroll = gtk.ScrolledWindow()
+        self.scroll.set_policy(gtk.POLICY_ALWAYS, gtk.POLICY_ALWAYS)
+        self.scroll.add_with_viewport(self.vnc)
+        self.scroll.show_all()
         self.layout.pack_start(self.menu, False, True, 0)
-        self.layout.pack_start(self.vnc, True, True, 0)
+        self.layout.pack_start(self.scroll, True, True, 0)
 
     def new_vnc_client(self):
         # We add any configuration here
         v = gtkvnc.Display()
         v.set_pointer_grab(True)
         v.set_keyboard_grab(True)
+        v.set_read_only(self.view_only)
+        v.set_depth(self.depth)
         v.connect("vnc-connected", self.vnc_connected)
         v.connect("vnc-disconnected", self.vnc_connected)
         v.connect("vnc-auth-credential", self.vnc_auth_cred)
+        v.connect("vnc-auth-failure", self.vnc_auth_fail)
         return v
 
     def new_vnc_menu(self):
@@ -80,11 +93,10 @@ class MCMVncClient(object):
 
     def get_instance(self):
         self.vnc.open_host(self.host, self.port)
-        #self.vnc.realize()
         return self.layout
 
     def vnc_connected(self, widget):
-        print "Connected to server"
+        pass
 
     def send_caf1(self, menuitem):
         self.vnc.send_keys(["Control_L", "Alt_L", "F1"])
@@ -107,6 +119,22 @@ class MCMVncClient(object):
 
     def disconnect_event(self, menuitem):
         self.vnc.close()
+    
+    def vnc_auth_fail(self, widget, msg):
+        err = mcm.gui.widgets.UtilityDialogs()
+        err.show_error_dialog("Authentication Failed", msg)
+        
+    def parse_depth(self, raw):
+        if full_depth == raw:
+            return gtkvnc.DEPTH_COLOR_FULL
+        elif medium_depth == raw:
+            return gtkvnc.DEPTH_COLOR_MEDIUM
+        elif low_depth == raw:
+            return gtkvnc.DEPTH_COLOR_LOW
+        elif ultra_low_depth == raw:
+            return gtkvnc.DEPTH_COLOR_ULTRA_LOW
+        else:
+            return gtkvnc.DEPTH_COLOR_DEFAULT
         
     def vnc_auth_cred(self, src, credList):
         prompt = 0
@@ -168,3 +196,40 @@ class MCMVncClient(object):
             else:
                 print "Unsupported credential type %d" % (credList[i])
                 src.close()
+
+
+class MCMVncOptionsDialog(object):
+    
+    def __init__(self):
+        pass
+    
+    def run(self):
+        dlg = gtk.Dialog("VNC Options", 
+             None, gtk.DIALOG_MODAL,
+             ( gtk.STOCK_OK, gtk.RESPONSE_OK ))
+        dlg.set_default_response(gtk.RESPONSE_OK)
+        dlg.connect('response', self.vnc_options_dialog_response)
+        
+        store = gtk.ListStore(str)
+        store.append([full_depth])
+        store.append([medium_depth])
+        store.append([low_depth])
+        store.append([ultra_low_depth])
+        
+        combo = gtk.ComboBox()
+        combo.set_model(store)
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.add_attribute(cell, 'text', 0)
+        combo.set_active(0)
+        
+        read_only = gtk.CheckButton("View only?")
+        read_only.set_active(False)
+        dlg.get_content_area().pack_start(combo, False, True, 0)
+        dlg.get_content_area().pack_start(read_only, False, True, 1)
+        dlg.show_all()
+        dlg.run()
+        return (combo.get_active_text(), read_only.get_active())
+        
+    def vnc_options_dialog_response(self, dlg, response_id):
+        dlg.destroy()

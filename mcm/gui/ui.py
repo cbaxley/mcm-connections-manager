@@ -855,10 +855,15 @@ class MCMGtk(object):
         
         label = mcm.gui.widgets.McmCheckbox(connection.alias)
         label.set_tooltip_text(connection.description)
-        
         menu_label = gtk.Label(connection.alias)
-        vnc_client = mcm.gui.vnc.MCMVncClient(connection.host, connection.port)
+        
+        # Show the VNC options dialog
+        vnc_opts_dlg = mcm.gui.vnc.MCMVncOptionsDialog()
+        vnc_depth, vnc_view_only = vnc_opts_dlg.run()
+        
+        vnc_client = mcm.gui.vnc.MCMVncClient(connection.host, connection.port, vnc_depth, vnc_view_only)
         vnc_box = vnc_client.get_instance()
+        
         index = terminals.append_page_menu(vnc_box, label, menu_label)
         terminals.set_tab_reorderable(vnc_box, True)
         vnc_client.vnc.connect("vnc-disconnected", lambda term: self.vnc_disconnect(vnc_box, terminals))
@@ -875,9 +880,5 @@ class MCMGtk(object):
     
 
 if __name__ == '__main__':
-    # Start the logging stuff
-    # log_format = "%(asctime)s %(levelname)s: %(message)s"
-    # logging.basicConfig(level=logging.INFO, format = log_format)
-
     mcmgtk = MCMGtk()
     gtk.main()
