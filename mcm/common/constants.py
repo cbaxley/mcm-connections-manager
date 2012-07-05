@@ -48,8 +48,6 @@ glade_home = os.path.join(glade_home, "glade")
 glade_main = os.path.join(glade_home, "main.glade")
 glade_preferences = os.path.join(glade_home, "preferences.glade")
 glade_new_cx = os.path.join(glade_home, "new_connection.glade")
-glade_edit_cx = os.path.join(glade_home, "edit_connections.glade")
-glade_import = os.path.join(glade_home, "import_progress.glade")
 glade_tips = os.path.join(glade_home, "tips.glade")
 
 # ----------------------------------------------------------------------
