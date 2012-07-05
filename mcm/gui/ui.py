@@ -23,7 +23,7 @@
 Main Script for mcm gtk
 '''
 
-import gtk
+import gtk.gdk
 import gtk.glade as glade
 import vte
 import webbrowser
@@ -31,15 +31,20 @@ import gettext
 import os
 import signal
 
-from vnc import MCMVncClient
+import mcm.gui.vnc
+import mcm.common.connections
+import mcm.common.utils
+import mcm.common.configurations
+import mcm.gui.widgets
+import mcm.gui.dialogs.add
+import mcm.gui.dialogs.manager
+import mcm.gui.dialogs.preferences
+import mcm.gui.dialogs.importer
+import mcm.gui.dialogs.crypto
+import mcm.gui.dialogs.pk_install
+
 from mcm.common import constants
-from mcm.common.configurations import McmConfig
-from mcm.common.connections import ConnectionStore, types
-from mcm.common.export import print_csv, Html
-from mcm.gui.widgets import AddConnectionDialog, UtilityDialogs, McmCheckbox, \
-    FileSelectDialog, ImportProgressDialog, DefaultColorSettings, \
-    ManageConnectionsDialog, PreferencesDialog, InstallPublicKeyDialog, \
-    MCMCryptoDialog
+from mcm.common.export import Html
 
 for module in glade, gettext:
     module.bindtextdomain('mcm', constants.local_path)
@@ -49,25 +54,21 @@ class MCMGtk(object):
 
     def __init__(self):
         self.cluster_mode_active = False
-        self.conf = McmConfig()
+        self.conf = mcm.common.configurations.McmConfig()
         self.builder = gtk.Builder()
         self.builder.add_from_file(constants.glade_main)
         self.widgets = self.init_widgets()
         self.builder.connect_signals(self.events())
 
-        self.connections = ConnectionStore()
+        self.connections = mcm.common.connections.ConnectionStore()
         self.connections.load()
         
         self.draw_tree()
         self.init_main_window()
         
-        
-        
-    '''
-        **************************************
-        Begin block of events
-        **************************************
-    '''
+#    **************************************
+#    Begin block of events
+#    **************************************
         
     def events(self):
         events = {
@@ -131,11 +132,7 @@ class MCMGtk(object):
         about.run()
 
     def event_add(self, menu_item):
-        dlg = AddConnectionDialog(self.connections.get_aliases(), 
-                                  self.connections.get_groups(), 
-                                  types, 
-                                  None, 
-                                  self.get_selected_group())
+        dlg = mcm.gui.dialogs.add.AddConnectionDialog(None, self.get_selected_group())
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
             cx = dlg.new_connection
@@ -181,7 +178,7 @@ class MCMGtk(object):
         
         if exit_code not in [0,1,2,9]: # sigkilled rets 9
             terminals.set_current_page(index)
-            dlg = UtilityDialogs()
+            dlg = mcm.gui.widgets.UtilityDialogs()
             dlg.show_error_dialog(constants.unexpected_exit_code,
                                   constants.connection_terminated % exit_code)
         
@@ -248,7 +245,7 @@ class MCMGtk(object):
 
     def event_delete(self, widget):
         alias = self.get_tree_selection()
-        dlg = UtilityDialogs()
+        dlg = mcm.gui.widgets.UtilityDialogs()
         response = dlg.show_question_dialog(constants.deleting_connection_warning % alias, constants.are_you_sure)
         if response == gtk.RESPONSE_OK:
             self.connections.delete(alias)
@@ -257,7 +254,7 @@ class MCMGtk(object):
     
     def event_edit(self, widget):
         alias = self.get_tree_selection()
-        dlg = AddConnectionDialog(self.connections.get_aliases(), self.connections.get_groups(), types, self.connections.get(alias))
+        dlg = mcm.gui.dialogs.add.AddConnectionDialog(self.connections.get(alias))
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
             cx = dlg.new_connection
@@ -270,36 +267,36 @@ class MCMGtk(object):
         widget.set_tooltip_text(constants.press_enter_to_save)
 
     def event_export(self, widget):
-        dlg = FileSelectDialog(True)
+        dlg = mcm.gui.widgets.FileSelectDialog(True)
         dlg.run()
         
         if dlg.response == gtk.RESPONSE_OK and dlg.mime == 'html':
             _html = Html(constants.version, self.connections)
             _html.export(dlg.get_filename())
-            idlg = UtilityDialogs()
+            idlg = mcm.gui.widgets.UtilityDialogs()
             idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
         elif dlg.response == gtk.RESPONSE_OK and dlg.mime == 'csv':
-            _csv = print_csv(self.connections, dlg.get_filename())
-            idlg = UtilityDialogs()
+            _csv = mcm.common.utils.export_csv(self.connections, dlg.get_filename())
+            idlg = mcm.gui.widgets.UtilityDialogs()
             idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
         elif dlg.response == gtk.RESPONSE_OK and dlg.mime == 'mcm':
-            export_dialog = MCMCryptoDialog(dlg.get_filename(), None)
+            export_dialog = mcm.gui.dialogs.crypto.MCMCryptoDialog(dlg.get_filename(), None)
             export_dialog.run()
             if export_dialog.response == gtk.RESPONSE_OK:
-                idlg = UtilityDialogs()
+                idlg = mcm.gui.widgets.UtilityDialogs()
                 idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
         
     def event_import_csv(self, widget):
-        dlg = FileSelectDialog()
+        dlg = mcm.gui.widgets.FileSelectDialog()
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK and dlg.mime == 'csv':
-            dlg = ImportProgressDialog(dlg.uri)
+            dlg = mcm.gui.dialogs.importer.ImportProgressDialog(dlg.uri)
             dlg.run()
             if dlg.response is gtk.RESPONSE_OK:
                 self.connections.load()
                 self.draw_tree()
         elif dlg.response == gtk.RESPONSE_OK and dlg.mime == 'mcm':
-            pwd_dialog = MCMCryptoDialog(None, dlg.get_filename())
+            pwd_dialog = mcm.gui.dialogs.crypto.MCMCryptoDialog(None, dlg.get_filename())
             pwd_dialog.run()
             if pwd_dialog.response is gtk.RESPONSE_OK:
                 self.connections.load()
@@ -319,7 +316,7 @@ class MCMGtk(object):
         webbrowser.open_new_tab(constants.mcm_help_url)
         
     def event_manage(self, widget):
-        dlg = ManageConnectionsDialog()
+        dlg = mcm.gui.dialogs.manager.ManageConnectionsDialog()
         dlg.run()
         if dlg.response is gtk.RESPONSE_OK:
             self.connections.load()
@@ -327,13 +324,13 @@ class MCMGtk(object):
         dlg.destroy()
 
     def event_preferences(self, widget):
-        dlg = PreferencesDialog(self.conf)
+        dlg = mcm.gui.dialogs.preferences.PreferencesDialog(self.conf)
         dlg.run()
         if dlg.response == gtk.RESPONSE_OK:
             self.draw_consoles()
 
     def event_quit(self, widget, fck=None):
-        dlg = UtilityDialogs()
+        dlg = mcm.gui.widgets.UtilityDialogs()
         response = dlg.show_question_dialog(constants.quit_warning, constants.are_you_sure)
         if response == gtk.RESPONSE_OK:
             self.connections.save()
@@ -414,11 +411,9 @@ class MCMGtk(object):
     def on_tree_item_clicked(self, widget, a=None, b=None):
         self.draw_connection_widgets(self.get_tree_selection(widget))
     
-    '''
-        +++++++++++++++++++++++++++++++++++++++
-        End block of events
-        +++++++++++++++++++++++++++++++++++++++
-    '''
+#    +++++++++++++++++++++++++++++++++++++++
+#    End block of events
+#    +++++++++++++++++++++++++++++++++++++++
 
     def cluster_send_key(self, key):
         """This method is in charge of sending the keys to the selected
@@ -457,7 +452,7 @@ class MCMGtk(object):
         scroll, pid = self.create_term_tab(connection, terminals)
         
         if pid == -1:
-            dlg = UtilityDialogs()
+            dlg = mcm.gui.widgets.UtilityDialogs()
             dlg.show_error_dialog("Failed to connect to %s" % connection.alias, str(connection))
             return
         
@@ -475,7 +470,7 @@ class MCMGtk(object):
         menu_label = None
         cluster = True
         if connection == None:
-            label = McmCheckbox('localhost', pid, cluster, gtk.STOCK_HOME)
+            label = mcm.gui.widgets.McmCheckbox('localhost', pid, cluster, gtk.STOCK_HOME)
             menu_label = gtk.Label('localhost')
         else:
             icon = None
@@ -483,7 +478,7 @@ class MCMGtk(object):
                 icon = gtk.STOCK_DIALOG_WARNING
             if connection.get_type() in ['RDP', 'VNC']:
                 cluster = True
-            label = McmCheckbox(connection.alias, pid, cluster, icon)
+            label = mcm.gui.widgets.McmCheckbox(connection.alias, pid, cluster, icon)
             label.set_tooltip_text(connection.description)
             menu_label = gtk.Label(connection.alias)
         
@@ -758,7 +753,7 @@ class MCMGtk(object):
 
         # Grab the default color
         try:
-            self.default_color = DefaultColorSettings().base_color
+            self.default_color = mcm.gui.widgets.DefaultColorSettings().base_color
         except AttributeError:
             self.default_color = self.color_parse('white')
 
@@ -803,7 +798,7 @@ class MCMGtk(object):
     def install_public_key(self, menu_item):
         cx = self.connections.get(menu_item.alias)
         if cx:
-            installpk = InstallPublicKeyDialog()
+            installpk = mcm.gui.dialogs.pk_install.InstallPublicKeyDialog()
             installpk.install(cx.user, cx.host)
 
     def new_column(self, title, _id):
@@ -849,7 +844,7 @@ class MCMGtk(object):
 
     def update_tips(self, widget):
         response = self.tips_widget.update()
-        dlg = UtilityDialogs()
+        dlg = mcm.gui.widgets.UtilityDialogs()
         if not response:
             dlg.show_error_dialog(constants.update_tips_error_1, constants.update_tips_error_2)
         else:
@@ -858,11 +853,11 @@ class MCMGtk(object):
     def vnc_connect(self, connection):
         terminals = self.widgets['terminals']
         
-        label = McmCheckbox(connection.alias)
+        label = mcm.gui.widgets.McmCheckbox(connection.alias)
         label.set_tooltip_text(connection.description)
         
         menu_label = gtk.Label(connection.alias)
-        vnc_client = MCMVncClient(connection.host, connection.port)
+        vnc_client = mcm.gui.vnc.MCMVncClient(connection.host, connection.port)
         vnc_box = vnc_client.get_instance()
         index = terminals.append_page_menu(vnc_box, label, menu_label)
         terminals.set_tab_reorderable(vnc_box, True)
