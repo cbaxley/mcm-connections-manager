@@ -122,21 +122,3 @@ class Odf(object):
 
     def export(self):
         pass
-
-def print_csv(connections, out_file_path=None):
-    import csv
-    csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
-    writer = None
-    if out_file_path:
-        with open(out_file_path, 'wb') as ofile:
-            writer = csv.writer(ofile, dialect='mcm')
-            writer.writerow(['alias', 'type', 'host', 'port', 'user',\
-                        'password', 'options', 'group', 'description'])
-            for cx in connections.get_all():
-                writer.writerow(cx.to_list())
-    else:
-        writer = csv.writer(sys.stdout, dialect='mcm')
-        writer.writerow(['alias', 'type', 'host', 'port', 'user',\
-                        'password', 'options', 'group', 'description'])
-        for cx in connections.get_all():
-            writer.writerow(cx.to_list())

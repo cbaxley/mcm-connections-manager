@@ -24,40 +24,11 @@ Some utility classes
 '''
 
 import os
-import mcm.common.constants as constants
 
-class Csv(object):
-    
-    def __init__(self, path):
-        if os.path.exists(path) and os.access(path, os.W_OK):
-            self.path = path
-        else:
-            raise IOError(constants.io_error % path)
+def register_mcm_csv_dialect():
+    import csv
+    csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
 
-    def import_connections(self, pattern="alias"):
-        """Returns a list with a dict"""
-        import csv
-        
-        cxs = []
-        hdr = []
-        csvreader = csv.reader(open(self.path, 'rb'))
-        # From the header in the CSV we first get the header and create a list with it
-        # then using this list, we iterate over the other rows creating a dict using
-        # the header values as the keys and the row values for the dict values
-        # then we save this dict to a list and return it.
-        for row in csvreader:
-            # Check if the row is the header
-            if row[0] == pattern:
-                for i in row:
-                    hdr.append(i)
-            else:
-                cx = {}
-                for i in range(len(hdr)):
-                    _str = row[i]
-                    cx[hdr[i]] = _str.strip()
-                cxs.append(cx)
-        return cxs
-    
 def import_csv(uri):
     import csv
     import mcm.common.connections
@@ -66,7 +37,7 @@ def import_csv(uri):
     connections = mcm.common.connections.ConnectionStore()
     connections.load()
     
-    csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
+    register_mcm_csv_dialect()
         
     existing_aliases = connections.get_aliases()
     with open(uri, 'rb') as csv_file:
@@ -88,12 +59,20 @@ def export_csv(connections, out_file_path=None):
     if not out_file_path:
         handle, out_file_path = tempfile.mkstemp()
     
-    csv.register_dialect('mcm', delimiter=',', quoting=csv.QUOTE_ALL)
+    register_mcm_csv_dialect()
     with open(out_file_path, 'wb') as ofile:
         writer = csv.DictWriter(ofile, fieldnames=fields, dialect='mcm')
         for cx in connections.get_all():
             writer.writerow(cx.to_dict())
     return out_file_path
+
+def print_csv(connections):
+    import sys, csv
+    from  mcm.common.connections import fields
+    register_mcm_csv_dialect()
+    writer = csv.DictWriter(sys.stdout, fieldnames=fields, dialect='mcm')
+    for cx in connections.get_all():
+        writer.writerow(cx.to_dict())
 
 #    This encrypt/decrypt methods are from Eli Bendersky's website at:
 #    http://eli.thegreenplace.net/2010/06/25/aes-encryption-of-files-in-python-with-pycrypto/
@@ -151,32 +130,3 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
         return None
     
     return out_filename
-
-# Test encrypt/decrypt
-#if __name__ == '__main__':
-#    import hashlib
-#    key = hashlib.sha256("This is the password!").digest()
-#    encrypt_file(key, "/tmp/mcm.csv", "/tmp/opodo.mcm")
-#    print "File encrypted"
-#    decrypt_file(key, "/tmp/opodo.mcm", "/tmp/mcm.csv.2")
-#    print "decrypted"
-    
-# Use this script to create a json file from a CSV file
-#if __name__ == '__main__':
-#    _csv = Csv('/tmp/tips.csv')
-#    rawtips = _csv.do_import("Section")
-#
-#    print constants.home
-#
-#    tips = []
-#    for rawtip in rawtips:
-#        tip = Tip(0, rawtip['Section'], rawtip['Subsection'], rawtip['Title'], rawtip['Value'])
-#        tips.append(tip)
-#
-#    _tips = Tips()
-#    _tips.dump(tips, "/tmp/tips.json")
-#    tips_list = _tips.read()
-#    tips_list += tips
-#    unique_list = list(set(tips_list))
-#    print unique_list
-
