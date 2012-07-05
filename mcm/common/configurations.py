@@ -19,13 +19,9 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-'''
-Configuration Loading for file ~/.mcm
-'''
-
-import ConfigParser
 import os
 import pango
+import ConfigParser
 import mcm.common.constants as constants
 
 

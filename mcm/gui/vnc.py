@@ -21,10 +21,10 @@
 
 import gtk
 import gtkvnc
+import mcm.gui.widgets
 from time import strftime
-
 from mcm.common.constants import tools, screenshot, disconnect, screenshot_info
-from widgets import UtilityDialogs
+
 
 class MCMVncClient(object):
     def __init__(self, host, port):
@@ -100,7 +100,7 @@ class MCMVncClient(object):
 
     def screenshot_event(self, menuitem):
         filename = "/tmp/mcm_vnc_screenshot_%s.png" % strftime("%Y%m%d.%H%M%S")
-        dlg = UtilityDialogs()
+        dlg = mcm.gui.widgets.UtilityDialogs()
         dlg.show_info_dialog(screenshot_info, filename)
         pix = self.vnc.get_pixbuf()
         pix.save(filename, "png", { "tEXt::Generator App": "MCM Connections Manager" })

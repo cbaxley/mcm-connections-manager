@@ -21,7 +21,9 @@
 
 import os
 import json
-from mcm.common.configurations import McmConfig
+
+import mcm.common.configurations
+
 from mcm.common.constants import connection_error, cxs_json
 
 types = {'SSH':22, 'VNC':5900, 'RDP':3389, 'TELNET':23, 'FTP':21}
@@ -116,7 +118,7 @@ class Ssh(Connection):
         return self.list_to_string(a_list)
 
     def get_fork_args(self):
-        conf = McmConfig()
+        conf = mcm.common.configurations.McmConfig()
         self.client, not_used = conf.get_ssh_conf()
         return [self.client, self.hostname(), "-p", self.port, self.options]
 
@@ -128,7 +130,7 @@ class Vnc(Connection):
         return self.host
 
     def get_fork_args(self):
-        conf = McmConfig()
+        conf = mcm.common.configurations.McmConfig()
         self.client, options, embedded = conf.get_vnc_conf()
         return [self.client, self.options, self.vnchost()]
 
@@ -140,21 +142,21 @@ class Rdp(Connection):
         return self.host
 
     def get_fork_args(self):
-        conf = McmConfig()
+        conf = mcm.common.configurations.McmConfig()
         self.client, not_used = conf.get_rdp_conf()
         return [self.client, self.options, self.rdphost()]
 
 class Telnet(Connection):
     
     def get_fork_args(self):
-        conf = McmConfig()
+        conf = mcm.common.configurations.McmConfig()
         self.client, not_used = conf.get_telnet_conf()
         return [self.client, self.options, self.host, self.port]
 
 class Ftp(Connection):
     
     def get_fork_args(self):
-        conf = McmConfig()
+        conf = mcm.common.configurations.McmConfig()
         self.client, not_used = conf.get_ftp_conf()
         
         cmd = [self.client, '-u', self.user, '-p', self.port, self.host]
@@ -292,15 +294,7 @@ class ConnectionDecoder(json.JSONDecoder):
         cx_dict = json.loads(json_str)
         connections = {}
         for alias, cx in cx_dict.items():
-            new_cx = connections_factory(cx['type'], 
-                                         cx['user'],
-                                         cx['host'],
-                                         cx['alias'],
-                                         cx['password'],
-                                         cx['port'],
-                                         cx['group'],
-                                         cx['options'],
-                                         cx['description'])
+            new_cx = mapped_connections_factory(cx)
             connections[alias] = new_cx
 
         return connections

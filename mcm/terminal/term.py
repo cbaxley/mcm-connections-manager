@@ -18,23 +18,18 @@
 # along with the MCM Connection Manager.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-'''
-This is the main script for mcm
-'''
-
 import os, sys, subprocess, readline
-from optparse import OptionParser
+import mcm.common.connections
+import tables
 
-from tables import Table
-from mcm.common.connections import types, connections_factory, Vnc, Rdp, ConnectionStore
-from mcm.common.utils import Csv
-import mcm.common.constants as constants
+from optparse import OptionParser
+from mcm.common import constants
 
 
 class Mcm(object):
     def __init__(self):
         self.dialog_binary = '/usr/bin/dialog'
-        self.connections = ConnectionStore()
+        self.connections = mcm.common.connections.ConnectionStore()
         self.connections.load()
 
     def connect(self, alias):
@@ -64,20 +59,20 @@ class Mcm(object):
         _html.export()
         
     def export_csv(self):
-        from mcm.common.export import print_csv
-        print_csv(self.connections)
+        import mcm.common.utils
+        mcm.common.utils.print_csv(self.connections)
 
     def add(self, cxs=None):
         cx = None
         if cxs == None:
             print "Adding a new alias. Follow instructions"
-            print "Type of server (%s) [default: SSH]:" % ", ".join(types)
+            print "Type of server (%s) [default: SSH]:" % ", ".join(mcm.common.connections.types)
             cx_type = raw_input()
             cx_type = cx_type.upper()
             if len(cx_type) <= 0:
                 cx_type = 'SSH'
 
-            if cx_type not in types:
+            if cx_type not in mcm.common.connections.types:
                     raise TypeError("Unknown server type: " + cx_type)
 
             print "Alias for this connection:"
@@ -97,10 +92,10 @@ class Mcm(object):
             print "Password:"
             cx_password = raw_input()
 
-            print "Port [default: %s] : " % types[cx_type]
+            print "Port [default: %s] : " % mcm.common.connections.types[cx_type]
             raw_cx_port = raw_input()
             if not raw_cx_port:
-                cx_port = types[cx_type]
+                cx_port = mcm.common.connections.types[cx_type]
             else:
                 cx_port = int(raw_cx_port)
 
@@ -115,7 +110,7 @@ class Mcm(object):
             print "Description:"
             cx_desc = raw_input()
 
-            cx = connections_factory(cx_type, cx_user, cx_host, cx_alias, cx_password, cx_port, cx_group, cx_options, cx_desc)
+            cx = mcm.common.connections.connections_factory(cx_type, cx_user, cx_host, cx_alias, cx_password, cx_port, cx_group, cx_options, cx_desc)
             self.connections.add(cx_alias, cx)
             print "saved %s" % cx
 
@@ -127,7 +122,7 @@ class Mcm(object):
                 if self.connections.get(alias):
                     print "Not saving %s" % alias
                     continue
-                cx = connections_factory(d['type'], d['user'], d['host'], alias, d['password'], d['port'], d['group'], d['options'], d['description'])
+                cx = mcm.common.connections.mapped_connections_factory(d)
                 self.connections.add(alias, cx)
                 print "saved %s" % cx
                 
@@ -141,7 +136,7 @@ class Mcm(object):
             if conn:
                 t_rows.append((conn.alias, conn.user, conn.host, conn.port))
                 
-        table = Table(t_headers, t_rows)
+        table = tables.Table(t_headers, t_rows)
         table.output()
         exit(0)
 
@@ -154,10 +149,10 @@ class Mcm(object):
         keys.sort()
         for key in keys:
             conn = self.connections.get(key)
-            if type(conn) is not Vnc and type(conn) is not Rdp:
+            if type(conn) is not mcm.common.connections.Vnc and type(conn) is not mcm.common.connections.Rdp:
                 t_rows.append((conn.alias, conn.get_type(), conn.user, conn.host, conn.port))
 
-        table = Table(t_headers, t_rows)
+        table = tables.Table(t_headers, t_rows)
         table.output()
         print "=" * 80
 
@@ -226,10 +221,11 @@ class Mcm(object):
         exit(0)
 
     def import_csv(self, path):
-        _csv = Csv(path)
-        cxs = _csv.import_connections()
-        print cxs
-        self.add(cxs)
+#        _csv = Csv(path)
+#        cxs = _csv.import_connections()
+#        print cxs
+#        self.add(cxs)
+        pass
 
 if __name__ == '__main__':
     
