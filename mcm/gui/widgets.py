@@ -161,6 +161,57 @@ class McmCheckbox(gtk.HBox):
 
     def get_current_alias(self):
         return self._current_alias
+    
+class MCMTabLabel(gtk.HBox):
+    
+    def __init__(self, parent, connection, pid=None, clustered=False):
+        gtk.HBox.__init__(self, False)
+        self.alias = 'localhost'
+        self.pid = pid
+        self._icon = None
+        self.clustered = clustered
+        self.clustarable = True
+        
+        if connection:
+            self.alias = connection.alias
+            if connection.user in ['root', 'Administrator']:
+                self._icon = gtk.image_new_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
+            if connection.get_type() in ['RDP', 'VNC']:
+                self.clustarable = False
+        else:
+            self._icon = gtk.image_new_from_stock(gtk.STOCK_HOME, gtk.ICON_SIZE_MENU)
+            
+        if self._icon:
+            self._icon.set_padding(5,0)
+            self.pack_start(self._icon, False, False, 0)
+            
+        self._label = gtk.Label(self.alias)
+        self.pack_start(self._label, True, True, 1)
+        
+        arrow = gtk.Arrow(gtk.ARROW_DOWN, gtk.SHADOW_NONE)
+        arrow.set_alignment(0.5, 0)
+        close_button = gtk.Button()
+        close_button.set_relief(gtk.RELIEF_NONE)
+        close_button.connect('button-press-event', self.__show_menu)
+        close_button.add(arrow)
+        self.pack_start(close_button, False, False, 2)
+            
+    def __show_menu(self, widget, event):
+        if event.button == 1:
+            menu = gtk.Menu()
+            menu.set_title(self.alias)
+            close = gtk.ImageMenuItem(gtk.STOCK_DISCONNECT)
+            
+            if self.clustarable:
+                cluster = gtk.CheckMenuItem()
+                cluster.set_active(self.clustered)
+                menu.append(cluster)
+            
+            menu.append(close)
+            menu.show_all()
+            menu.popup(None, None, None, 1, event.time)
+            return True
+        return False        
 
 class DefaultColorSettings(object):
     def __init__(self):

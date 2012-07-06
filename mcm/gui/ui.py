@@ -338,7 +338,7 @@ class MCMGtk(object):
 
     def event_switch_tab(self, notebook, page, page_num):
         page = notebook.get_nth_page(page_num)
-        label_title = notebook.get_tab_label(page).get_title()
+        label_title = notebook.get_tab_label(page).alias
         self.set_window_title(label_title)
         
     def event_reorder_tab(self, notebook, page, page_num):
@@ -450,9 +450,12 @@ class MCMGtk(object):
             mcm.gui.widgets.show_error_dialog("Failed to connect to %s" % connection.alias, str(connection))
             return
         
-        label, menu_label = self.create_tab_button(connection, pid)
-        self.set_window_title(label.get_title())
-        index = terminals.append_page_menu(scroll, label, menu_label)
+        #label, menu_label = self.create_tab_button(connection, pid)
+        
+        label = mcm.gui.widgets.MCMTabLabel(self, connection, pid, self.cluster_mode_active)
+        label.show_all()
+        self.set_window_title(label.alias)
+        index = terminals.append_page_menu(scroll, label, gtk.Label(label.alias))
         terminals.set_tab_reorderable(scroll, True)
         self.assign_tab_switch_binding(index + 1)
         terminals.show_all()
@@ -481,6 +484,10 @@ class MCMGtk(object):
         
         label.close_button.connect("clicked", self.event_close_tab)
         return (label, menu_label)
+    
+    def get_tab_label(self, connection, pid):
+        label = mcm.gui.widgets.MCMTabLabel(self, connection, pid, self.cluster_mode_active)
+        return label
     
     def create_term_tab(self, connection, terminals):
         """
@@ -681,7 +688,7 @@ class MCMGtk(object):
                 for i in range(pages):
                     scroll = terminals.get_nth_page(i)
                     checkbox = terminals.get_tab_label(scroll)
-                    checkbox.hide_checkbox()
+#                    checkbox.hide_checkbox()
                 cl_box.hide()
                 cl_select_all_button.hide()
                 self.cluster_mode_active = False
