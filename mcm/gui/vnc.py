@@ -112,8 +112,7 @@ class MCMVncClient(object):
 
     def screenshot_event(self, menuitem):
         filename = "/tmp/mcm_vnc_screenshot_%s.png" % strftime("%Y%m%d.%H%M%S")
-        dlg = mcm.gui.widgets.UtilityDialogs()
-        dlg.show_info_dialog(screenshot_info, filename)
+        mcm.gui.widgets.show_info_dialog(screenshot_info, filename)
         pix = self.vnc.get_pixbuf()
         pix.save(filename, "png", { "tEXt::Generator App": "MCM Connections Manager" })
 
@@ -121,8 +120,7 @@ class MCMVncClient(object):
         self.vnc.close()
     
     def vnc_auth_fail(self, widget, msg):
-        err = mcm.gui.widgets.UtilityDialogs()
-        err.show_error_dialog("Authentication Failed", msg)
+        mcm.gui.widgets.show_error_dialog("Authentication Failed", msg)
         
     def parse_depth(self, raw):
         if full_depth == raw:

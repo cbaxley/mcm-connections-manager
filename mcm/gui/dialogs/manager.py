@@ -67,12 +67,10 @@ class ManageConnectionsDialog(object):
         if dlg.response == gtk.RESPONSE_OK and dlg.mime == 'html':
             _html = mcm.common.export.Html(constants.version, self.connections)
             _html.export(dlg.get_filename())
-            idlg = mcm.gui.widgets.UtilityDialogs()
-            idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
+            mcm.gui.widgets.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
         elif dlg.response == gtk.RESPONSE_OK and dlg.mime == 'csv':
             _csv = mcm.common.utils.export_csv(self.connections, dlg.get_filename())
-            idlg = mcm.gui.widgets.UtilityDialogs()
-            idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
+            mcm.gui.widgets.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
 
     def init_combo(self, items, active_item=None):
         cb = gtk.CellRendererCombo()
@@ -151,8 +149,7 @@ class ManageConnectionsDialog(object):
             cursor = widget.get_selection()
             (model, a_iter) = cursor.get_selected()
             alias = model.get_value(a_iter, 0)
-            dlg = mcm.gui.widgets.UtilityDialogs()
-            response = dlg.show_question_dialog(constants.deleting_connection_warning % alias, constants.are_you_sure)
+            response = mcm.gui.widgets.show_question_dialog(constants.deleting_connection_warning % alias, constants.are_you_sure)
             if response == gtk.RESPONSE_OK:
                 model.remove(a_iter)
                 self.connections.delete(alias)

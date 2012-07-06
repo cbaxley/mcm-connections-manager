@@ -26,36 +26,27 @@ from mcm.common import constants
 Dialogs for MCM Connections Manager
 '''
 
-class UtilityDialogs(object):
-    """
-    Class that defines the methods used to display MessageDialog dialogs
-    to the user
-    """
+def show_question_dialog(self, title, message):
+    """Display a Warning Dialog and return the response to the caller"""
+    dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, title)
+    dialog.format_secondary_text(message)
+    response = dialog.run()
+    dialog.destroy()
+    return response
 
-    def __init__(self):
-        pass
+def show_error_dialog(self, title, message):
+    """Display an error dialog to the user"""
+    show_common_dialog(title, message, gtk.MESSAGE_ERROR)
 
-    def show_question_dialog(self, title, message):
-        """Display a Warning Dialog and return the response to the caller"""
-        dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, title)
-        dialog.format_secondary_text(message)
-        response = dialog.run()
-        dialog.destroy()
-        return response
+def show_info_dialog(self, title, message):
+    """Display an error dialog to the user"""
+    show_common_dialog(title, message, gtk.MESSAGE_INFO)
 
-    def show_error_dialog(self, title, message):
-        """Display an error dialog to the user"""
-        self.show_common_dialog(title, message, gtk.MESSAGE_ERROR)
-
-    def show_info_dialog(self, title, message):
-        """Display an error dialog to the user"""
-        self.show_common_dialog(title, message, gtk.MESSAGE_INFO)
-
-    def show_common_dialog(self, title, message, icon):
-        dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, icon, gtk.BUTTONS_OK, title)
-        dialog.format_secondary_text(message)
-        dialog.run()
-        dialog.destroy()
+def show_common_dialog(self, title, message, icon):
+    dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, icon, gtk.BUTTONS_OK, title)
+    dialog.format_secondary_text(message)
+    dialog.run()
+    dialog.destroy()
 
 class FileSelectDialog(object):
 
@@ -155,10 +146,12 @@ class McmCheckbox(gtk.HBox):
             self._button.set_active(active)
     
     def hide_checkbox(self):
-        self._button.hide()
+        if self._button:
+            self._button.hide()
         
     def show_checkbox(self):
-        self._button.show()
+        if self._button:
+            self._button.show()
 
     def set_title(self, title):
         self._label.set_text(title)

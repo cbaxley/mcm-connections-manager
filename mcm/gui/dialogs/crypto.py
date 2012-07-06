@@ -60,8 +60,7 @@ class MCMCryptoDialog(object):
                     dlg.run()
                     os.remove(temp_file)
                 else:
-                    idlg = mcm.gui.widgets.UtilityDialogs()
-                    idlg.show_error_dialog(constants.failed_decrypt_import, constants.failed_decrypt_import)
+                    mcm.gui.widgets.show_error_dialog(constants.failed_decrypt_import, constants.failed_decrypt_import)
             else:
                 temp_file = self._export()
                 self._encrypt(temp_file)

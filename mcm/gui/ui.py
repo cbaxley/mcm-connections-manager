@@ -178,8 +178,7 @@ class MCMGtk(object):
         
         if exit_code not in [0,1,2,9]: # sigkilled rets 9
             terminals.set_current_page(index)
-            dlg = mcm.gui.widgets.UtilityDialogs()
-            dlg.show_error_dialog(constants.unexpected_exit_code,
+            mcm.gui.widgets.show_error_dialog(constants.unexpected_exit_code,
                                   constants.connection_terminated % exit_code)
         
         terminals.remove_page(index)
@@ -245,8 +244,7 @@ class MCMGtk(object):
 
     def event_delete(self, widget):
         alias = self.get_tree_selection()
-        dlg = mcm.gui.widgets.UtilityDialogs()
-        response = dlg.show_question_dialog(constants.deleting_connection_warning % alias, constants.are_you_sure)
+        response = mcm.gui.widgets.show_question_dialog(constants.deleting_connection_warning % alias, constants.are_you_sure)
         if response == gtk.RESPONSE_OK:
             self.connections.delete(alias)
             self.connections.save()
@@ -273,18 +271,15 @@ class MCMGtk(object):
         if dlg.response == gtk.RESPONSE_OK and dlg.mime == 'html':
             _html = Html(constants.version, self.connections)
             _html.export(dlg.get_filename())
-            idlg = mcm.gui.widgets.UtilityDialogs()
-            idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
+            mcm.gui.widgets.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
         elif dlg.response == gtk.RESPONSE_OK and dlg.mime == 'csv':
             _csv = mcm.common.utils.export_csv(self.connections, dlg.get_filename())
-            idlg = mcm.gui.widgets.UtilityDialogs()
-            idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
+            mcm.gui.widgets.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
         elif dlg.response == gtk.RESPONSE_OK and dlg.mime == 'mcm':
             export_dialog = mcm.gui.dialogs.crypto.MCMCryptoDialog(dlg.get_filename(), None)
             export_dialog.run()
             if export_dialog.response == gtk.RESPONSE_OK:
-                idlg = mcm.gui.widgets.UtilityDialogs()
-                idlg.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
+                mcm.gui.widgets.show_info_dialog(constants.export_finished, constants.saved_file % dlg.get_filename())
         
     def event_import_csv(self, widget):
         dlg = mcm.gui.widgets.FileSelectDialog()
@@ -330,8 +325,7 @@ class MCMGtk(object):
             self.draw_consoles()
 
     def event_quit(self, widget, fck=None):
-        dlg = mcm.gui.widgets.UtilityDialogs()
-        response = dlg.show_question_dialog(constants.quit_warning, constants.are_you_sure)
+        response = mcm.gui.widgets.show_question_dialog(constants.quit_warning, constants.are_you_sure)
         if response == gtk.RESPONSE_OK:
             self.connections.save()
             exit(0)
@@ -452,8 +446,7 @@ class MCMGtk(object):
         scroll, pid = self.create_term_tab(connection, terminals)
         
         if pid == -1:
-            dlg = mcm.gui.widgets.UtilityDialogs()
-            dlg.show_error_dialog("Failed to connect to %s" % connection.alias, str(connection))
+            mcm.gui.widgets.show_error_dialog("Failed to connect to %s" % connection.alias, str(connection))
             return
         
         label, menu_label = self.create_tab_button(connection, pid)
@@ -844,11 +837,10 @@ class MCMGtk(object):
 
     def update_tips(self, widget):
         response = self.tips_widget.update()
-        dlg = mcm.gui.widgets.UtilityDialogs()
         if not response:
-            dlg.show_error_dialog(constants.update_tips_error_1, constants.update_tips_error_2)
+            mcm.gui.widgets.show_error_dialog(constants.update_tips_error_1, constants.update_tips_error_2)
         else:
-            dlg.show_info_dialog(constants.update_tips_success_1, constants.update_tips_success_2 % response)
+            mcm.gui.widgets.show_info_dialog(constants.update_tips_success_1, constants.update_tips_success_2 % response)
 
     def vnc_connect(self, connection):
         terminals = self.widgets['terminals']
