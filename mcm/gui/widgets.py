@@ -212,3 +212,55 @@ def get_terminals_menu(parent, ssh_alias=None):
         
         menu.show_all()
         return menu
+    
+def get_connections_tree_columns(callback):
+    column = gtk.TreeViewColumn("Alias")
+    tx_r1 =gtk.CellRendererText()
+    tx_r1.set_property('xalign', 0 )
+    tx_r1.set_property('yalign', 0.75 )
+    tx_r1.set_property('foreground', DefaultColorSettings().selected_bg_color )
+    tx_r1.set_property('size', 7000 )
+    tx_r1.set_property('visible', False )
+    tx_r2 =gtk.CellRendererText()
+    column.pack_start(tx_r1, False)
+    column.pack_start(tx_r2, True)
+    column.set_attributes(tx_r1, text=0)
+    column.set_attributes(tx_r2, text=1)
+    column.set_resizable(True)
+    column.set_sort_column_id(1)
+#   column.set_cell_data_func(tx_r1, self.pixbuf_cell_data_func)
+    column.set_cell_data_func(tx_r1, callback)
+    return column
+
+# we can use this method to draw an icon in the connections tree
+#def pixbuf_cell_data_func(self, tvcolumn, cell, model, iter):
+#    stock = model.get_value(iter, 0)
+#    if stock:
+#        tree = self.widgets['cx_tree']
+#        pb = tree.render_icon(stock, gtk.ICON_SIZE_MENU, None)
+#        cell.set_property('gicon', pb)
+#    else:
+#        cell.set_property('gicon', None)
+#    return
+
+def get_connections_tree_model(connections, connections_filter):
+    tree_store = gtk.TreeStore(str, str, str)
+    groups = set()
+    for cx in connections:
+        if connections_filter:
+            if cx.get_type() in connections_filter:
+                groups.add(cx.group)
+        else:
+            groups.add(cx.group)
+
+    for grp in groups:
+        grp_node = tree_store.append(None, [None, grp, None])
+        for cx in connections:
+            if connections_filter:
+                if cx.get_type() in connections_filter and grp == cx.group:
+                    tree_store.append(grp_node, [cx.get_type().lower(), cx.alias, None])
+            else:
+                if grp == cx.group:
+                    tree_store.append(grp_node, [cx.get_type().lower(), cx.alias, None])
+                    
+    return tree_store

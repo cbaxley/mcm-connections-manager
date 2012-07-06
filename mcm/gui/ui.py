@@ -18,6 +18,7 @@
 # with the MCM Connection Manager. If not, see
 # <http://www.gnu.org/licenses/>.
 #
+from mcm.gui import widgets
 
 '''
 Main Script for mcm gtk
@@ -560,9 +561,6 @@ class MCMGtk(object):
         label.set_title(text)
         self.set_window_title(text)
 
-    def draw_column(self, tree, title, _id):
-        tree.append_column(self.new_column(title, _id))
-
     def draw_consoles(self):
         terminals = self.widgets['terminals']
         pages = terminals.get_n_pages()
@@ -608,31 +606,23 @@ class MCMGtk(object):
         entry.modify_base(gtk.STATE_NORMAL, self.default_color)
         entry.set_tooltip_text(tooltip_text)
         entry.set_sensitive(sensitive)
-
+        
+    def cell_data_func(self, col, cell, model, i):
+        if model.get_value(i, 0):
+            cell.set_property('visible', True)
+        else:
+            cell.set_property('visible', False)
+        return
+    
     def draw_tree(self, connections_filter=None):
         tree = self.widgets['cx_tree']
+        
         if len(tree.get_columns()) == 0:
-            self.draw_column(tree, "Alias", 0)
-        tree_store = gtk.TreeStore(str, str)
+            column = mcm.gui.widgets.get_connections_tree_columns(self.cell_data_func)
+            tree.append_column(column)
+        
+        tree_store = mcm.gui.widgets.get_connections_tree_model(self.connections.get_all(), connections_filter)
         tree.set_model(tree_store)
-
-        groups = set()
-        for cx in self.connections.get_all():
-            if connections_filter:
-                if cx.get_type() in connections_filter:
-                    groups.add(cx.group)
-            else:
-                groups.add(cx.group)
-
-        for grp in groups:
-            grp_node = tree_store.append(None, [grp, None])
-            for cx in self.connections.get_all():
-                if connections_filter:
-                    if cx.get_type() in connections_filter and grp == cx.group:
-                        tree_store.append(grp_node, [cx.alias, None])
-                else:    
-                    if grp == cx.group:
-                        tree_store.append(grp_node, [cx.alias, None])
 
     def get_tree_selection(self, tree=None):
         '''Gets the alias of the connection currently selected on the tree'''
@@ -647,7 +637,7 @@ class MCMGtk(object):
                 (model, i) = cursor.get_selected()
                 if i == None:
                     return None
-                alias = model.get_value(i, 0)
+                alias = model.get_value(i, 1)
         return alias
     
     def get_selected_group(self, tree=None):
@@ -658,7 +648,7 @@ class MCMGtk(object):
         (model, coords) = cursor.get_selected_rows()
         try:
             i = model.get_iter((coords[0][0],))
-            return model.get_value(i,0)
+            return model.get_value(i,1)
         except IndexError:
             return None
     
@@ -709,7 +699,6 @@ class MCMGtk(object):
         return True
 
     def init_main_window(self):
-        
         main_window = self.widgets['window']
         settings = gtk.settings_get_default()
         settings.props.gtk_menu_bar_accel = None
@@ -774,12 +763,6 @@ class MCMGtk(object):
         if cx:
             installpk = mcm.gui.dialogs.pk_install.InstallPublicKeyDialog()
             installpk.install(cx.user, cx.host)
-
-    def new_column(self, title, _id):
-        column = gtk.TreeViewColumn(title, gtk.CellRendererText(), text=_id)
-        column.set_resizable(True)
-        column.set_sort_column_id(_id)
-        return column
 
     def color_parse(self, color_name):
         return gtk.gdk.color_parse(color_name)
