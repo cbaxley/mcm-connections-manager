@@ -26,7 +26,7 @@ from mcm.common import constants
 Dialogs for MCM Connections Manager
 '''
 
-def show_question_dialog(self, title, message):
+def show_question_dialog(title, message):
     """Display a Warning Dialog and return the response to the caller"""
     dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, title)
     dialog.format_secondary_text(message)
@@ -34,15 +34,15 @@ def show_question_dialog(self, title, message):
     dialog.destroy()
     return response
 
-def show_error_dialog(self, title, message):
+def show_error_dialog(title, message):
     """Display an error dialog to the user"""
     show_common_dialog(title, message, gtk.MESSAGE_ERROR)
 
-def show_info_dialog(self, title, message):
+def show_info_dialog(title, message):
     """Display an error dialog to the user"""
     show_common_dialog(title, message, gtk.MESSAGE_INFO)
 
-def show_common_dialog(self, title, message, icon):
+def show_common_dialog(title, message, icon):
     dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, icon, gtk.BUTTONS_OK, title)
     dialog.format_secondary_text(message)
     dialog.run()
