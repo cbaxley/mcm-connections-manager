@@ -519,29 +519,10 @@ class MCMGtk(object):
         if event.button == 1:
             return False
         elif event.button == 3:
-            menu = gtk.Menu()
-            copy = gtk.MenuItem(constants.copy)
-            paste = gtk.MenuItem(constants.paste)
-            search = gtk.MenuItem(constants.google_search)
-            title = gtk.MenuItem(constants.set_title)
-            menu.append(copy)
-            menu.append(paste)
-            menu.append(search)
-            
+            ssh_alias = None
             if vte.is_ssh:
-                ipk = gtk.MenuItem(constants.install_key)
-                ipk.alias = vte.alias
-                ipk.connect('activate', self.install_public_key)
-                menu.append(ipk)
-            
-            menu.append(gtk.SeparatorMenuItem())
-            menu.append(title)
-            copy.connect('activate', self.do_copy)
-            paste.connect('activate', self.do_paste)
-            search.connect('activate', self.do_search)
-            title.connect('activate', self.set_title_tab_title)
-            
-            menu.show_all()
+                ssh_alias = vte.alias
+            menu = mcm.gui.widgets.get_terminals_menu(self, ssh_alias)
             menu.popup(None, None, None, 3, event.time)
             return True
         else:

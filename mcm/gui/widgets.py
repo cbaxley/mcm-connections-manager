@@ -185,3 +185,30 @@ class DefaultColorSettings(object):
             self.text_color = gtk.gdk.color_parse(settings["text_color"])
             self.selected_fg_color = gtk.gdk.color_parse(settings["selected_fg_color"])
             self.bg_color = gtk.gdk.color_parse(settings["bg_color"])
+            
+def get_terminals_menu(parent, ssh_alias=None):
+        menu = gtk.Menu()
+        copy = gtk.MenuItem(constants.copy)
+        paste = gtk.MenuItem(constants.paste)
+        search = gtk.MenuItem(constants.google_search)
+        title = gtk.MenuItem(constants.set_title)
+        menu.append(copy)
+        menu.append(paste)
+        menu.append(search)
+        
+        if ssh_alias:
+            ipk = gtk.MenuItem(constants.install_key)
+            ipk.alias = ssh_alias
+            ipk.connect('activate', parent.install_public_key)
+            menu.append(ipk)
+        
+        menu.append(gtk.SeparatorMenuItem())
+        menu.append(title)
+        
+        copy.connect('activate', parent.do_copy)
+        paste.connect('activate', parent.do_paste)
+        search.connect('activate', parent.do_search)
+        title.connect('activate', parent.set_title_tab_title)        
+        
+        menu.show_all()
+        return menu
