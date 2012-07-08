@@ -41,7 +41,6 @@ icon_file = os.path.join(glade_home, "internet-network-preferences-tools-icone-5
 tips_file = os.path.join(mcm_data_dir, "tips.json")
 conf_file = os.path.join(mcm_config_dir, "mcm.conf")
 cxs_json = os.path.join(mcm_data_dir, "mcm.json")
-error_dialog = os.path.join(glade_home, "error.py")
 
 # New Glade Files for GtkBuilder
 glade_home = os.path.join(glade_home, "glade")
@@ -86,7 +85,7 @@ io_error = _("Can\'t Access file %s")
 
 google_search_url = "http://www.google.com/search?q=%s"
 
-mcm_help_url = "http://sites.google.com/site/monocaffe/home/mcm/help"
+mcm_help_url = "http://code.google.com/p/mcm-connections-manager/"
 tips_url = "http://launchpad.net/mcm/trunk/mcm/+download/tips.json"
 tip_error = _("Not a Tip Object")
 deleting_connection_warning = _("Deleting Connection %s")
