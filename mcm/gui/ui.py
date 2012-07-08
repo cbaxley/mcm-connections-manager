@@ -230,7 +230,7 @@ class MCMGtk(object):
         for i in range(pages):
             scroll = terminals.get_nth_page(i)
             checkbox = terminals.get_tab_label(scroll)
-            checkbox.set_active()
+            checkbox.add_to_cluster()
     
     def event_connect(self, widget, path=None, vew_column=None):
         alias = None
@@ -462,29 +462,6 @@ class MCMGtk(object):
         terminals.set_current_page(index)
         self.draw_consoles()
         
-    def create_tab_button(self, connection, pid):
-        label = None
-        menu_label = None
-        cluster = True
-        if connection == None:
-            label = mcm.gui.widgets.McmCheckbox('localhost', pid, cluster, gtk.STOCK_HOME)
-            menu_label = gtk.Label('localhost')
-        else:
-            icon = None
-            if connection.user in ['root', 'Administrator']:
-                icon = gtk.STOCK_DIALOG_WARNING
-            if connection.get_type() in ['RDP', 'VNC']:
-                cluster = True
-            label = mcm.gui.widgets.McmCheckbox(connection.alias, pid, cluster, icon)
-            label.set_tooltip_text(connection.description)
-            menu_label = gtk.Label(connection.alias)
-        
-        if self.cluster_mode_active:
-            label.show_checkbox()
-        
-        label.close_button.connect("clicked", self.event_close_tab)
-        return (label, menu_label)
-    
     def get_tab_label(self, connection, pid):
         label = mcm.gui.widgets.MCMTabLabel(self, connection, pid, self.cluster_mode_active)
         return label
@@ -679,7 +656,7 @@ class MCMGtk(object):
                 for i in range(pages):
                     scroll = terminals.get_nth_page(i)
                     checkbox = terminals.get_tab_label(scroll)
-                    checkbox.show_checkbox()
+                    checkbox.cluster_toggled(widget)
                 cl_box.show_all()
                 cl_select_all_button.show_all()
                 self.cluster_mode_active = True
@@ -822,9 +799,11 @@ class MCMGtk(object):
         if vnc_opts_dlg.response == gtk.RESPONSE_OK:
             vnc_client = mcm.gui.vnc.MCMVncClient(connection.host, connection.port, vnc_depth, vnc_view_only)
             vnc_box = vnc_client.get_instance()
+            vnc_menu = vnc_client.get_vnc_menu()
             vnc_client.vnc.connect("vnc-disconnected", lambda term: self.vnc_disconnect(vnc_box, terminals))
             
             label = mcm.gui.widgets.MCMTabLabel(self, connection)
+            label.set_menu(vnc_menu)
             label.show_all()
             menu_label = gtk.Label(connection.alias)
             

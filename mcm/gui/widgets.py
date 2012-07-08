@@ -105,63 +105,6 @@ class FileSelectDialog(object):
         self.mime = filter_name.split(" ")[0]
         self.dlg.destroy()
 
-class McmCheckbox(gtk.HBox):
-
-    def __init__(self, title, pid=None, cluster=False, img=None):
-        gtk.HBox.__init__(self, False)
-        self.pid = pid
-        
-        if img:
-            self._icon = gtk.Image()
-            self._icon.set_from_stock(img, gtk.ICON_SIZE_MENU)
-            self.pack_start(self._icon, True, True, 5)
-        
-        self._label = gtk.Label(title)
-        self._current_alias = title
-        self.pack_start(self._label, True, True, 0)
-        
-        if cluster:
-            self._button = gtk.CheckButton()
-            self._button.set_name("%s_button" % title)
-            self._button.set_tooltip_text(constants.cluster_checkbox_tooltip)
-            self.pack_start(self._button, False, False, 0)
-            
-        self.close_button = gtk.Button()
-        self.close_button.set_relief(gtk.RELIEF_NONE)
-        self.close_button.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
-        self.close_button.set_tooltip_text(constants.cluster_checkbox_tooltip)
-        self.pack_start(self.close_button, False, False, 0)
-        self.show_all()
-        
-        if cluster:
-            self._button.hide()
-
-    def get_active(self):
-        if self._button:
-            return self._button.get_active()
-        return None
-    
-    def set_active(self, active=True):
-        if self._button:
-            self._button.set_active(active)
-    
-    def hide_checkbox(self):
-        if self._button:
-            self._button.hide()
-        
-    def show_checkbox(self):
-        if self._button:
-            self._button.show()
-
-    def set_title(self, title):
-        self._label.set_text(title)
-
-    def get_title(self):
-        return self._label.get_text()
-
-    def get_current_alias(self):
-        return self._current_alias
-    
 class MCMTabLabel(gtk.HBox):
     
     def __init__(self, parent, connection, pid=None, clustered=False):
@@ -201,13 +144,16 @@ class MCMTabLabel(gtk.HBox):
         close = gtk.ImageMenuItem(gtk.STOCK_DISCONNECT)
         close.connect('activate', parent.event_close_tab)
         
+        self.cluster = gtk.CheckMenuItem("In Cluster")
         if self.clustarable:
-            cluster = gtk.CheckMenuItem("In Cluster")
-            cluster.set_active(self.clustered)
-            cluster.connect('toggled', self._cluster_toggled)
-            self.menu.append(cluster)
+            self.cluster.set_active(self.clustered)
+            self.cluster.connect('toggled', self.cluster_toggled)
+            self.menu.append(self.cluster)
         
         self.menu.append(close)
+        
+    def set_menu(self, new_menu):
+        self.menu = new_menu
             
     def _show_menu(self, widget, event):
         if event.button == 1:
@@ -216,8 +162,11 @@ class MCMTabLabel(gtk.HBox):
             return True
         return False
     
-    def _cluster_toggled(self, widget):
+    def cluster_toggled(self, widget):
         self.clustered = not self.clustered
+        
+    def add_to_cluster(self):
+        self.cluster.set_active(True)
 
 class DefaultColorSettings(object):
     def __init__(self):

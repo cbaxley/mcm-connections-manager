@@ -37,13 +37,13 @@ class MCMVncClient(object):
         self.depth = self.parse_depth(raw_depth)
         self.view_only = view_only
         self.vnc = self.new_vnc_client()
-        self.menu = self.new_vnc_menu()
+        #self.menu = self.new_vnc_menu()
         self.layout = gtk.VBox()
         self.scroll = gtk.ScrolledWindow()
         self.scroll.set_policy(gtk.POLICY_ALWAYS, gtk.POLICY_ALWAYS)
         self.scroll.add_with_viewport(self.vnc)
         self.scroll.show_all()
-        self.layout.pack_start(self.menu, False, True, 0)
+        #self.layout.pack_start(self.menu, False, True, 0)
         self.layout.pack_start(self.scroll, True, True, 0)
 
     def new_vnc_client(self):
@@ -59,7 +59,7 @@ class MCMVncClient(object):
         v.connect("vnc-auth-failure", self.vnc_auth_fail)
         return v
 
-    def new_vnc_menu(self):
+    def get_vnc_menu(self):
         menubar = gtk.MenuBar()
 
         sendkeys = gtk.MenuItem(tools)
@@ -81,7 +81,7 @@ class MCMVncClient(object):
         submenu.append(sep)
         submenu.append(scrs)
         submenu.append(disc)
-        sendkeys.set_submenu(submenu)
+        #sendkeys.set_submenu(submenu)
 
         caf1.connect("activate", self.send_caf1)
         caf7.connect("activate", self.send_caf7)
@@ -89,7 +89,7 @@ class MCMVncClient(object):
         cab.connect("activate", self.send_cab)
         scrs.connect("activate", self.screenshot_event)
         disc.connect("activate", self.disconnect_event)
-        return menubar
+        return submenu
 
     def get_instance(self):
         self.vnc.open_host(self.host, self.port)
@@ -204,7 +204,7 @@ class MCMVncOptionsDialog(object):
         self.is_view_only = False
     
     def run(self):
-        dlg = gtk.Dialog("VNC Options", 
+        dlg = gtk.Dialog("VNC Options",
              None, gtk.DIALOG_MODAL,
              ( gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
                gtk.STOCK_OK, gtk.RESPONSE_OK ))
