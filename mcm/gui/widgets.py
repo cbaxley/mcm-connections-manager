@@ -189,29 +189,35 @@ class MCMTabLabel(gtk.HBox):
         self.pack_start(self._label, True, True, 1)
         
         arrow = gtk.Arrow(gtk.ARROW_DOWN, gtk.SHADOW_NONE)
-        arrow.set_alignment(0.5, 0)
+        arrow.set_alignment(0.5, 0.5)
         close_button = gtk.Button()
         close_button.set_relief(gtk.RELIEF_NONE)
-        close_button.connect('button-press-event', self.__show_menu)
+        close_button.connect('button-press-event', self._show_menu)
         close_button.add(arrow)
         self.pack_start(close_button, False, False, 2)
+        
+        self.menu = gtk.Menu()
+        self.menu.set_title(self.alias)
+        close = gtk.ImageMenuItem(gtk.STOCK_DISCONNECT)
+        close.connect('activate', parent.event_close_tab)
+        
+        if self.clustarable:
+            cluster = gtk.CheckMenuItem("In Cluster")
+            cluster.set_active(self.clustered)
+            cluster.connect('toggled', self._cluster_toggled)
+            self.menu.append(cluster)
+        
+        self.menu.append(close)
             
-    def __show_menu(self, widget, event):
+    def _show_menu(self, widget, event):
         if event.button == 1:
-            menu = gtk.Menu()
-            menu.set_title(self.alias)
-            close = gtk.ImageMenuItem(gtk.STOCK_DISCONNECT)
-            
-            if self.clustarable:
-                cluster = gtk.CheckMenuItem()
-                cluster.set_active(self.clustered)
-                menu.append(cluster)
-            
-            menu.append(close)
-            menu.show_all()
-            menu.popup(None, None, None, 1, event.time)
+            self.menu.show_all()
+            self.menu.popup(None, None, None, 1, event.time)
             return True
-        return False        
+        return False
+    
+    def _cluster_toggled(self, widget):
+        self.clustered = not self.clustered
 
 class DefaultColorSettings(object):
     def __init__(self):

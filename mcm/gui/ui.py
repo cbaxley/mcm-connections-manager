@@ -814,25 +814,26 @@ class MCMGtk(object):
             mcm.gui.widgets.show_info_dialog(constants.update_tips_success_1, constants.update_tips_success_2 % response)
 
     def vnc_connect(self, connection):
-        terminals = self.widgets['terminals']
-        
-        label = mcm.gui.widgets.McmCheckbox(connection.alias)
-        label.set_tooltip_text(connection.description)
-        menu_label = gtk.Label(connection.alias)
         
         # Show the VNC options dialog
         vnc_opts_dlg = mcm.gui.vnc.MCMVncOptionsDialog()
         vnc_depth, vnc_view_only = vnc_opts_dlg.run()
         
-        vnc_client = mcm.gui.vnc.MCMVncClient(connection.host, connection.port, vnc_depth, vnc_view_only)
-        vnc_box = vnc_client.get_instance()
-        
-        index = terminals.append_page_menu(vnc_box, label, menu_label)
-        terminals.set_tab_reorderable(vnc_box, True)
-        vnc_client.vnc.connect("vnc-disconnected", lambda term: self.vnc_disconnect(vnc_box, terminals))
-        self.assign_tab_switch_binding(index + 1)
-        terminals.show_all()
-        terminals.set_current_page(index)
+        if vnc_opts_dlg.response == gtk.RESPONSE_OK:
+            vnc_client = mcm.gui.vnc.MCMVncClient(connection.host, connection.port, vnc_depth, vnc_view_only)
+            vnc_box = vnc_client.get_instance()
+            vnc_client.vnc.connect("vnc-disconnected", lambda term: self.vnc_disconnect(vnc_box, terminals))
+            
+            label = mcm.gui.widgets.MCMTabLabel(self, connection)
+            label.show_all()
+            menu_label = gtk.Label(connection.alias)
+            
+            terminals = self.widgets['terminals']
+            index = terminals.append_page_menu(vnc_box, label, menu_label)
+            self.assign_tab_switch_binding(index + 1)
+            terminals.set_tab_reorderable(vnc_box, True)
+            terminals.show_all()
+            terminals.set_current_page(index)
 
     def vnc_disconnect(self, box, terminals):
         index = terminals.get_current_page()
