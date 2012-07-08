@@ -199,13 +199,16 @@ class MCMVncClient(object):
 class MCMVncOptionsDialog(object):
     
     def __init__(self):
-        pass
+        self.response = gtk.RESPONSE_CANCEL
+        self.depth = None
+        self.is_view_only = False
     
     def run(self):
         dlg = gtk.Dialog("VNC Options", 
              None, gtk.DIALOG_MODAL,
-             ( gtk.STOCK_OK, gtk.RESPONSE_OK ))
-        dlg.set_default_response(gtk.RESPONSE_OK)
+             ( gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
+               gtk.STOCK_OK, gtk.RESPONSE_OK ))
+        dlg.set_default_response(gtk.RESPONSE_CANCEL)
         dlg.connect('response', self.vnc_options_dialog_response)
         
         store = gtk.ListStore(str)
@@ -230,4 +233,6 @@ class MCMVncOptionsDialog(object):
         return (combo.get_active_text(), read_only.get_active())
         
     def vnc_options_dialog_response(self, dlg, response_id):
+        if response_id == gtk.RESPONSE_OK:
+            self.response = gtk.RESPONSE_OK
         dlg.destroy()
