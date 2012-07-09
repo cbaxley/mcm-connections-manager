@@ -115,15 +115,20 @@ class MCMTabLabel(gtk.HBox):
         self._icon = None
         self.clustered = False
         self.clustarable = True
+        close = None
         
         if connection:
             self.alias = connection.alias
+            close = gtk.ImageMenuItem(gtk.STOCK_DISCONNECT)
             if connection.user in ['root', 'Administrator']:
                 self._icon = gtk.image_new_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
             if connection.get_type() in ['RDP', 'VNC']:
                 self.clustarable = False
         else:
+            close = gtk.ImageMenuItem(gtk.STOCK_CLOSE)
             self._icon = gtk.image_new_from_stock(gtk.STOCK_HOME, gtk.ICON_SIZE_MENU)
+        
+        close.connect('activate', parent.event_close_tab)
             
         if self._icon:
             self._icon.set_padding(5,0)
@@ -142,14 +147,20 @@ class MCMTabLabel(gtk.HBox):
         
         self.menu = gtk.Menu()
         self.menu.set_title(self.alias)
-        close = gtk.ImageMenuItem(gtk.STOCK_DISCONNECT)
-        close.connect('activate', parent.event_close_tab)
+        
+        
         
         self.cluster = gtk.CheckMenuItem("In Cluster")
         if self.clustarable:
             self.cluster.set_active(self.clustered)
             self.cluster.connect('toggled', self.cluster_toggled)
             self.menu.append(self.cluster)
+            
+        if connection and connection.get_type() == 'SSH':
+            ipk = gtk.MenuItem(constants.install_key)
+            ipk.alias = self.alias
+            ipk.connect('activate', parent.install_public_key)
+            self.menu.append(ipk)
         
         self.menu.append(close)
         
@@ -200,7 +211,7 @@ class DefaultColorSettings(object):
             self.selected_fg_color = gtk.gdk.color_parse(settings["selected_fg_color"])
             self.bg_color = gtk.gdk.color_parse(settings["bg_color"])
             
-def get_terminals_menu(parent, ssh_alias=None):
+def get_terminals_menu(parent):
         menu = gtk.Menu()
         copy = gtk.MenuItem(constants.copy)
         paste = gtk.MenuItem(constants.paste)
@@ -209,13 +220,6 @@ def get_terminals_menu(parent, ssh_alias=None):
         menu.append(copy)
         menu.append(paste)
         menu.append(search)
-        
-        if ssh_alias:
-            ipk = gtk.MenuItem(constants.install_key)
-            ipk.alias = ssh_alias
-            ipk.connect('activate', parent.install_public_key)
-            menu.append(ipk)
-        
         menu.append(gtk.SeparatorMenuItem())
         menu.append(title)
         

@@ -155,7 +155,7 @@ class MCMGtk(object):
         
     def event_close_tab(self, accel_group, window=None, keyval=None, modifier=None, unk=None):
         """
-            Event called when the a tab is closed by the key combo or the button.
+            Event called when a tab is closed by the key combo or the button.
             Simply kill the process we fork-ed by using its PID. When the process
             is killed, it will raise an event and event_die_term is executed.
         """
@@ -507,10 +507,7 @@ class MCMGtk(object):
         if event.button == 1:
             return False
         elif event.button == 3:
-            ssh_alias = None
-            if vte.is_ssh:
-                ssh_alias = vte.alias
-            menu = mcm.gui.widgets.get_terminals_menu(self, ssh_alias)
+            menu = mcm.gui.widgets.get_terminals_menu(self)
             menu.popup(None, None, None, 3, event.time)
             return True
         else:
@@ -803,7 +800,7 @@ class MCMGtk(object):
             terminals.set_current_page(index)
 
     def vnc_disconnect(self, box, terminals):
-        index = terminals.get_current_page()
+        index = terminals.page_num(box)
         terminals.remove_page(index)
         if terminals.get_n_pages() <= 0:
             terminals.hide()
