@@ -20,6 +20,7 @@
 #
 
 import gtk
+import pango
 from mcm.common import constants
 
 '''
@@ -107,12 +108,12 @@ class FileSelectDialog(object):
 
 class MCMTabLabel(gtk.HBox):
     
-    def __init__(self, parent, connection, pid=None, clustered=False):
+    def __init__(self, parent, connection, pid=None):
         gtk.HBox.__init__(self, False)
         self.alias = 'localhost'
         self.pid = pid
         self._icon = None
-        self.clustered = clustered
+        self.clustered = False
         self.clustarable = True
         
         if connection:
@@ -164,6 +165,13 @@ class MCMTabLabel(gtk.HBox):
     
     def cluster_toggled(self, widget):
         self.clustered = not self.clustered
+        if self.clustered:
+            attr = pango.AttrList()
+            fg_color = pango.AttrForeground(65535, 0, 0, 0, -1)
+            attr.insert(fg_color)
+            self._label.set_attributes(attr)
+        else:
+            self._label.set_attributes(pango.AttrList())
         
     def add_to_cluster(self):
         self.cluster.set_active(True)
