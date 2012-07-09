@@ -18,7 +18,6 @@
 # with the MCM Connection Manager. If not, see
 # <http://www.gnu.org/licenses/>.
 #
-from mcm.gui import widgets
 
 '''
 Main Script for mcm gtk
@@ -420,7 +419,7 @@ class MCMGtk(object):
         for i in range(pages):
             scroll = terminals.get_nth_page(i)
             checkbox = terminals.get_tab_label(scroll)
-            if checkbox.get_active():
+            if checkbox.cluster.get_active():
                 term = scroll.get_child()
                 cluster_tabs[i] = term
 
@@ -452,7 +451,7 @@ class MCMGtk(object):
         
         #label, menu_label = self.create_tab_button(connection, pid)
         
-        label = mcm.gui.widgets.MCMTabLabel(self, connection, pid, self.cluster_mode_active)
+        label = mcm.gui.widgets.MCMTabLabel(self, connection, pid)
         label.show_all()
         self.set_window_title(label.alias)
         index = terminals.append_page_menu(scroll, label, gtk.Label(label.alias))
@@ -463,7 +462,7 @@ class MCMGtk(object):
         self.draw_consoles()
         
     def get_tab_label(self, connection, pid):
-        label = mcm.gui.widgets.MCMTabLabel(self, connection, pid, self.cluster_mode_active)
+        label = mcm.gui.widgets.MCMTabLabel(self, connection, pid)
         return label
     
     def create_term_tab(self, connection, terminals):
@@ -649,23 +648,12 @@ class MCMGtk(object):
         if pages <= 0:
             cl_box.hide()
             cl_select_all_button.hide()
-            widget.set_active(False)
-            self.cluster_mode_active = False
         else:
             if widget.active:
-                for i in range(pages):
-                    scroll = terminals.get_nth_page(i)
-                    checkbox = terminals.get_tab_label(scroll)
-                    checkbox.cluster_toggled(widget)
                 cl_box.show_all()
                 cl_select_all_button.show_all()
                 self.cluster_mode_active = True
-                
             else:
-                for i in range(pages):
-                    scroll = terminals.get_nth_page(i)
-                    checkbox = terminals.get_tab_label(scroll)
-#                    checkbox.hide_checkbox()
                 cl_box.hide()
                 cl_select_all_button.hide()
                 self.cluster_mode_active = False
