@@ -586,7 +586,7 @@ class MCMGtk(object):
 
     def draw_entry(self, widget_name, text, tooltip_text="", sensitive=True):
         entry = self.widgets[widget_name]
-        entry.set_text(text)
+        entry.set_text(str(text))
         entry.modify_base(gtk.STATE_NORMAL, self.default_color)
         entry.set_tooltip_text(tooltip_text)
         entry.set_sensitive(sensitive)

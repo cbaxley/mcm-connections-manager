@@ -37,7 +37,6 @@ class Mcm(object):
             conn = self.connections.get(alias)
             conn.print_connection(conn.get_fork_args())
             subprocess.call(conn.get_fork_args())
-            self.do_connect(conn)
         except (KeyError, AttributeError):
             print "Error loading connections." 
             print "Please add one or more connections using \"mcm -a\""
@@ -97,7 +96,7 @@ class Mcm(object):
             if not raw_cx_port:
                 cx_port = mcm.common.connections.types[cx_type]
             else:
-                cx_port = int(raw_cx_port)
+                cx_port = raw_cx_port
 
             print "Group (%s):" % ", ".join(self.connections.get_groups())
             cx_group = raw_input()
@@ -283,24 +282,28 @@ example:
 
     if options.list:
         mcmt.list_connections()
+        exit(0)
         
     if options.show:
         mcmt.show_connection(options.show)
+        exit(0)
 
     if options.delete_alias:
         mcmt.delete(options.delete_alias)
+        exit(0)
 
     if options.export_html:
         mcmt.export_html()
+        exit(0)
 
     if options.export_csv:
         mcmt.export_csv()
+        exit(0)
         
     if options.import_csv:
         mcmt.import_csv(options.import_csv)
+        exit(0)
 
     if len(args) > 0:
         mcmt.connect(options.show)
-        
-
-
+        exit(0)
