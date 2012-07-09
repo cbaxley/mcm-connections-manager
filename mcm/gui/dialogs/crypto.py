@@ -75,8 +75,7 @@ class MCMCryptoDialog(object):
         import hashlib
         key = hashlib.sha256(self.pwd_entry.get_text()).digest()
         mcm.common.utils.encrypt_file(key, temp_file, self.out_file_path)
-        print "CSV Tmp  %s" % temp_file
-        #os.remove(temp_file)
+        os.remove(temp_file)
         
     def _decrypt(self, in_filename):
         import hashlib
