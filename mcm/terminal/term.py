@@ -141,7 +141,6 @@ class Mcm(object):
 
 
     def list_connections(self):
-        print "Usage: mcm [OPTIONS] [ALIAS]\n"
         t_headers = ['Aliases', 'Type', 'user', 'host', 'port']
         t_rows = []
         keys = self.connections.get_aliases()
