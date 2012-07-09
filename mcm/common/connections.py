@@ -26,12 +26,15 @@ import mcm.common.configurations
 
 from mcm.common.constants import connection_error, cxs_json
 
-types = {'SSH':22, 'VNC':5900, 'RDP':3389, 'TELNET':23, 'FTP':21}
-fields = ['alias', 'type', 'host', 'port', 'user', 'password', 'options', 'group', 'description']
+types = {'SSH': 22, 'VNC': 5900, 'RDP': 3389, 'TELNET': 23, 'FTP': 21}
+fields = ['alias', 'type', 'host', 'port', 'user',
+          'password', 'options', 'group', 'description']
+
 
 class Connection(object):
 
-    def __init__(self, user, host, alias, password, port, group=None, options=None, description=None):
+    def __init__(self, user, host, alias, password, port,
+                 group=None, options=None, description=None):
         self.user = user
         self.host = host
         self.port = port
@@ -68,7 +71,7 @@ class Connection(object):
     def dialog_string(self):
         """Used to give a correct String for the dialog utility to show"""
         if self.get_type() == 'FTP':
-            return "%s\tftp://%s@%s:%s\t\t %s" % (self.get_type(), self.user, \
+            return "%s\tftp://%s@%s:%s\t\t %s" % (self.get_type(), self.user,\
                                     self.host, self.port, self.description)
         else:
             return "%s\t%s@%s:%s\t\t\t %s" % (self.get_type(), self.user, \
@@ -99,13 +102,14 @@ class Connection(object):
             tr += "<td>%s</td>" % cx
         tr += "</tr>"
         return tr
-    
+
     def __str__(self):
         return "%s %s %s@%s:%s" % (self.get_type(), self.alias,
         self.user, self.host, self.port)
 
+
 class Ssh(Connection):
-    
+
     def hostname(self):
         return "%s@%s" % (self.user, self.host)
 
@@ -122,8 +126,9 @@ class Ssh(Connection):
         self.client, not_used = conf.get_ssh_conf()
         return [self.client, self.hostname(), "-p", self.port, self.options]
 
+
 class Vnc(Connection):
-    
+
     def vnchost(self):
         if self.port is not None and len(self.port) > 0:
             return "%s::%s" % (self.host, self.port)
@@ -134,8 +139,9 @@ class Vnc(Connection):
         self.client, options, embedded = conf.get_vnc_conf()
         return [self.client, self.options, self.vnchost()]
 
+
 class Rdp(Connection):
-    
+
     def rdphost(self):
         if self.port:
             return "%s:%s" % (self.host, self.port)
@@ -146,25 +152,27 @@ class Rdp(Connection):
         self.client, not_used = conf.get_rdp_conf()
         return [self.client, self.options, self.rdphost()]
 
+
 class Telnet(Connection):
-    
+
     def get_fork_args(self):
         conf = mcm.common.configurations.McmConfig()
         self.client, not_used = conf.get_telnet_conf()
         return [self.client, self.options, self.host, self.port]
 
+
 class Ftp(Connection):
-    
+
     def get_fork_args(self):
         conf = mcm.common.configurations.McmConfig()
         self.client, not_used = conf.get_ftp_conf()
-        
         cmd = [self.client, '-u', self.user, '-p', self.port, self.host]
         if self.password:
-            cmd[2] = '%s,%s' % (self.user,self.password)
+            cmd[2] = '%s,%s' % (self.user, self.password)
         if self.options:
-            cmd.insert(1,self.options)
+            cmd.insert(1, self.options)
         return cmd
+
 
 def connections_factory(cx_type, cx_user, cx_host, cx_alias,
                         cx_password, cx_port, cx_group, cx_options, cx_desc):
@@ -196,25 +204,28 @@ def connections_factory(cx_type, cx_user, cx_host, cx_alias,
         raise AttributeError("Unknown Connection Type: %s" % cx_type)
 
     return cx
-        
+
+
 def mapped_connections_factory(d):
     cx = None
     try:
         cx = connections_factory(d['type'], d['user'],
             d['host'], d['alias'], d['password'], d['port'],
             d['group'], d['options'], d['description'])
-    except Exception,e:
+    except Exception, e:
         print e
     return cx
+
 
 class ConnectionStore(object):
     """
         Object to hold a map of alias:connections
     """
+
     def __init__(self):
         self.jsonfile = cxs_json
         self.store = {}
-        
+
     def load(self):
         try:
             myfile = open(self.jsonfile, 'r')
@@ -222,55 +233,58 @@ class ConnectionStore(object):
             myfile.close
         except IOError:
             print "Failed to load connections file"
-    
+
     def save(self):
         myfile = open(self.jsonfile, 'w')
-        json.dump(self.store, myfile, cls=ConnectionEncoder, encoding="utf-8", separators=(',',':'))
+        json.dump(self.store, myfile, cls=ConnectionEncoder,
+                  encoding="utf-8", separators=(',', ':'))
         myfile.close
-        
+
     def save_to_file(self, filepath):
         try:
             myfile = open(filepath, 'w')
-            json.dump(self.store, myfile, cls=ConnectionEncoder, encoding="utf-8", separators=(',',':'))
+            json.dump(self.store, myfile, cls=ConnectionEncoder,
+                      encoding="utf-8", separators=(',', ':'))
             myfile.close
         except IOError:
             print "Failed to save to file %s" % filepath
-            
+
     def get_groups(self):
         groups = []
         for cx in self.store.values():
             if cx.group not in groups:
                 groups.append(cx.group)
         return groups
-    
+
     def get_aliases(self):
         return self.store.keys()
-    
+
     def add(self, alias, cx):
         self.store[alias] = cx
-        
+
     def update(self, alias, cx):
         self.store[alias] = cx
-        
+
     def delete(self, alias):
         del self.store[alias]
-        
+
     def get(self, alias):
         try:
             return self.store[alias]
         except KeyError:
             return None
-    
+
     def get_all(self):
         return self.store.values()
-    
+
     def add_all(self, connections):
         for alias, cx in connections.items():
             self.store[alias] = cx
-            
+
     def __str__(self):
         return str(self.store)
-        
+
+
 class ConnectionEncoder(json.JSONEncoder):
 
     def default(self, clazz):
@@ -283,6 +297,7 @@ class ConnectionEncoder(json.JSONEncoder):
                         alias=clazz.alias, password=clazz.password,
                         port=clazz.port, group=clazz.group,
                         options=clazz.options, description=clazz.description)
+
 
 class ConnectionDecoder(json.JSONDecoder):
     """
