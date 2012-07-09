@@ -395,7 +395,7 @@ class MCMGtk(object):
         if event.button == 1:
             return False
         elif event.button == 3:
-            menu = self.widgets['menu2']
+            menu = self.widgets['connections_menu']
             menu.show_all()
             menu.popup(None, None, None, 3, event.time)
             return True
@@ -435,7 +435,7 @@ class MCMGtk(object):
 
     def do_connect(self, connection):
         '''Here I create a ScrolledWindow, attach a VteTerminal widget and all this gets attached
-        to a new page on a NoteBook widget. Instead of using a label, I use a custom CheckButton widget
+        to a new page on a NoteBook widget. Instead of using a label, I use a custom MCMTabLabel widget
         since the default CheckButton widget covered the whole tab, making it very difficult to switch
         tabs by clicking on them.'''
         # Check for VNC Connections
@@ -664,7 +664,7 @@ class MCMGtk(object):
 
     def hide_unhide_tree(self, widget, window=None, key_val=None, modifier=None):
         # I have to define those parameters so the callbacks from the key bindings work
-        vbox = self.widgets['vbox3']
+        vbox = self.widgets['connections_vbox']
         mb = self.widgets['mb_view_tree']
         if vbox.props.visible:
             mb.set_active(False)
@@ -720,15 +720,11 @@ class MCMGtk(object):
             'status_icon_menu': self.builder.get_object("status_icon_menu"),
             'connections_menu': self.builder.get_object("connections_menu"),
             'terminals': self.builder.get_object("terminals"),
-            'hbox1': self.builder.get_object("hbox1"),
-            'vbox3': self.builder.get_object("vbox3"),
-            'vbox1': self.builder.get_object("vbox1"),
-            'aspectframe1': self.builder.get_object("aspectframe1"),
+            'connections_vbox': self.builder.get_object("connections_vbox"),
             'cluster_entry': self.builder.get_object("cluster_entry"),
             'mb_cluster': self.builder.get_object("mb_cluster"),
             'mb_view_tree': self.builder.get_object("mb_view_tree"),
-            'statusbar': self.builder.get_object("statusbar1"),
-            'menu2': self.builder.get_object("menu2"),
+            'connections_menu': self.builder.get_object("connections_menu"),
             'cluster_select_all': self.builder.get_object("cluster_select_all"),
             'cluster_history_button': self.builder.get_object("cluster_history_button"),
         }
