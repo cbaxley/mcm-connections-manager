@@ -204,7 +204,6 @@ def mapped_connections_factory(d):
             d['host'], d['alias'], d['password'], d['port'],
             d['group'], d['options'], d['description'])
     except Exception,e:
-        print d
         print e
     return cx
 
