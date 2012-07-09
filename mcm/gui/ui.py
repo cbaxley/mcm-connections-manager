@@ -205,6 +205,10 @@ class MCMGtk(object):
         if keyname == 'Escape':
             return self.cluster_send_key('\033')
         
+        # Disable the TAB key so we don't rotate accidentally
+        if keyname == 'Tab':
+            return True
+        
         if event.state & gtk.gdk.CONTROL_MASK:
             if keyname is 'c':
                 return self.cluster_send_key('\003\015')
