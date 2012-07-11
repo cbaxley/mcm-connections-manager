@@ -57,7 +57,7 @@ def export_csv(connections, out_file_path=None):
     from  mcm.common.connections import fields
     
     if not out_file_path:
-        handle, out_file_path = tempfile.mkstemp()
+        out_file_path = tempfile.mkstemp()[1]
     
     register_mcm_csv_dialect()
     with open(out_file_path, 'wb') as ofile:
@@ -107,7 +107,7 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
     from Crypto.Cipher import AES
     
     if not out_filename:
-        handle, out_filename = tempfile.mkstemp()
+        out_filename = tempfile.mkstemp()[1]
 
     with open(in_filename, 'rb') as infile:
         origsize = struct.unpack('<Q', infile.read(struct.calcsize('Q')))[0]

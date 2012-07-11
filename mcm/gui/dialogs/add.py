@@ -113,15 +113,15 @@ class AddConnectionDialog(object):
         conf = mcm.common.configurations.McmConfig()
         config = ""
         if cx_type == 'SSH':
-            not_used, config = conf.get_ssh_conf()
+            config = conf.get_ssh_conf()[1]
         elif cx_type == 'VNC':
-            not_used, config, embedded = conf.get_vnc_conf()
+            config = conf.get_vnc_conf()[1]
         elif cx_type == 'RDP':
-            not_used, config = conf.get_rdp_conf()
+            config = conf.get_rdp_conf()[1]
         elif cx_type == 'TELNET':
-            not_used, config = conf.get_telnet_conf()
+            config = conf.get_telnet_conf()[1]
         elif cx_type == 'FTP':
-            not_used, config = conf.get_ftp_conf()
+            config = conf.get_ftp_conf()[1]
 
         opts_entry = self.widgets['options_entry1']
         opts_entry.set_text(config)
