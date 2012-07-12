@@ -23,7 +23,7 @@ import gtk
 import gtkvnc
 import mcm.gui.widgets
 from time import strftime
-from mcm.common.constants import tools, screenshot, disconnect, screenshot_info
+import mcm.common.constants as constants
 
 full_depth = "Full (All Colors)"
 medium_depth = "Medium (256)"
@@ -62,15 +62,15 @@ class MCMVncClient(object):
     def get_vnc_menu(self):
         menubar = gtk.MenuBar()
 
-        sendkeys = gtk.MenuItem(tools)
+        sendkeys = gtk.MenuItem(constants.tools)
         menubar.append(sendkeys)
 
-        scrs = gtk.MenuItem(screenshot)
+        scrs = gtk.MenuItem(constants.screenshot)
         caf1 = gtk.MenuItem("Ctrl+Alt+F_1")
         caf7 = gtk.MenuItem("Ctrl+Alt+F_7")
         cad = gtk.MenuItem("Ctrl+Alt+_Del")
         cab = gtk.MenuItem("Ctrl+Alt+_Backspace")
-        disc = gtk.MenuItem(disconnect)
+        disc = gtk.MenuItem(constants.disconnect)
         sep = gtk.SeparatorMenuItem()
 
         submenu = gtk.Menu()
@@ -112,7 +112,7 @@ class MCMVncClient(object):
 
     def screenshot_event(self, menuitem):
         filename = "/tmp/mcm_vnc_screenshot_%s.png" % strftime("%Y%m%d.%H%M%S")
-        mcm.gui.widgets.show_info_dialog(screenshot_info, filename)
+        mcm.gui.widgets.show_info_dialog(constants.screenshot_info, filename)
         pix = self.vnc.get_pixbuf()
         pix.save(filename, "png", { "tEXt::Generator App": "MCM Connections Manager" })
 
@@ -146,7 +146,7 @@ class MCMVncClient(object):
                 data[i] = "mcm"
     
         if prompt:
-            dialog = gtk.Dialog("Authentication required", None, 0, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))
+            dialog = gtk.Dialog(constants.auth_required, None, 0, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))
             dialog.set_default_response(gtk.RESPONSE_OK)
             label = []
             entry = []
@@ -204,7 +204,7 @@ class MCMVncOptionsDialog(object):
         self.is_view_only = False
     
     def run(self):
-        dlg = gtk.Dialog("VNC Options",
+        dlg = gtk.Dialog(constants.vnc_options,
              None, gtk.DIALOG_MODAL,
              ( gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
                gtk.STOCK_OK, gtk.RESPONSE_OK ))
@@ -224,7 +224,7 @@ class MCMVncOptionsDialog(object):
         combo.add_attribute(cell, 'text', 0)
         combo.set_active(0)
         
-        read_only = gtk.CheckButton("View only?")
+        read_only = gtk.CheckButton(constants.view_only)
         read_only.set_active(False)
         dlg.get_content_area().pack_start(combo, False, True, 0)
         dlg.get_content_area().pack_start(read_only, False, True, 1)

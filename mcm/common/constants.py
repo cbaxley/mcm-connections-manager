@@ -30,7 +30,7 @@ import gettext
 import locale
 from xdg.BaseDirectory import xdg_config_home, xdg_data_home
 
-version = '1.0'
+version = '1.1'
 app_name = "mcm connections manager"
 
 home = os.getenv("HOME")
@@ -47,7 +47,6 @@ glade_home = os.path.join(glade_home, "glade")
 glade_main = os.path.join(glade_home, "main.glade")
 glade_preferences = os.path.join(glade_home, "preferences.glade")
 glade_new_cx = os.path.join(glade_home, "new_connection.glade")
-glade_tips = os.path.join(glade_home, "tips.glade")
 
 # ----------------------------------------------------------------------
 # i18n stuff
@@ -55,7 +54,7 @@ glade_tips = os.path.join(glade_home, "tips.glade")
 
 def get_languages():
     _langs = []
-    lc, encd = locale.getdefaultlocale()
+    lc = locale.getdefaultlocale()[0]
     if lc:
         _langs = [lc]
 
@@ -145,3 +144,8 @@ unexpected_exit_code = _("Unexpected Exit Code")
 connection_terminated = _("The connection was terminated with status code %s")
 connections_manager = _("Connections Manager")
 failed_decrypt_import = _("Failed to decrypt file probably to a wrong password")
+installing_pk = _("Installing Public Key")
+provide_password = _("Provide a Password")
+auth_required = _("Authentication required")
+view_only = _("View only?")
+vnc_options = _("VNC Options")

@@ -26,7 +26,7 @@ from mcm.common import constants
 class InstallPublicKeyDialog(object):
     
     def __init__(self):
-        self.dialog = gtk.Dialog("Installing Public Key", None, 0, (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+        self.dialog = gtk.Dialog(constants.installing_pk, None, 0, (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
         self.dialog.set_default_response(gtk.RESPONSE_CLOSE)
         self.dialog.connect("response", self.hide)
         

@@ -34,7 +34,7 @@ class MCMCryptoDialog(object):
         self.in_file_path = in_file_path
         self.out_file_path = out_file_path
         self.response = gtk.RESPONSE_CANCEL
-        self.dialog = gtk.Dialog("Provide a Password", 
+        self.dialog = gtk.Dialog(constants.provide_password, 
              None, gtk.DIALOG_MODAL,
              ( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK ))
         self.dialog.set_default_response(gtk.RESPONSE_CANCEL)

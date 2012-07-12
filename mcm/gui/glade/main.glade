@@ -11,7 +11,7 @@
     <property name="icon">internet-network-preferences-tools-icone-5174.ico</property>
     <property name="type_hint">normal</property>
     <property name="program_name">MCM Connections Manager</property>
-    <property name="version">1.0</property>
+    <property name="version">1.1</property>
     <property name="copyright" translatable="yes">Copyright (C) 2010 Alejandro Ayuso</property>
     <property name="comments" translatable="yes">An easy and fast connections manager for GNOME</property>
     <property name="website">https://code.google.com/p/mcm-connections-manager/</property>
