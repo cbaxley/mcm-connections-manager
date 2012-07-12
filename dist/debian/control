@@ -4,7 +4,7 @@ Priority: optional
 Section: net
 Installed-Size: 588
 Architecture: all
-Version: 1.0
+Version: 1.1
 Essential: no
 Homepage: https://code.google.com/p/mcm-connections-manager/
 Depends: lftp, openssh-client, rdesktop, 

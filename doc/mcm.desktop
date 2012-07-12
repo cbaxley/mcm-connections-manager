@@ -1,7 +1,9 @@
 [Desktop Entry]
-Version=1.0
+Version=1.1
 Encoding=UTF-8
 Name=MCM
+GenericName=Connections Manager
+X-GNOME-FullName=MCM Connections Manager
 Comment=MCM Connections Manager
 Exec=/usr/bin/mcm-gtk
 Icon=internet-network-preferences-tools-icone-5174.ico

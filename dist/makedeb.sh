@@ -9,4 +9,4 @@ cp -R ../* /tmp/pack/usr/share/apps/mcm-connections-manager
 cp debian/* /tmp/pack/DEBIAN/
 
 cd /tmp/
-dpkg -b pack mcm-1.0_all.deb
+dpkg -b pack mcm-1.1_all.deb
