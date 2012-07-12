@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: mcm 1.0\n"
-"POT-Creation-Date: 2012-06-30 16:49:16.279521\n"
+"Project-Id-Version: mcm-connections-manager 1.1\n"
+"POT-Creation-Date: 2012-07-12 16:54:35.781930\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10,63 +10,210 @@ msgstr ""
 "Content-Transfer-Encoding: utf-8\n"
 "Generated-By: generate_pot.py\n"
 
-#. file 'mcm/gui/glade/new_connection.glade', line ?
-msgid "Add Connection"
+#. file 'mcm/common/constants.py', line 83
+msgid "Can't Access file %s"
 msgstr ""
 
-#. file 'mcm/gui/glade/new_connection.glade', line ?
-msgid "<b>Alias</b>"
+#. file 'mcm/common/constants.py', line 89
+msgid "Not a Tip Object"
 msgstr ""
 
-#. file 'mcm/gui/glade/new_connection.glade', line ?
-msgid "<b>Type</b>"
+#. file 'mcm/common/constants.py', line 90
+msgid "Deleting Connection %s"
 msgstr ""
 
-#. file 'mcm/gui/glade/new_connection.glade', line ?
-msgid "<b>Group</b>"
+#. file 'mcm/common/constants.py', line 91
+msgid "Are you sure?"
 msgstr ""
 
-#. file 'mcm/gui/glade/new_connection.glade', line ?
-#. file 'mcm/gui/glade/main.glade', line ?
-msgid "<b>Username</b>"
+#. file 'mcm/common/constants.py', line 92
+msgid "Copy"
 msgstr ""
 
-#. file 'mcm/gui/glade/new_connection.glade', line ?
-#. file 'mcm/gui/glade/main.glade', line ?
-msgid "<b>Hostname/IP Address</b>"
+#. file 'mcm/common/constants.py', line 93
+msgid "Paste"
 msgstr ""
 
-#. file 'mcm/gui/glade/new_connection.glade', line ?
-#. file 'mcm/gui/glade/main.glade', line ?
-msgid "<b>Port</b>"
+#. file 'mcm/common/constants.py', line 94
+msgid "Google Search"
 msgstr ""
 
-#. file 'mcm/gui/glade/new_connection.glade', line ?
-#. file 'mcm/gui/glade/main.glade', line ?
-msgid "<b>Options</b>"
+#. file 'mcm/common/constants.py', line 95
+msgid "Set as Title"
 msgstr ""
 
-#. file 'mcm/gui/glade/new_connection.glade', line ?
-#. file 'mcm/gui/glade/main.glade', line ?
-msgid "<b>Description</b>"
+#. file 'mcm/common/constants.py', line 96
+msgid "Install public key"
 msgstr ""
 
-#. file 'mcm/gui/glade/new_connection.glade', line ?
-#. file 'mcm/gui/glade/main.glade', line ?
-msgid "<b>Password</b>"
+#. file 'mcm/common/constants.py', line 97
+msgid "Press Enter to Save changes"
 msgstr ""
 
-#. file 'mcm/gui/glade/edit_connections.glade', line ?
-msgid "Edit Connections"
+#. file 'mcm/common/constants.py', line 98
+msgid "Export finished"
 msgstr ""
 
-#. file 'mcm/gui/glade/edit_connections.glade', line ?
-#. file 'mcm/gui/glade/main.glade', line ?
-msgid "Export"
+#. file 'mcm/common/constants.py', line 99
+msgid "Saved file %s"
 msgstr ""
 
-#. file 'mcm/gui/glade/edit_connections.glade', line ?
-msgid "Export to HTML"
+#. file 'mcm/common/constants.py', line 100
+msgid "Unable to update tips file"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 101
+msgid "An error occurred, please check the log files for more information"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 102
+msgid "Tips Update Success"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 103
+msgid "The tips file has been updated successfully using %s. A backup file has been created."
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 104
+msgid "This alias is already used"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 105
+msgid "The alias for the new connection. Must be unique."
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 106
+msgid ""
+"Not saving %s\n"
+""
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 107
+msgid ""
+"Saved %s\n"
+""
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 108
+msgid "Set For Clustered Commands"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 109
+msgid "Quitting MCM"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 110
+msgid "An error has occurred, please check the output on the terminal for more information"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 111
+msgid "Screenshot saved to:"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 112
+msgid "Screenshot"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 113
+msgid "Disconnect"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 114
+msgid "Tools"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 115
+msgid "All"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 116
+msgid "Alias"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 117
+msgid "Group"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 118
+msgid "Type"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 119
+msgid "Password"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 120
+msgid "Delete"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 121
+msgid "Description"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 122
+msgid "Host"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 123
+msgid "Port"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 124
+msgid "Username"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 125
+msgid "Options"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 127
+msgid "Select File to Import"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 128
+msgid "Select File to Export"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 142
+msgid ""
+"Please generate your\n"
+"Public Key with ssh-keygen -t rsa"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 143
+msgid "Unexpected Exit Code"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 144
+msgid "The connection was terminated with status code %s"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 145
+msgid "Connections Manager"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 146
+msgid "Failed to decrypt file probably to a wrong password"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 147
+msgid "Installing Public Key"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 148
+msgid "Provide a Password"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 149
+msgid "Authentication required"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 150
+msgid "View only?"
+msgstr ""
+
+#. file 'mcm/common/constants.py', line 151
+msgid "VNC Options"
 msgstr ""
 
 #. file 'mcm/gui/glade/preferences.glade', line ?
@@ -189,6 +336,10 @@ msgid "Import from a CSV file"
 msgstr ""
 
 #. file 'mcm/gui/glade/main.glade', line ?
+msgid "Export"
+msgstr ""
+
+#. file 'mcm/gui/glade/main.glade', line ?
 msgid "Export to HTML or CSV"
 msgstr ""
 
@@ -249,6 +400,31 @@ msgid "_Help"
 msgstr ""
 
 #. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Username</b>"
+msgstr ""
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Hostname/IP Address</b>"
+msgstr ""
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Port</b>"
+msgstr ""
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Options</b>"
+msgstr ""
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Description</b>"
+msgstr ""
+
+#. file 'mcm/gui/glade/main.glade', line ?
 #. file 'mcm/gui/glade/main.glade', line ?
 msgid "Show the password"
 msgstr ""
@@ -256,6 +432,11 @@ msgstr ""
 #. file 'mcm/gui/glade/main.glade', line ?
 #. file 'mcm/gui/glade/main.glade', line ?
 msgid "Feed the password"
+msgstr ""
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Password</b>"
 msgstr ""
 
 #. file 'mcm/gui/glade/main.glade', line ?
@@ -267,175 +448,25 @@ msgid "Start"
 msgstr ""
 
 #. file 'mcm/gui/glade/main.glade', line ?
-msgid "Cluster Entry. Mark the tabs you want to interact with."
+msgid "Select All Terminals"
 msgstr ""
 
-#. file 'mcm/common/constants.py', line 87
-msgid "Can't Access file %s"
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Show history & favorites"
 msgstr ""
 
-#. file 'mcm/common/constants.py', line 93
-msgid "Not a Tip Object"
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "Add Connection"
 msgstr ""
 
-#. file 'mcm/common/constants.py', line 94
-msgid "Deleting Connection %s"
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Alias</b>"
 msgstr ""
 
-#. file 'mcm/common/constants.py', line 95
-msgid "Are you sure?"
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Type</b>"
 msgstr ""
 
-#. file 'mcm/common/constants.py', line 96
-msgid "Copy"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 97
-msgid "Paste"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 98
-msgid "Google Search"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 99
-msgid "Set as Title"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 100
-msgid "Install public key"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 101
-msgid "Press Enter to Save changes"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 102
-msgid "Export finished"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 103
-msgid "Saved file %s"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 104
-msgid "Unable to update tips file"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 105
-msgid "An error occurred, please check the log files for more information"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 106
-msgid "Tips Update Success"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 107
-msgid "The tips file has been updated successfully using %s. A backup file has been created."
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 108
-msgid "This alias is already used"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 109
-msgid "The alias for the new connection. Must be unique."
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 110
-msgid ""
-"Not saving %s\n"
-""
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 111
-msgid ""
-"Saved %s\n"
-""
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 112
-msgid "Set For Clustered Commands"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 113
-msgid "Quitting MCM"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 114
-msgid "An error has occurred, please check the output on the terminal for more information"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 115
-msgid "Screenshot saved to:"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 116
-msgid "Screenshot"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 117
-msgid "Disconnect"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 118
-msgid "Tools"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 119
-msgid "All"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 120
-msgid "Alias"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 121
-msgid "Group"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 122
-msgid "Type"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 123
-msgid "Password"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 124
-msgid "Delete"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 125
-msgid "Description"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 126
-msgid "Host"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 127
-msgid "Port"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 128
-msgid "Username"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 129
-msgid "Options"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 131
-msgid "Select File to Import"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 132
-msgid "Select File to Export"
-msgstr ""
-
-#. file 'mcm/common/constants.py', line 147
-msgid ""
-"Please generate your\n"
-"Public Key with ssh-keygen -t rsa"
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Group</b>"
 msgstr ""

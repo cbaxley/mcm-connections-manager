@@ -2,10 +2,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mcm 0.9.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-04 18:03+0000\n"
-"PO-Revision-Date: 2010-05-12 08:36+0000\n"
-"Last-Translator: Paco Molinero <paco@byasl.com>\n"
+"POT-Creation-Date: 2012-07-12 16:54:35.781930\n"
+"PO-Revision-Date: 2012-07-12 17:35+0100\n"
+"Last-Translator: Alejandro Ayuso <alejandroayuso@gmail.com>\n"
 "Language-Team: Spanish\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,554 +14,641 @@ msgstr ""
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: generate_pot.py\n"
 
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Preferences"
-msgstr "Preferencias"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid ""
-"<b>MCM Connections Manager</b>\n"
-"Preferences\n"
-msgstr ""
-"<b>MCM Connections Manager</b>\n"
-"Preferencias\n"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Font Style:"
-msgstr "Estilo de la tipografía:"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Font Color:"
-msgstr "Color de tipografía:"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Choose some font"
-msgstr "Elija una tipografía"
-
-#. file 'gtk/glade/preferences.glade', line ?
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Choose some color"
-msgstr "Elija un color"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Buffer Size:"
-msgstr "Tamaño del búfer:"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "<b>Console</b>"
-msgstr "<b>Consola</b>"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Color:"
-msgstr "Color:"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Image:"
-msgstr "Imagen:"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Desaturation:"
-msgstr "Desaturación:"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Background Transparent:"
-msgstr "Fondo transparente:"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Select-by-word Characters:"
-msgstr "Caracteres de selección-por-palabra"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid ""
-"When the user double-clicks to start selection, the terminal will extend the "
-"selection on word boundaries. It will treat characters included in spec as "
-"parts of words, and all other characters as word separators. Ranges of "
-"characters can be specified by separating them with a hyphen. Percentage "
-"symbol is not supported."
-msgstr ""
-"Cuando el usuario pulsa dos veces para iniciar la selección, el terminal "
-"extenderá la selección a los límites de la palabra. Tratará a los caracteres "
-"incluidos en la especificación como partes de palabras y todos los demás "
-"caracteres como separadores. Se pueden especificar rangos de caracteres "
-"separándolos por un guión. No se permite el carácter de porcentaje."
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Clear Background Image"
-msgstr "Borrar imagen de fondo"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "<b>Background</b>"
-msgstr "<b>Fondo</b>"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "General"
-msgstr "General"
-
-#. file 'gtk/glade/preferences.glade', line ?
-#. file 'gtk/glade/preferences.glade', line ?
-#. file 'gtk/glade/preferences.glade', line ?
-#. file 'gtk/glade/preferences.glade', line ?
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "<b>Client</b>"
-msgstr "<b>Cliente</b>"
-
-#. file 'gtk/glade/preferences.glade', line ?
-#. file 'gtk/glade/preferences.glade', line ?
-#. file 'gtk/glade/preferences.glade', line ?
-#. file 'gtk/glade/preferences.glade', line ?
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "<b>Default Options</b>"
-msgstr "<b>Opciones predeterminadas</b>"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "SSH"
-msgstr "SSH"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "FTP"
-msgstr "FTP"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Telnet"
-msgstr "Telnet"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "RDP"
-msgstr "RDP"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "Embedded (to implement?)"
-msgstr "Empotrado (¿por implementar?)"
-
-#. file 'gtk/glade/preferences.glade', line ?
-msgid "VNC"
-msgstr "VNC"
-
-#. file 'gtk/glade/main.glade', line ?
-#. file 'gtk/glade/main.glade', line ?
-msgid "MCM Connections Manager"
-msgstr "MCM Connections Manager"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "_File"
-msgstr "_Archivo"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "_Import"
-msgstr "_Importar"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Import from CSV"
-msgstr "Importar CSV"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Export HTML"
-msgstr "Exportar HTML"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Export your connections to HTML"
-msgstr "Exporte sus conexiones a HTML"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Export CSV"
-msgstr "Exportar CSV"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Export your connections to a CSV"
-msgstr "Exporte sus conexiones a  CSV"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "_View"
-msgstr "_Ver"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Connections"
-msgstr "Conexiones"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Show/Hide The Cluster Entry"
-msgstr "Mostrar/Ocultar entrada del grupo"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Cluster"
-msgstr "Grupo"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Show/Hide the Tips"
-msgstr "Mostrar/Ocultar consejos"
-
-#. file 'gtk/glade/main.glade', line ?
-#. file 'gtk/glade/main.glade', line ?
-msgid "Tips"
-msgstr "Consejos"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "_Connections"
-msgstr "_Conexiones"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Connect to the selected server"
-msgstr "Conectar al servidor seleccionado"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Add a new connection"
-msgstr "Añadir nueva conexión"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Delete the selected connection"
-msgstr "Eliminar la conexión seleccionada"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Manage your connections"
-msgstr "Administrar las conexiones"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "_Tools"
-msgstr "_Herramientas"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Open a Terminal on local"
-msgstr "Abrir una terminal local"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Update Tips"
-msgstr "Actualizar consejos"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Download the latest version of the tips file."
-msgstr "Descargar la última versión del archivo de consejos."
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "HTTP Server"
-msgstr "Servidor HTTP"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid ""
-"Manage a HTTP server to easily share\n"
-"files on your network"
-msgstr ""
-"Gestione un servidor HTTP para compartir\n"
-"fácilmente archivos a través de su red"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "_Help"
-msgstr "Ay_uda"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "_Feedback"
-msgstr "_Opinión"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Leave your feedback, bug, wishes or questions using an online form"
-msgstr "Envíe fallos, ideas y tu opinión utilizando un formulario en linea"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "<b>Connections</b>"
-msgstr "<b>Conexiones</b>"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "<b></b>"
-msgstr "<b></b>"
-
-#. file 'gtk/glade/main.glade', line ?
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid "<b>Username</b>"
-msgstr "<b>Nombre de usuario</b>"
-
-#. file 'gtk/glade/main.glade', line ?
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid "<b>Hostname/IP Address</b>"
-msgstr "<b>Nombre de equipo/Dirección IP</b>"
-
-#. file 'gtk/glade/main.glade', line ?
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid "<b>Port</b>"
-msgstr "<b>Puerto</b>"
-
-#. file 'gtk/glade/main.glade', line ?
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid "<b>Options</b>"
-msgstr "<b>Opciones</b>"
-
-#. file 'gtk/glade/main.glade', line ?
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid "<b>Description</b>"
-msgstr "<b>Descripción</b>"
-
-#. file 'gtk/glade/main.glade', line ?
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid "<b>Password</b>"
-msgstr "<b>Contraseña</b>"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "<b>SERVER</b>"
-msgstr "<b>Servidor</b>"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Maybe I can add some stuff here."
-msgstr "Quizás pueda añadir algunas cosas aquí."
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Start"
-msgstr "Inicio"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Cluster Entry. Mark the tabs you want to interact with."
-msgstr ""
-"Entrada de grupo. Marque las pestañas con las que quiere interactuar."
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "About MCM"
-msgstr "Acerca de MCM"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "Copyright (C) 2010 Alejandro Ayuso"
-msgstr "Copyright (C) 2010 Alejandro Ayuso"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid "An easy and fast connections manager for GNOME"
-msgstr "Un gestor de conexiones rápido y fácil para GNOME"
-
-#. file 'gtk/glade/main.glade', line ?
-msgid ""
-"Spanish: DiegoJ\n"
-"German: Mathias Menzer, cusaro"
-msgstr ""
-"Spanish: DiegoJ\n"
-"German: Mathias Menzer, cusaro"
-
-#. file 'gtk/glade/file_utils_dialogs.glade', line ?
-msgid "Select File to Import"
-msgstr "Seleccionar archivo a importar"
-
-#. file 'gtk/glade/http.glade', line ?
-msgid ""
-"<b>MCM Connections Manager</b>\n"
-"Manage a HTTP Server\n"
-msgstr ""
-"<b>MCM Connections Manager</b>\n"
-"Gestionar un servidor HTTP\n"
-
-#. file 'gtk/glade/http.glade', line ?
-msgid "Directory:"
-msgstr "Directorio:"
-
-#. file 'gtk/glade/http.glade', line ?
-msgid "Port:"
-msgstr "Puerto:"
-
-#. file 'gtk/glade/http.glade', line ?
-msgid "/tmp"
-msgstr "/tmp"
-
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid "Add Connection"
-msgstr "Añadir conexión"
-
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid ""
-"<b>MCM Connections Manager</b>\n"
-"Add/Edit Connection\n"
-msgstr ""
-"<b>MCM Connections Manager</b>\n"
-"Añadir/Editar conexión\n"
-
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid "<b>Alias</b>"
-msgstr "<b>Alias</b>"
-
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid "<b>Type</b>"
-msgstr "<b>Tipo</b>"
-
-#. file 'gtk/glade/new_connection.glade', line ?
-msgid "<b>Group</b>"
-msgstr "<b>Grupo</b>"
-
-#. file 'gtk/glade/edit_connections.glade', line ?
-msgid "Edit Connections"
-msgstr "Editar conexiones"
-
-#. file 'gtk/glade/edit_connections.glade', line ?
-msgid ""
-"<b>MCM Connections Manager</b>\n"
-"Manage your connections\n"
-msgstr ""
-"<b>MCM Connections Manager</b>\n"
-"Administra tus conexiones\n"
-
-#. file 'gtk/glade/edit_connections.glade', line ?
-msgid "HTML"
-msgstr "HTML"
-
-#. file 'gtk/glade/edit_connections.glade', line ?
-msgid "Export to HTML"
-msgstr "Exportar HTML"
-
-#. file 'gtk/glade/edit_connections.glade', line ?
-msgid "CSV"
-msgstr "CSV"
-
-#. file 'gtk/glade/edit_connections.glade', line ?
-msgid "Export to CSV"
-msgstr "Exportar CSV"
-
-#. file 'gtk/glade/import_progress.glade', line ?
-msgid ""
-"<b>MCM Connections Manager</b>\n"
-"Importing Connections\n"
-msgstr ""
-"<b>MCM Connections Manager</b>\n"
-"Importando conexiones\n"
-
-#. file 'gtk/glade/import_progress.glade', line ?
-msgid "<b>Importing</b>"
-msgstr "<b>Importando</b>"
-
-#. file 'common/constants.py', line 89
-msgid "Send to the World"
-msgstr "Compartir con el mundo"
-
-#. file 'common/constants.py', line 98
-msgid ""
-"If you select the option to send to the world, your tip will be sent to a "
-"Google Docs Spreadsheet using an online form. No personal information is "
-"sent, only the one you fill on the previous dialog.\n"
-"\n"
-"This Form is online, and the results spreadsheet is public for everyone to "
-"see. Check the documentation for the links.\n"
-"\n"
-"If you still feel the need to check on this go to the file "
-"\"common/utils.py\" and there is a class called \"GoogleForm\" where all "
-"this process happens."
-msgstr ""
-"Si selecciona la opción de enviar a todo el mundo, su consejo se enviará a "
-"una hoja de cálculo de Google Docs usando un formulario en línea. No se "
-"enviará información personal, sólo la que haya introducido en el diálogo "
-"anterior. \n"
-"Este formulario está en línea y la hoja de cálculo con los resultados es "
-"pública para que cualquier la pueda ver. \n"
-"Si todavía siente la necesidad de comprobar que esto es así, vea el archivo "
-"«common/utils.py» y allí hay una clase que se llama «GoogleForm» donde se "
-"ejecuta este proceso."
-
-#. file 'common/constants.py', line 100
+#. file 'mcm/common/constants.py', line 83
 msgid "Can't Access file %s"
 msgstr "No se puede acceder al archivo %s"
 
-#. file 'common/constants.py', line 114
+#. file 'mcm/common/constants.py', line 89
 msgid "Not a Tip Object"
 msgstr "No es un objeto de consejo"
 
-#. file 'common/constants.py', line 116
+#. file 'mcm/common/constants.py', line 90
 msgid "Deleting Connection %s"
 msgstr "Eliminando conexión %s"
 
-#. file 'common/constants.py', line 117
+#. file 'mcm/common/constants.py', line 91
 msgid "Are you sure?"
 msgstr "¿Está seguro?"
 
-#. file 'common/constants.py', line 126
+#. file 'mcm/common/constants.py', line 92
 msgid "Copy"
 msgstr "Copiar"
 
-#. file 'common/constants.py', line 127
+#. file 'mcm/common/constants.py', line 93
 msgid "Paste"
 msgstr "Pegar"
 
-#. file 'common/constants.py', line 128
+#. file 'mcm/common/constants.py', line 94
 msgid "Google Search"
 msgstr "Búsqueda en Google"
 
-#. file 'common/constants.py', line 129
+#. file 'mcm/common/constants.py', line 95
 msgid "Set as Title"
 msgstr "Establecer como título"
 
-#. file 'common/constants.py', line 131
+#. file 'mcm/common/constants.py', line 96
+msgid "Install public key"
+msgstr "Instalar clave pública"
+
+#. file 'mcm/common/constants.py', line 97
 msgid "Press Enter to Save changes"
 msgstr "Pulse intro para guardar cambios"
 
-#. file 'common/constants.py', line 133
-msgid "Export to CSV done"
-msgstr "Exportado a CSV completado"
+#. file 'mcm/common/constants.py', line 98
+msgid "Export finished"
+msgstr "Exportado completado"
 
-#. file 'common/constants.py', line 134
-msgid "Export to HTML done"
-msgstr "Exportado a HTML completado"
-
-#. file 'common/constants.py', line 135
+#. file 'mcm/common/constants.py', line 99
 msgid "Saved file %s"
 msgstr "Archivo %s guardado"
 
-#. file 'common/constants.py', line 137
+#. file 'mcm/common/constants.py', line 100
 msgid "Unable to update tips file"
 msgstr "No se pudo actualizar el archivo de consejos"
 
-#. file 'common/constants.py', line 138
-msgid "An error ocurred, please check the log files for more information"
-msgstr ""
-"Ha ocurrido un error, compruebe el archivo de registro para más información"
+#. file 'mcm/common/constants.py', line 101
+msgid "An error occurred, please check the log files for more information"
+msgstr "Ha ocurrido un error, compruebe el archivo de registro para más información"
 
-#. file 'common/constants.py', line 139
+#. file 'mcm/common/constants.py', line 102
 msgid "Tips Update Success"
 msgstr "Consejos actualizados con éxito"
 
-#. file 'common/constants.py', line 140
-msgid ""
-"The tips file has been updated succesfully using %s. A backup file has been "
-"created."
-msgstr ""
-"El archivo de consejos se ha actualizado correctamente usando %s. Se ha "
-"creado un archivo de respaldo."
+#. file 'mcm/common/constants.py', line 103
+msgid "The tips file has been updated successfully using %s. A backup file has been created."
+msgstr "El archivo de consejos se ha actualizado correctamente usando %s. Se ha creado un archivo de respaldo."
 
-#. file 'common/constants.py', line 142
+#. file 'mcm/common/constants.py', line 104
 msgid "This alias is already used"
 msgstr "Este alias ya se está usando"
 
-#. file 'common/constants.py', line 143
+#. file 'mcm/common/constants.py', line 105
 msgid "The alias for the new connection. Must be unique."
 msgstr "El alias para la nueva conexión. Ha de ser único."
 
-#. file 'common/constants.py', line 145
+#. file 'mcm/common/constants.py', line 106
 msgid "Not saving %s\n"
 msgstr "%s no guardado\n"
 
-#. file 'common/constants.py', line 146
+#. file 'mcm/common/constants.py', line 107
 msgid "Saved %s\n"
 msgstr "%s guardado\n"
 
-#. file 'common/constants.py', line 147
+#. file 'mcm/common/constants.py', line 108
 msgid "Set For Clustered Commands"
 msgstr "Marcar para órdenes agrupadas"
 
-#. file 'common/constants.py', line 149
-msgid "Quitting MCM Connections Manager"
-msgstr "Abandonando MCM Connections Manager"
+#. file 'mcm/common/constants.py', line 109
+msgid "Quitting MCM"
+msgstr "Salir de MCM"
 
-#. file 'common/constants.py', line 151
-msgid ""
-"An error has ocurred, please check the output on the terminal for more "
-"information"
-msgstr ""
-"Ha ocurrido un error, compruebe los mensajes en la consola para más "
-"información"
+#. file 'mcm/common/constants.py', line 110
+msgid "An error has occurred, please check the output on the terminal for more information"
+msgstr "Ha ocurrido un error, compruebe los mensajes en la consola para más información"
 
-#. file 'constants.py', line 153
+#. file 'mcm/common/constants.py', line 111
 msgid "Screenshot saved to:"
 msgstr "Captura guardada en:"
 
-#. file 'constants.py', line 154
+#. file 'mcm/common/constants.py', line 112
 msgid "Screenshot"
 msgstr "Captura"
 
-#. file 'constants.py', line 155
+#. file 'mcm/common/constants.py', line 113
 msgid "Disconnect"
 msgstr "Desconectar"
 
-#. file 'constants.py', line 156
+#. file 'mcm/common/constants.py', line 114
 msgid "Tools"
 msgstr "Herramientas"
 
-#. file 'constants.py', line 157
+#. file 'mcm/common/constants.py', line 115
 msgid "All"
 msgstr "Todos"
+
+#. file 'mcm/common/constants.py', line 116
+msgid "Alias"
+msgstr "Alias"
+
+#. file 'mcm/common/constants.py', line 117
+msgid "Group"
+msgstr "Grupo"
+
+#. file 'mcm/common/constants.py', line 118
+msgid "Type"
+msgstr "Tipo"
+
+#. file 'mcm/common/constants.py', line 119
+msgid "Password"
+msgstr "<b>Contraseña</b>"
+
+#. file 'mcm/common/constants.py', line 120
+msgid "Delete"
+msgstr "Eliminar"
+
+#. file 'mcm/common/constants.py', line 121
+msgid "Description"
+msgstr "<b>Descripción</b>"
+
+#. file 'mcm/common/constants.py', line 122
+msgid "Host"
+msgstr "Servidor"
+
+#. file 'mcm/common/constants.py', line 123
+msgid "Port"
+msgstr "Puerto"
+
+#. file 'mcm/common/constants.py', line 124
+msgid "Username"
+msgstr "<b>Nombre de usuario</b>"
+
+#. file 'mcm/common/constants.py', line 125
+msgid "Options"
+msgstr "<b>Opciones</b>"
+
+#. file 'mcm/common/constants.py', line 127
+msgid "Select File to Import"
+msgstr "Seleccionar archivo a importar"
+
+#. file 'mcm/common/constants.py', line 128
+msgid "Select File to Export"
+msgstr "Seleccionar archivo a exportar"
+
+#. file 'mcm/common/constants.py', line 142
+msgid ""
+"Please generate your\n"
+"Public Key with ssh-keygen -t rsa"
+msgstr ""
+"Por favor genere su\n"
+"clave pública con ssh-keygen -t rsa"
+
+#. file 'mcm/common/constants.py', line 143
+msgid "Unexpected Exit Code"
+msgstr "Código de salida inesperado"
+
+#. file 'mcm/common/constants.py', line 144
+msgid "The connection was terminated with status code %s"
+msgstr "La conexión ha terminado con código de salida %s"
+
+#. file 'mcm/common/constants.py', line 145
+msgid "Connections Manager"
+msgstr "Connections Manager"
+
+#. file 'mcm/common/constants.py', line 146
+msgid "Failed to decrypt file probably to a wrong password"
+msgstr "Fallo al descifrar. Probablemente la contraseña sea erronea"
+
+#. file 'mcm/common/constants.py', line 147
+msgid "Installing Public Key"
+msgstr "Instalando clave pública"
+
+#. file 'mcm/common/constants.py', line 148
+msgid "Provide a Password"
+msgstr "Escriba la contraseña"
+
+#. file 'mcm/common/constants.py', line 149
+msgid "Authentication required"
+msgstr "Autenticación requerida"
+
+#. file 'mcm/common/constants.py', line 150
+msgid "View only?"
+msgstr "¿Sólo ver?"
+
+#. file 'mcm/common/constants.py', line 151
+msgid "VNC Options"
+msgstr "Opciones VNC"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid "Preferences"
+msgstr "Preferencias"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid "Font Style:"
+msgstr "Estilo de la tipografía:"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid " Color Scheme:"
+msgstr "Esquema de colores:"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid "Choose some font"
+msgstr "Elija una tipografía"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid "Buffer Size:"
+msgstr "Tamaño del búfer:"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid "Select-by-word Characters:"
+msgstr "Caracteres de selección-por-palabra"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid "<b>Console</b>"
+msgstr "<b>Consola</b>"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid "General"
+msgstr "General"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid "<b>Client</b>"
+msgstr "<b>Cliente</b>"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid "<b>Default Options</b>"
+msgstr "<b>Opciones predeterminadas</b>"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "SSH"
+msgstr "SSH"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "FTP"
+msgstr "FTP"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Telnet"
+msgstr "Telnet"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "RDP"
+msgstr "RDP"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+msgid "Embedded"
+msgstr "Integrado"
+
+#. file 'mcm/gui/glade/preferences.glade', line ?
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "VNC"
+msgstr "VNC"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "About MCM"
+msgstr "Acerca de MCM"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Copyright (C) 2010 Alejandro Ayuso"
+msgstr "Copyright (C) 2010 Alejandro Ayuso"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "An easy and fast connections manager for GNOME"
+msgstr "Un gestor de conexiones rápido y fácil para GNOME"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "MCM Connections Manager"
+msgstr "MCM Connections Manager"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid ""
+"Spanish: DiegoJ\n"
+"German: Mathias Menzer, cusaro"
+msgstr ""
+"Spanish: DiegoJ\n"
+"German: Mathias Menzer, cusaro"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "mcm connections manager"
+msgstr "mcm Connections Manager"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "_File"
+msgstr "_Archivo"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Save Connections"
+msgstr "Guardar Conexiones"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Import"
+msgstr "_Importar"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Import from a CSV file"
+msgstr "Importar CSV"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Export"
+msgstr "Exportar"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Export to HTML or CSV"
+msgstr "Exportar"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "_View"
+msgstr "_Ver"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Connections"
+msgstr "Conexiones"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Show/Hide The Cluster Entry"
+msgstr "Mostrar/Ocultar entrada del grupo"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Cluster"
+msgstr "Grupo"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Filter"
+msgstr "Filtro"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "_Connections"
+msgstr "_Conexiones"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Open a Terminal on local"
+msgstr "Abrir una terminal local"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Connect to the selected server"
+msgstr "Conectar al servidor seleccionado"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Add a new connection"
+msgstr "Añadir nueva conexión"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Delete the selected connection"
+msgstr "Eliminar la conexión seleccionada"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Manage your connections"
+msgstr "Administrar las conexiones"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Manage"
+msgstr "Administrar"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Administer your connections"
+msgstr "Administrar las conexiones"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "_Help"
+msgstr "Ay_uda"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Username</b>"
+msgstr "<b>Nombre de usuario</b>"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Hostname/IP Address</b>"
+msgstr "<b>Nombre de equipo/Dirección IP</b>"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Port</b>"
+msgstr "<b>Puerto</b>"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Options</b>"
+msgstr "<b>Opciones</b>"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Description</b>"
+msgstr "<b>Descripción</b>"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Show the password"
+msgstr "Mostrar/Ocultar contraseña"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Feed the password"
+msgstr "Insertar la contraseña"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Password</b>"
+msgstr "<b>Contraseña</b>"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Maybe I can add some stuff here."
+msgstr "Quizás pueda añadir algunas cosas aquí."
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Start"
+msgstr "Inicio"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Select All Terminals"
+msgstr "Seleccionar todas las terminales"
+
+#. file 'mcm/gui/glade/main.glade', line ?
+msgid "Show history & favorites"
+msgstr "Mostrar favoritos"
+
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "Add Connection"
+msgstr "Añadir conexión"
+
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Alias</b>"
+msgstr "<b>Alias</b>"
+
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Type</b>"
+msgstr "<b>Tipo</b>"
+
+#. file 'mcm/gui/glade/new_connection.glade', line ?
+msgid "<b>Group</b>"
+msgstr "<b>Grupo</b>"
+
+#~ msgid ""
+#~ "<b>MCM Connections Manager</b>\n"
+#~ "Preferences\n"
+#~ msgstr ""
+#~ "<b>MCM Connections Manager</b>\n"
+#~ "Preferencias\n"
+
+#~ msgid "Font Color:"
+#~ msgstr "Color de tipografía:"
+
+#~ msgid "Choose some color"
+#~ msgstr "Elija un color"
+
+#~ msgid "Image:"
+#~ msgstr "Imagen:"
+
+#~ msgid "Desaturation:"
+#~ msgstr "Desaturación:"
+
+#~ msgid "Background Transparent:"
+#~ msgstr "Fondo transparente:"
+
+#~ msgid ""
+#~ "When the user double-clicks to start selection, the terminal will extend "
+#~ "the selection on word boundaries. It will treat characters included in "
+#~ "spec as parts of words, and all other characters as word separators. "
+#~ "Ranges of characters can be specified by separating them with a hyphen. "
+#~ "Percentage symbol is not supported."
+#~ msgstr ""
+#~ "Cuando el usuario pulsa dos veces para iniciar la selección, el terminal "
+#~ "extenderá la selección a los límites de la palabra. Tratará a los "
+#~ "caracteres incluidos en la especificación como partes de palabras y todos "
+#~ "los demás caracteres como separadores. Se pueden especificar rangos de "
+#~ "caracteres separándolos por un guión. No se permite el carácter de "
+#~ "porcentaje."
+
+#~ msgid "Clear Background Image"
+#~ msgstr "Borrar imagen de fondo"
+
+#~ msgid "<b>Background</b>"
+#~ msgstr "<b>Fondo</b>"
+
+#~ msgid "Embedded (to implement?)"
+#~ msgstr "Empotrado (¿por implementar?)"
+
+#~ msgid "Export HTML"
+#~ msgstr "Exportar HTML"
+
+#~ msgid "Export your connections to HTML"
+#~ msgstr "Exporte sus conexiones a HTML"
+
+#~ msgid "Export your connections to a CSV"
+#~ msgstr "Exporte sus conexiones a  CSV"
+
+#~ msgid "Tips"
+#~ msgstr "Consejos"
+
+#~ msgid "_Tools"
+#~ msgstr "_Herramientas"
+
+#~ msgid "Update Tips"
+#~ msgstr "Actualizar consejos"
+
+#~ msgid "Download the latest version of the tips file."
+#~ msgstr "Descargar la última versión del archivo de consejos."
+
+#~ msgid "HTTP Server"
+#~ msgstr "Servidor HTTP"
+
+#~ msgid ""
+#~ "Manage a HTTP server to easily share\n"
+#~ "files on your network"
+#~ msgstr ""
+#~ "Gestione un servidor HTTP para compartir\n"
+#~ "fácilmente archivos a través de su red"
+
+#~ msgid "_Feedback"
+#~ msgstr "_Opinión"
+
+#~ msgid "Leave your feedback, bug, wishes or questions using an online form"
+#~ msgstr "Envíe fallos, ideas y tu opinión utilizando un formulario en linea"
+
+#~ msgid "<b>Connections</b>"
+#~ msgstr "<b>Conexiones</b>"
+
+#~ msgid "<b></b>"
+#~ msgstr "<b></b>"
+
+#~ msgid "<b>SERVER</b>"
+#~ msgstr "<b>Servidor</b>"
+
+#~ msgid "Cluster Entry. Mark the tabs you want to interact with."
+#~ msgstr ""
+#~ "Entrada de grupo. Marque las pestañas con las que quiere interactuar."
+
+#~ msgid ""
+#~ "<b>MCM Connections Manager</b>\n"
+#~ "Manage a HTTP Server\n"
+#~ msgstr ""
+#~ "<b>MCM Connections Manager</b>\n"
+#~ "Gestionar un servidor HTTP\n"
+
+#~ msgid "Directory:"
+#~ msgstr "Directorio:"
+
+#~ msgid "/tmp"
+#~ msgstr "/tmp"
+
+#~ msgid ""
+#~ "<b>MCM Connections Manager</b>\n"
+#~ "Add/Edit Connection\n"
+#~ msgstr ""
+#~ "<b>MCM Connections Manager</b>\n"
+#~ "Añadir/Editar conexión\n"
+
+#~ msgid "Edit Connections"
+#~ msgstr "Editar conexiones"
+
+#~ msgid ""
+#~ "<b>MCM Connections Manager</b>\n"
+#~ "Manage your connections\n"
+#~ msgstr ""
+#~ "<b>MCM Connections Manager</b>\n"
+#~ "Administra tus conexiones\n"
+
+#~ msgid "HTML"
+#~ msgstr "HTML"
+
+#~ msgid "Export to HTML"
+#~ msgstr "Exportar HTML"
+
+#~ msgid "CSV"
+#~ msgstr "CSV"
+
+#~ msgid "Export to CSV"
+#~ msgstr "Exportar CSV"
+
+#~ msgid ""
+#~ "<b>MCM Connections Manager</b>\n"
+#~ "Importing Connections\n"
+#~ msgstr ""
+#~ "<b>MCM Connections Manager</b>\n"
+#~ "Importando conexiones\n"
+
+#~ msgid "<b>Importing</b>"
+#~ msgstr "<b>Importando</b>"
+
+#~ msgid "Send to the World"
+#~ msgstr "Compartir con el mundo"
+
+#~ msgid ""
+#~ "If you select the option to send to the world, your tip will be sent to a "
+#~ "Google Docs Spreadsheet using an online form. No personal information is "
+#~ "sent, only the one you fill on the previous dialog.\n"
+#~ "\n"
+#~ "This Form is online, and the results spreadsheet is public for everyone "
+#~ "to see. Check the documentation for the links.\n"
+#~ "\n"
+#~ "If you still feel the need to check on this go to the file \"common/utils."
+#~ "py\" and there is a class called \"GoogleForm\" where all this process "
+#~ "happens."
+#~ msgstr ""
+#~ "Si selecciona la opción de enviar a todo el mundo, su consejo se enviará "
+#~ "a una hoja de cálculo de Google Docs usando un formulario en línea. No se "
+#~ "enviará información personal, sólo la que haya introducido en el diálogo "
+#~ "anterior. \n"
+#~ "Este formulario está en línea y la hoja de cálculo con los resultados es "
+#~ "pública para que cualquier la pueda ver. \n"
+#~ "Si todavía siente la necesidad de comprobar que esto es así, vea el "
+#~ "archivo «common/utils.py» y allí hay una clase que se llama «GoogleForm» "
+#~ "donde se ejecuta este proceso."
+
+#~ msgid "Export to CSV done"
+#~ msgstr "Exportado a CSV completado"
+
+#~ msgid "Quitting MCM Connections Manager"
+#~ msgstr "Abandonando MCM Connections Manager"
